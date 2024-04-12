@@ -548,32 +548,32 @@ public class LimelightHelpers {
         return new PoseEstimate(pose, timestamp,latency,tagCount,tagSpan,tagDist,tagArea,rawFiducials);
     }
 
-    private static RawFiducial[] getRawFiducials(String limelightName) {
-        var entry = LimelightHelpers.getLimelightNTTableEntry(limelightName, "rawfiducials");
-        var rawFiducialArray = entry.getDoubleArray(new double[0]);
-        int valsPerEntry = 7;
-        if (rawFiducialArray.length % valsPerEntry != 0) {
-            return new RawFiducial[0];
-        }
+    // private static RawFiducial[] getRawFiducials(String limelightName) {
+    //     var entry = LimelightHelpers.getLimelightNTTableEntry(limelightName, "rawfiducials");
+    //     var rawFiducialArray = entry.getDoubleArray(new double[0]);
+    //     int valsPerEntry = 7;
+    //     if (rawFiducialArray.length % valsPerEntry != 0) {
+    //         return new RawFiducial[0];
+    //     }
     
-        int numFiducials = rawFiducialArray.length / valsPerEntry;
-        RawFiducial[] rawFiducials = new RawFiducial[numFiducials];
+    //     int numFiducials = rawFiducialArray.length / valsPerEntry;
+    //     RawFiducial[] rawFiducials = new RawFiducial[numFiducials];
     
-        for (int i = 0; i < numFiducials; i++) {
-            int baseIndex = i * valsPerEntry;
-            int id = (int) extractArrayEntry(rawFiducialArray, baseIndex);
-            double txnc = extractArrayEntry(rawFiducialArray, baseIndex + 1);
-            double tync = extractArrayEntry(rawFiducialArray, baseIndex + 2);
-            double ta = extractArrayEntry(rawFiducialArray, baseIndex + 3);
-            double distToCamera = extractArrayEntry(rawFiducialArray, baseIndex + 4);
-            double distToRobot = extractArrayEntry(rawFiducialArray, baseIndex + 5);
-            double ambiguity = extractArrayEntry(rawFiducialArray, baseIndex + 6);
+    //     for (int i = 0; i < numFiducials; i++) {
+    //         int baseIndex = i * valsPerEntry;
+    //         int id = (int) extractArrayEntry(rawFiducialArray, baseIndex);
+    //         double txnc = extractArrayEntry(rawFiducialArray, baseIndex + 1);
+    //         double tync = extractArrayEntry(rawFiducialArray, baseIndex + 2);
+    //         double ta = extractArrayEntry(rawFiducialArray, baseIndex + 3);
+    //         double distToCamera = extractArrayEntry(rawFiducialArray, baseIndex + 4);
+    //         double distToRobot = extractArrayEntry(rawFiducialArray, baseIndex + 5);
+    //         double ambiguity = extractArrayEntry(rawFiducialArray, baseIndex + 6);
             
-            rawFiducials[i] = new RawFiducial(id, txnc, tync, ta, distToCamera, distToRobot, ambiguity);
-        }
+    //         rawFiducials[i] = new RawFiducial(id, txnc, tync, ta, distToCamera, distToRobot, ambiguity);
+    //     }
     
-        return rawFiducials;
-    }
+    //     return rawFiducials;
+    // }
 
     public static RawDetection[] getRawDetections(String limelightName) {
         var entry = LimelightHelpers.getLimelightNTTableEntry(limelightName, "rawdetections");
@@ -607,40 +607,40 @@ public class LimelightHelpers {
         return rawDetections;
     }
 
-    private static void printPoseEstimate(PoseEstimate pose) {
-        if (pose == null) {
-            System.out.println("No PoseEstimate available.");
-            return;
-        }
+    // private static void printPoseEstimate(PoseEstimate pose) {
+    //     if (pose == null) {
+    //         System.out.println("No PoseEstimate available.");
+    //         return;
+    //     }
     
-        System.out.printf("Pose Estimate Information:%n");
-        System.out.printf("Timestamp (Seconds): %.3f%n", pose.timestampSeconds);
-        System.out.printf("Latency: %.3f ms%n", pose.latency);
-        System.out.printf("Tag Count: %d%n", pose.tagCount);
-        System.out.printf("Tag Span: %.2f meters%n", pose.tagSpan);
-        System.out.printf("Average Tag Distance: %.2f meters%n", pose.avgTagDist);
-        System.out.printf("Average Tag Area: %.2f%% of image%n", pose.avgTagArea);
-        System.out.println();
+    //     System.out.printf("Pose Estimate Information:%n");
+    //     System.out.printf("Timestamp (Seconds): %.3f%n", pose.timestampSeconds);
+    //     System.out.printf("Latency: %.3f ms%n", pose.latency);
+    //     System.out.printf("Tag Count: %d%n", pose.tagCount);
+    //     System.out.printf("Tag Span: %.2f meters%n", pose.tagSpan);
+    //     System.out.printf("Average Tag Distance: %.2f meters%n", pose.avgTagDist);
+    //     System.out.printf("Average Tag Area: %.2f%% of image%n", pose.avgTagArea);
+    //     System.out.println();
     
-        if (pose.rawFiducials == null || pose.rawFiducials.length == 0) {
-            System.out.println("No RawFiducials data available.");
-            return;
-        }
+    //     if (pose.rawFiducials == null || pose.rawFiducials.length == 0) {
+    //         System.out.println("No RawFiducials data available.");
+    //         return;
+    //     }
     
-        System.out.println("Raw Fiducials Details:");
-        for (int i = 0; i < pose.rawFiducials.length; i++) {
-            RawFiducial fiducial = pose.rawFiducials[i];
-            System.out.printf(" Fiducial #%d:%n", i + 1);
-            System.out.printf("  ID: %d%n", fiducial.id);
-            System.out.printf("  TXNC: %.2f%n", fiducial.txnc);
-            System.out.printf("  TYNC: %.2f%n", fiducial.tync);
-            System.out.printf("  TA: %.2f%n", fiducial.ta);
-            System.out.printf("  Distance to Camera: %.2f meters%n", fiducial.distToCamera);
-            System.out.printf("  Distance to Robot: %.2f meters%n", fiducial.distToRobot);
-            System.out.printf("  Ambiguity: %.2f%n", fiducial.ambiguity);
-            System.out.println();
-        }
-    }
+    //     System.out.println("Raw Fiducials Details:");
+    //     for (int i = 0; i < pose.rawFiducials.length; i++) {
+    //         RawFiducial fiducial = pose.rawFiducials[i];
+    //         System.out.printf(" Fiducial #%d:%n", i + 1);
+    //         System.out.printf("  ID: %d%n", fiducial.id);
+    //         System.out.printf("  TXNC: %.2f%n", fiducial.txnc);
+    //         System.out.printf("  TYNC: %.2f%n", fiducial.tync);
+    //         System.out.printf("  TA: %.2f%n", fiducial.ta);
+    //         System.out.printf("  Distance to Camera: %.2f meters%n", fiducial.distToCamera);
+    //         System.out.printf("  Distance to Robot: %.2f meters%n", fiducial.distToRobot);
+    //         System.out.printf("  Ambiguity: %.2f%n", fiducial.ambiguity);
+    //         System.out.println();
+    //     }
+    // }
 
     public static NetworkTable getLimelightNTTable(String tableName) {
         return NetworkTableInstance.getDefault().getTable(sanitizeName(tableName));

@@ -17,13 +17,25 @@
           "keyRate": 0.009999999776482582
         }
       ],
-      "axisCount": 3,
-      "buttonCount": 4,
+      "axisCount": 0,
+      "buttonCount": 16,
       "buttonKeys": [
         90,
         88,
         67,
-        86
+        86,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
       ],
       "povConfig": [
         {
@@ -37,7 +49,7 @@
           "key90": 326
         }
       ],
-      "povCount": 1
+      "povCount": 0
     },
     {
       "axisConfig": [
@@ -50,13 +62,18 @@
           "incKey": 75
         }
       ],
-      "axisCount": 2,
-      "buttonCount": 4,
+      "axisCount": 0,
+      "buttonCount": 0,
       "buttonKeys": [
         77,
         44,
         46,
-        47
+        47,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
       ],
       "povCount": 0
     },
@@ -95,11 +112,12 @@
       "useGamepad": true
     },
     {},
-    {},
-    {},
-    {},
     {
-      "guid": "Keyboard0"
+      "guid": "Keyboard0",
+      "name": "OI"
+    },
+    {
+      "guid": "Keyboard1"
     }
   ]
 }

@@ -17,6 +17,13 @@ public class IntakeCollectCommand extends Command {
     }
 
     @Override
+    public void end(boolean interrupted) {
+        if (interrupted) {
+            intake_shooter_.stopCollect();
+        }
+    }
+
+    @Override
     public boolean isFinished() {
         return intake_shooter_.isIdle() || intake_shooter_.hasNote() ;
     }

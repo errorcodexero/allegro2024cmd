@@ -46,8 +46,10 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private StatusSignal<Double> feeder_current_signal_ ;
     private StatusSignal<Double> shooter1_velocity_signal_ ;
     private StatusSignal<Double> shooter1_current_signal_ ;
+    private StatusSignal<Double> shooter1_position_signal_ ;
     private StatusSignal<Double> shooter2_velocity_signal_ ;
     private StatusSignal<Double> shooter2_current_signal_ ;
+    private StatusSignal<Double> shooter2_position_signal_ ;
 
     public IntakeShooterIOTalonFX(boolean practice) throws Exception {
         Slot0Configs cfg ;
@@ -145,21 +147,25 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         feeder_current_signal_ = feeder_motor_.getSupplyCurrent() ;
         shooter1_velocity_signal_ = shooter1_motor_.getVelocity() ;
         shooter1_current_signal_ = shooter1_motor_.getSupplyCurrent() ;
+        shooter1_position_signal_ = shooter1_motor_.getPosition() ;
         shooter2_velocity_signal_ = shooter2_motor_.getVelocity() ;
         shooter2_current_signal_ = shooter2_motor_.getSupplyCurrent() ;  
-        
+        shooter2_position_signal_ = shooter2_motor_.getPosition() ;
+
         BaseStatusSignal.setUpdateFrequencyForAll(50.0,
-                                                    updown_position_signal_,
-                                                    updown_velocity_signal_,
-                                                    updown_current_signal_,
-                                                    tilt_position_signal_,
-                                                    tilt_velocity_signal_,
-                                                    tilt_current_signal_,
-                                                    feeder_current_signal_,
-                                                    shooter1_velocity_signal_,
-                                                    shooter1_current_signal_,
-                                                    shooter2_velocity_signal_,
-                                                    shooter2_current_signal_) ;
+                                            updown_position_signal_,
+                                            updown_velocity_signal_,
+                                            updown_current_signal_,
+                                            tilt_position_signal_,
+                                            tilt_velocity_signal_,
+                                            tilt_current_signal_,
+                                            feeder_current_signal_,
+                                            shooter1_velocity_signal_,
+                                            shooter1_current_signal_,
+                                            shooter1_position_signal_,
+                                            shooter2_velocity_signal_,
+                                            shooter2_current_signal_,
+                                            shooter2_position_signal_) ;
 
         updown_motor_.optimizeBusUtilization();
         tilt_motor_.optimizeBusUtilization();
@@ -174,30 +180,34 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }    
 
     public void updateInputs(IntakeShooterIOInputs inputs) {
-        inputs.updownPosition = updown_position_signal_.getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
-        inputs.updownVelocity = updown_velocity_signal_.getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
-        inputs.updownCurrent = updown_current_signal_.getValueAsDouble() ;
 
-        inputs.tiltPosition = tilt_position_signal_.getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
-        inputs.tiltVelocity = tilt_velocity_signal_.getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
-        inputs.tiltCurrent = tilt_current_signal_.getValueAsDouble() ;
+        inputs.updownPosition = updown_position_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
+        inputs.updownVelocity = updown_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
+        inputs.updownCurrent = updown_current_signal_.refresh().getValueAsDouble() ;
+
+        inputs.tiltPosition = tilt_position_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
+        inputs.tiltVelocity = tilt_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
+        inputs.tiltCurrent = tilt_current_signal_.refresh().getValueAsDouble() ;
 
         inputs.getTiltAbsoluteEncoderPosition = getTiltAbsoluteEncoderPosition() ;
 
-        inputs.feederCurrent = feeder_current_signal_.getValueAsDouble() ;
+        inputs.feederCurrent = feeder_current_signal_.refresh().getValueAsDouble() ;
 
-        inputs.shooter1Velocity = shooter1_velocity_signal_.getValueAsDouble() ;
-        inputs.shooter1Current = shooter1_current_signal_.getValueAsDouble() ;
-        inputs.shooter1Position = shooter1_motor_.getPosition().getValueAsDouble() ;
+        inputs.shooter1Velocity = shooter1_velocity_signal_.refresh().getValueAsDouble() ;
+        inputs.shooter1Current = shooter1_current_signal_.refresh().getValueAsDouble() ;
+        inputs.shooter1Position = shooter1_position_signal_.refresh().getValueAsDouble() ;
 
         inputs.shooter2Velocity = shooter2_velocity_signal_.getValueAsDouble() ;
         inputs.shooter2Current = shooter2_current_signal_.getValueAsDouble() ;
-        inputs.shooter2Position = shooter2_motor_.getPosition().getValueAsDouble() ;
+        inputs.shooter2Position = shooter2_position_signal_.getValueAsDouble() ;
 
         inputs.risingEdge = rising_seen_ ;
         inputs.fallingEdge = falling_seen_ ;
 
         inputs.noteSensor = note_sensor_.get() ^ IntakeShooterConstants.NoteSensor.kInverted ;
+
+        rising_seen_ = false ;
+        falling_seen_ = false ;
     }
 
     public double getTiltAbsoluteEncoderPosition() {
@@ -218,6 +228,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
     public void setTiltMotorPosition(double pos) {
         tilt_motor_.setPosition(pos / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
+        tilt_sim_.setState(pos/IntakeShooterConstants.Tilt.kDegreesPerRev, 0.0) ;
     }
  
     public void setShooter1Velocity(double vel) {
@@ -238,8 +249,8 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
     public void setFeederVoltage(double v) {
         feeder_motor_.setControl(new VoltageOut(v)) ;
-    }    
- 
+    }
+
     public void simulate(double period) {
         TalonFXSimState state ;
 
@@ -259,10 +270,10 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
         updown_sim_.setInputVoltage(state.getMotorVoltage());
         updown_sim_.update(period);
-        Logger.recordOutput("updown-voltage", state.getMotorVoltage()) ;        
+        Logger.recordOutput("updown-voltage", state.getMotorVoltage()) ;  
         state.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
         state.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;        
-    }    
+    }
     
     private void noteInterruptHandler(boolean rising, boolean falling) {
         rising_seen_ = rising ;

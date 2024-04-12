@@ -11,16 +11,24 @@ import frc.robot.subsystems.tracker.LimelightHelpers.PoseEstimate;
 public class VisionSubsystem extends XeroSubsystem {
     private String limelight_name_ ;
     private SwerveDrivetrain db_ ;
+    private boolean enabled_ ;
 
     public VisionSubsystem(XeroRobot robot, SwerveDrivetrain db, String name) {
         super(robot, "vision");
+        enabled_ = false ;
+    }
+
+    public void enable(boolean b) {
+        enabled_ = b ;
     }
 
     @Override
     public void periodic() {
-        PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_);
-        if (pe.tagCount > 0) {
-            db_.addVisionMeasurement(pe.pose, pe.timestampSeconds) ;
+        if (enabled_) {
+            PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_);
+            if (pe.tagCount > 0) {
+                db_.addVisionMeasurement(pe.pose, pe.timestampSeconds) ;
+            }
         }
     }
 }

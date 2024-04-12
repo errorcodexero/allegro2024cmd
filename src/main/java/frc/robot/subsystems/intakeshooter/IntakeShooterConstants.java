@@ -28,9 +28,11 @@ public class IntakeShooterConstants {
         public static final double kDegreesPerRev = 7.2727273 ;            
         public class Positions {
             public static final double kStowed = 118.0 ;
+            public static final double kStartTracking = 118.0 ;
             public static final double kCollect = -10.0 ;
             public static final double kTransfer = 90.0 ;
             public static final double kShootNominal = 118.0 ;
+            public static final double kEject = 118.0 ;
         }            
 
         public class PID {
@@ -60,9 +62,11 @@ public class IntakeShooterConstants {
         public static final double kDegreesPerRev = 20 ;
         public class Positions {
             public static final double kStowed = -72.0 ;
+            public static final double kStartTracking = -50.0 ;
             public static final double kCollect = 50.0 ;
             public static final double kTransfer = 0.0 ;
-            public static final double kShootNominal = -50.0 ;                
+            public static final double kShootNominal = -50.0 ;
+            public static final double kEject = -50.0 ;
         }             
         public class PID {
             public static final double kP = 1000.0 ;

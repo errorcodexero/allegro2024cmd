@@ -37,6 +37,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         TransferWaitForNoSensor,
         TransferFinishTransfer,
         TransferContinueShooter,
+        EnableTracking,
+        GoToEjectPosition
     }
 
 
@@ -152,15 +154,15 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return turtle_command_ ;
     }
 
-    public Command getSpeakerCommand() {
+    public Command targetSpeakerCommand() {
         return runOnce(() -> destination_ = NoteDestination.Speaker) ;
     }
 
-    public Command getTrapCommand() {
+    public Command targetTrapCommand() {
         return runOnce(() -> destination_ = NoteDestination.Trap) ;
     }    
 
-    public Command getAmpCommand() {
+    public Command targetAmpCommand() {
         return runOnce(() -> destination_ = NoteDestination.Amp) ;
     }
 
@@ -192,6 +194,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //
+    // If the intake is idle, and does not have a note, this method collects a new note.
+    //
     public void collect() {
         if (!has_note_ && state_ == State.Idle) {
             //
@@ -212,39 +217,30 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
+    //
+    // If we are collecting, this stops the collect operation.
+    //
     public void stopCollect() {
-        if (isMoving()) {
+        if (isMoving() || state_ == State.WaitForNote) {
             //
             // Turn off the feeder and stop the tilt and updown
             //
             io_.setFeederVoltage(0.0) ;
             io_.setTiltTargetPos(inputs_.tiltPosition);
             io_.setUpDownMotorPosition(inputs_.updownPosition);
+            reverse_timer_.start() ;
 
             state_ = State.WaitForReverse ;
-            
-        }
-        else if (state_ == State.WaitForNote) {
-            //
-            // Turn off the feeder
-            //
-            io_.setFeederVoltage(0.0) ;
-            
-            //
-            // Move the updown and tilt to the stowed position
-            //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-            //
-            // And set the state for after we reach the stowed position
-            //
-            next_state_ = State.Idle ;
         }
     }
 
+    //
+    // If the intake has a note, this method transfers the note to the manipulator.  This
+    // method assumes the intake/shooter and elevator/manipulator are in the correct positions
+    // before being called.  If they are in the transfer position, the state will be HoldingTransferPosition.
+    //
     public void transfer() {
-        if (has_note_ && state_ == State.Idle) {
+        if (has_note_ && state_ == State.HoldingTransferPosition) {
             need_stop_manipulator_ = false ;
 
             if (inputs_.noteSensor) {
@@ -268,6 +264,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
+    //
+    // If we are in the idle state, this method moves the mechanisms to the stowed position.
+    //
     public void turtle() {
         if (state_ == State.Idle) {
             //
@@ -283,6 +282,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
+    //
+    // This method moves the intake/shooter and the elevator/arm to the transfer positions.
+    //
     public void moveToTransferPosition() {
         if (has_note_ && state_ == State.Idle) {
             //
@@ -302,36 +304,23 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
         setShooterVelocity(velocity);
         state_ = State.WaitingToShoot ;
-
-    }
-
-    public void cancelAutoShoot() {
-        tracking_ = false ;
-        setShooterVoltage(0.0) ;
-
-        //
-        // Move the updown and tilt to the stowed position
-        //
-        gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                        IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-        //
-        // And set the state for after we reach the stowed position
-        //
-        next_state_ = State.Idle ;
     }
 
     public void finishShot() {
+        //
+        // This locks in the parametesr for the shot.
+        //
         tracking_ = false ;
+
         state_ = State.WaitingToShoot ;
     }
 
     public void eject() {
-        setShooterVoltage(IntakeShooterConstants.Shooter.kEjectVoltage);
-        eject_forward_timer_.start() ;
-        has_note_ = false ;
-        state_ = State.EjectForward ;
+        gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, Double.NaN, Double.NaN, 
+                     IntakeShooterConstants.Tilt.Positions.kEject, Double.NaN, Double.NaN) ;
+        state_ = State.GoToEjectPosition ;
     }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -417,29 +406,32 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Move the updown and tilt to the stowed position
             //
-            double updown = IntakeShooterConstants.UpDown.Positions.kStowed ;
-            double tilt = IntakeShooterConstants.Tilt.Positions.kStowed ;
+            double updown ;
+            double tilt ;
+            
             if (has_note_) {
                 switch(destination_) {
                     case Speaker:
-                        tracking_ = true ;
+                        updown = IntakeShooterConstants.UpDown.Positions.kStartTracking ;
+                        tilt = IntakeShooterConstants.Tilt.Positions.kStartTracking;                    
+                        next_state_ = State.EnableTracking ;
                         break ;
 
                     case Trap:
                     case Amp:
                         updown = IntakeShooterConstants.UpDown.Positions.kTransfer ;
                         tilt = IntakeShooterConstants.Tilt.Positions.kTransfer ;
+                        next_state_ = State.Idle ;                        
+                        break ;
+
+                    default:
+                        updown = IntakeShooterConstants.UpDown.Positions.kStowed ;
+                        tilt = IntakeShooterConstants.Tilt.Positions.kStowed ;
+                        next_state_ = State.Idle ;
                         break ;
                 }
-                updown = IntakeShooterConstants.UpDown.Positions.kTransfer ;
-                tilt = IntakeShooterConstants.Tilt.Positions.kTransfer ;
+                gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
             }
-            gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
-
-            //
-            // And set the state for after we reach the stowed position
-            //
-            next_state_ = State.Idle ;
         }
     }
 
@@ -543,7 +535,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
-        gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
+        if (Math.abs(updown - target_updown_) > 5.0) {
+            setUpDownTarget(updown);
+        }
+
+        setTiltTarget(tilt) ;
         setShooterVelocity(velocity) ;
     }
 
@@ -636,6 +632,20 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                     state_ = State.Idle ;
                 }
                 break ;
+
+            case EnableTracking:
+                tracking_ = true ;
+                state_ = State.Idle ;
+                break ;
+
+            case GoToEjectPosition:
+                if (isTiltReady() && isUpDownReady()) {
+                    setShooterVoltage(IntakeShooterConstants.Shooter.kEjectVoltage);
+                    eject_forward_timer_.start() ;
+                    has_note_ = false ;     
+                    state_ = State.EjectForward ;
+                }
+                break ;
         }
 
         if (tracking_ && distsupplier_ != null) {
@@ -646,6 +656,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         Logger.recordOutput("updown-target", target_updown_) ;
         Logger.recordOutput("tilt-target", target_tilt_) ;
         Logger.recordOutput("shooter-velocity", target_velocity_) ;
+        Logger.recordOutput("is-tilt-ready", isTiltReady());
+        Logger.recordOutput("is-updown-ready", isUpDownReady());
+        Logger.recordOutput("has-note", has_note_);
+        Logger.recordOutput("tracking", tracking_);
     }
 
     private double computeTiltFromUpdown(double updown) {

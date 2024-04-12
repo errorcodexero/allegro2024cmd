@@ -50,6 +50,8 @@ public class TrampSubsystem extends XeroSubsystem {
 
         eject_command_ = new TrampEjectCommand(this) ;
         transfer_position_command_ = new TrampTransferPositionCommand(this) ;
+
+        state_ = State.Idle ;
     }
 
     public boolean isIdle() {
