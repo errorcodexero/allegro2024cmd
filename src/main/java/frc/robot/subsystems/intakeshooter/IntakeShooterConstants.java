@@ -1,11 +1,12 @@
-package frc.robot.constants;
+package frc.robot.subsystems.intakeshooter;
 
 public class IntakeShooterConstants {
     public static final double kCollectDelayTime = 0.1 ;
     public static final double kReverseDelayTime = 0.3 ;
     public static final double kTransferFeederToShooterDelay = 0.4 ;
     public static final double kTransferShooterVelocity = 58.0 ;
-    public static final double kShooterVelocityTolerance = 2.5 ;
+    public static final double kTransferShooterTransferLength = 0.6 ;
+    public static final double kTransferShooterContLength = 12.0 ;
 
     public class Feeder {
         public static final int kMotorId = 1 ;
@@ -33,11 +34,11 @@ public class IntakeShooterConstants {
         }            
 
         public class PID {
-            public static final double kP = 10000.0 ;
+            public static final double kP = 5000.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
             public static final double kV = 0.0 ;
-            public static final double kA = 10000.0 ;
+            public static final double kA = 500000.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
         } ;
@@ -64,11 +65,11 @@ public class IntakeShooterConstants {
             public static final double kShootNominal = -50.0 ;                
         }             
         public class PID {
-            public static final double kP = 10000.0 ;
+            public static final double kP = 1000.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
             public static final double kV = 0.0 ;
-            public static final double kA = 10000.0 ;
+            public static final double kA = 1000.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
         };
@@ -106,6 +107,7 @@ public class IntakeShooterConstants {
     }
 
     public class Shooter {
+        public static final double kShooterVelocityTolerance = 2.5 ;        
         public static final double kEjectForwardTime = 1.0 ;
         public static final double kEjectPauseTime = 0.5 ;
         public static final double kEjectReverseTime = 1.0 ;
@@ -143,13 +145,6 @@ public class IntakeShooterConstants {
         public static final int kMotorId = 4 ;
         public static final boolean kInvert = false ;             
         public static final double kCurrentLimit = 80.0 ;    
-        public static final double kP = 1.0 ;
-        public static final double kI = 0.0 ;
-        public static final double kD = 0.0 ;
-        public static final double kV = 0.0 ;
-        public static final double kA = 0.0 ;
-        public static final double kG = 0.0 ;
-        public static final double kS = 0.0 ;                    
     }
 
     public class NoteSensor {

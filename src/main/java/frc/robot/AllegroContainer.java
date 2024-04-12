@@ -1,15 +1,16 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
+import frc.robot.commands.AbortShootCommand;
+import frc.robot.commands.AutoShootCommand;
+import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.OIConstants;
-import frc.robot.constants.SwerveConstants;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.IntakeShooterSubsystem;
-import frc.robot.subsystems.TrapArmSubsystem;
+import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
+import frc.robot.subsystems.swerve.SwerveConstants;
+import frc.robot.subsystems.tracker.Tracker;
+import frc.robot.subsystems.tramp.TrampSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
@@ -39,7 +40,14 @@ public class AllegroContainer extends XeroContainer {
     //
     private final CommandSwerveDrivetrain db_ ;
     private final IntakeShooterSubsystem intake_shooter_ ;
-    private final TrapArmSubsystem trap_arm_  ;
+    private final TrampSubsystem trap_arm_  ;
+    private final Tracker tracker_ ;
+    private final VisionSubsystem vision_ ;
+
+    //
+    // Limelight name
+    //
+    private final String limelight_name_ = "limelight" ;
 
     //
     // OI related devices
@@ -71,8 +79,11 @@ public class AllegroContainer extends XeroContainer {
         // Create subsystems
         //
         db_ = TunerConstants.DriveTrain ;
-        intake_shooter_ = new IntakeShooterSubsystem(robot, null) ;
-        trap_arm_ = new TrapArmSubsystem(robot) ;
+
+        tracker_ = new Tracker(robot, db_, limelight_name_) ;
+        vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance()) ;
+        trap_arm_ = new TrampSubsystem(robot) ;
 
         //
         // Create OI devices
@@ -87,7 +98,7 @@ public class AllegroContainer extends XeroContainer {
         return intake_shooter_ ;
     }
 
-    public TrapArmSubsystem getTrapArm() {
+    public TrampSubsystem getTrapArm() {
         return trap_arm_ ;
     }
 
@@ -113,8 +124,46 @@ public class AllegroContainer extends XeroContainer {
     }
 
     private void superStructureBindings() {
+        //
+        // Collect command, bound to OI and the gamepad
+        //
         driver_controller_.rightBumper().or(oi_.button(OIConstants.Buttons.kCollect)).whileTrue(intake_shooter_.collectCommand()) ;
+
+        //
+        // Eject command, bound to the eject button on the OI
+        //
         oi_.button(OIConstants.Buttons.kEject).onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), trap_arm_.ejectCommand())) ;
+
+        //
+        // Turtle command, bound to the turtle button on the OI
+        // 
+        oi_.button(OIConstants.Buttons.kTurtle).onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), trap_arm_.turtleCommand())) ;
+
+        //
+        // Set the target based on changes to the target switch.  This tells the intake where to send the note. If the intake does not have a
+        // note, the change in destination is just recorded.  If the intake has a note targeting speaker and the target is changed to trap or amp,
+        // the note is moved to the manipulator.
+        //
+        oi_.button(OIConstants.Buttons.kTarget1).and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(intake_shooter_.getSpeakerCommand()) ;
+        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(intake_shooter_.getAmpCommand()) ;
+        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2)).onTrue(intake_shooter_.getTrapCommand()) ;
+
+        //
+        // Shoot command, bound to the shoot button on the OI
+        //
+        oi_.button(OIConstants.Buttons.kShoot).onTrue(new AutoShootCommand(db_, intake_shooter_)) ;
+
+        //
+        // Abort shoot command, bound to the abort button on the OI
+        //
+        oi_.button(OIConstants.Buttons.kAbort).onTrue(new AbortShootCommand(db_, intake_shooter_)) ;
+
+        //
+        // If a note is collected and thet arget is the trap or amp, this trigger is fired to complete
+        // the transfer action.  The transfer action moves the note from the intake to the manipulator.
+        //
+        intake_shooter_.getTransferNoteTrigger().onTrue(new TransferNoteCommand(intake_shooter_, trap_arm_)) ;
+
     }
 
     private void configureBindings() {
@@ -130,7 +179,7 @@ public class AllegroContainer extends XeroContainer {
         return intake_shooter_ ;
     }
 
-    public TrapArmSubsystem getTrapArmSubsystem() {
+    public TrampSubsystem getTrapArmSubsystem() {
         return trap_arm_ ;
     }
 }

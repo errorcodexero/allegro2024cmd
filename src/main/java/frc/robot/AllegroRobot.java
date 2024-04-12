@@ -4,10 +4,15 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.XeroRobot;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.RobotConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -45,7 +50,25 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void robotInit() {
 
+        switch(RobotConstants.currentMode)
+        {
+            case REAL:
+                Logger.addDataReceiver(new WPILOGWriter());
+                Logger.addDataReceiver(new NT4Publisher());            
+                break ;
+            case SIM:
+                Logger.addDataReceiver(new NT4Publisher());            
+                break ;
+            case REPLAY:
+                setUseTiming(false); // Run as fast as possible
+                String logPath = LogFileUtil.findReplayLog();
+                Logger.setReplaySource(new WPILOGReader(logPath));
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));            
+                break ;
+        }
+
         Logger.start() ;
+
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
