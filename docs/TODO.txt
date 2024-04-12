@@ -1,3 +1,5 @@
 Figure out how to characterize the swerve drive base
 Go through the swerve drive generation process via Tuner X
 How do I use the CommandSwerveDriveTrain to rotate the drivebase.
+Use TunerX to tune the PID controllers/Motion Magic for TalonFX motors.
+Enable Pro Licenses on the current robot.
