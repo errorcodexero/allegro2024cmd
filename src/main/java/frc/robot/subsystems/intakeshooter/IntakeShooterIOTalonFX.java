@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 
 public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private TalonFX feeder_motor_ ;
@@ -36,6 +37,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private boolean falling_seen_ ;
     private DCMotorSim updown_sim_ ;
     private DCMotorSim tilt_sim_ ;
+    private DIOSim note_sim_ ;
 
     private StatusSignal<Double> updown_position_signal_ ;
     private StatusSignal<Double> updown_velocity_signal_ ;
@@ -174,8 +176,12 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         feeder_motor_.optimizeBusUtilization();
 
         if (RobotBase.isSimulation()) {
-            updown_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 24.0, 0.001) ;
-            tilt_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 18.0, 0.001) ;
+            updown_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 6.0, 0.001) ;
+            tilt_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 4.0, 0.001) ;
+            note_sim_ = new DIOSim(note_sensor_) ;
+            note_sim_.setIsInput(true) ;
+            note_sim_.setValue(true);
+            note_sim_.setInitialized(true);
         }        
     }    
 
@@ -204,7 +210,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         inputs.risingEdge = rising_seen_ ;
         inputs.fallingEdge = falling_seen_ ;
 
-        inputs.noteSensor = note_sensor_.get() ^ IntakeShooterConstants.NoteSensor.kInverted ;
+        inputs.noteSensor = note_sensor_.get() ;
 
         rising_seen_ = false ;
         falling_seen_ = false ;

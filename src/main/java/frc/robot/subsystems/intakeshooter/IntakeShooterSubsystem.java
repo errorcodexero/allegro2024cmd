@@ -178,6 +178,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public boolean isNoteDetected() {
+        return inputs_.noteSensor ^ IntakeShooterConstants.NoteSensor.kInverted ;
+    }
+
     public boolean isIdle() {
         return state_ == State.Idle ;
     }
@@ -350,7 +354,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void setShooterVoltage(double v) {
         io_.setShooter1Voltage(v);
         io_.setShooter2Voltage(v);
-        target_velocity_ = Double.NaN ;
     }
 
     private boolean isMoving() {
@@ -364,10 +367,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (isTiltReady()) {
             setUpDownTarget(next_updown_);
             setTiltTarget(next_tilt_);
-
-            next_updown_ = Double.NaN ;
-            next_tilt_ = Double.NaN ;
-
             state_ = State.MoveBothToPosition ;
         }
     }
@@ -378,8 +377,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     //
     private void moveBothToPositionState() {
         if (isTiltReady() && isUpDownReady()) {
-            target_tilt_ = Double.NaN ;
-            target_updown_ = Double.NaN ;
             state_ = next_state_ ;
         }
     }
@@ -606,13 +603,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferWaitForSensor:
-                if (inputs_.noteSensor) {
+                if (isNoteDetected()) {
                     state_ = State.TransferWaitForNoSensor ;
                 }
                 break ;
 
             case TransferWaitForNoSensor:
-                if (!inputs_.noteSensor) {
+                if (!isNoteDetected()) {
                     state_ = State.TransferFinishTransfer ;
                     transfer_start_pos_ = inputs_.shooter1Position ;
                 }

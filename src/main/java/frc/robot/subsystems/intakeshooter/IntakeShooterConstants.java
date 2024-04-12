@@ -36,11 +36,11 @@ public class IntakeShooterConstants {
         }            
 
         public class PID {
-            public static final double kP = 5000.0 ;
+            public static final double kP = 50.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
             public static final double kV = 0.0 ;
-            public static final double kA = 500000.0 ;
+            public static final double kA = 5000.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
         } ;
