@@ -10,15 +10,10 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.NoteDestination;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
-
-    public enum NoteDestination {
-        Speaker,
-        Trap,
-        Amp
-    }
-    
+   
     private enum State {
         Idle,
         MoveTiltToPosition,
@@ -262,6 +257,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 initial_transfer_state_ = State.TransferWaitForSensor ;
             }
 
+            //
+            // Start the shooter wheels so they are moving when the note hits the shooter.
+            //
             setShooterVelocity(IntakeShooterConstants.kTransferShooterVelocity);
             transfer_shooter_to_feeder_timer_.start() ;
             state_ = State.TransferStartingShooter ;            
@@ -312,10 +310,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public void finishShot() {
         //
-        // This locks in the parametesr for the shot.
+        // This locks in the parameteters for the shot.
         //
         tracking_ = false ;
-
         state_ = State.WaitingToShoot ;
     }
 
@@ -337,7 +334,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void setUpDownTarget(double pos) {
         io_.setUpDownTargetPos(pos);
         target_updown_ = pos ;
-
     }
 
     public void setTiltTarget(double pos) {
@@ -476,6 +472,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void waitForShotFinishState() {
         if (shoot_timer_.isExpired()) {
             //
+            // Indicate the note has left the robot
+            //
+            has_note_ = false ;
+
+            //
             // Turn off the feeder
             //
             io_.setFeederVoltage(0.0);
@@ -519,7 +520,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
-    private void transferStartedFeederState() {
+    private void transferStartedShooterState() {
         if (transfer_shooter_to_feeder_timer_.isExpired()) {
             io_.setFeederVoltage(IntakeShooterConstants.Feeder.kTransferVoltage);
             state_ = initial_transfer_state_ ;
@@ -528,14 +529,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private void trackTargetDistance() {
         double dist = distsupplier_.getAsDouble() ;
+
         double updown = updown_pwl_.getValue(dist) ;
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
-        if (Math.abs(updown - target_updown_) > 5.0) {
-            setUpDownTarget(updown);
-        }
-
+        setUpDownTarget(updown);
         setTiltTarget(tilt) ;
         setShooterVelocity(velocity) ;
     }
@@ -599,7 +598,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferStartingShooter:
-                transferStartedFeederState() ;
+                transferStartedShooterState() ;
                 break ;
 
             case TransferWaitForSensor:
@@ -618,6 +617,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             case TransferFinishTransfer:
                 if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.kTransferShooterTransferLength) {
                     need_stop_manipulator_ = true ;
+                    has_note_ = false ;                    
                     state_ = State.TransferContinueShooter ;
                 }
                 break ;

@@ -151,13 +151,15 @@ public class AllegroContainer extends XeroContainer {
         oi_.button(OIConstants.Buttons.kTurtle).onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), trap_arm_.turtleCommand())) ;
 
         //
-        // Set the target based on changes to the target switch.  This tells the intake where to send the note. If the intake does not have a
-        // note, the change in destination is just recorded.  If the intake has a note targeting speaker and the target is changed to trap or amp,
-        // the note is moved to the manipulator.
+        // Set the target based on changes to the target switch.  This tells the intake and tramp where to send the note. If the subsystems do not have a
+        // note, the change in destination is just recorded.
         //
-        oi_.button(OIConstants.Buttons.kTarget1).and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(intake_shooter_.targetSpeakerCommand()) ;
-        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(intake_shooter_.targetAmpCommand()) ;
-        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2)).onTrue(intake_shooter_.targetTrapCommand()) ;
+        oi_.button(OIConstants.Buttons.kTarget1).and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(
+                    new ParallelCommandGroup(intake_shooter_.targetSpeakerCommand(), trap_arm_.targetSpeakerCommand())) ;
+        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(
+                    new ParallelCommandGroup(intake_shooter_.targetAmpCommand(), trap_arm_.targetAmpCommand())) ;
+        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2)).onTrue(
+                    new ParallelCommandGroup(intake_shooter_.targetTrapCommand(), trap_arm_.targetTrapCommand())) ;
 
         //
         // Shoot command, bound to the shoot button on the OI

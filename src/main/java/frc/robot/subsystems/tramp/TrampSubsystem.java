@@ -6,6 +6,7 @@ import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.NoteDestination;
 
 public class TrampSubsystem extends XeroSubsystem {
     private enum State {
@@ -15,7 +16,10 @@ public class TrampSubsystem extends XeroSubsystem {
         CrossMinToMax,
         CrossMinToMaxWaitArm,
         CrossMaxToMin,
-        CrossMaxToMinWaitArm
+        CrossMaxToMinWaitArm,
+        HoldingTransferPosition,
+        HoldingDestinationPosition,
+        Transferring
     }
 
     private TrampIO io_ ;
@@ -23,6 +27,8 @@ public class TrampSubsystem extends XeroSubsystem {
 
     private State next_state_ ;
     private State state_ ;
+
+    public boolean has_note_  ;
 
     private double end_target_elev_ ;
     private double target_elev_ ;
@@ -34,10 +40,11 @@ public class TrampSubsystem extends XeroSubsystem {
     private double armpostol_ ;
     private double armveltol_ ;
 
+    private NoteDestination destination_ ;
+
     private XeroTimer eject_timer_ ;
 
     private TrampEjectCommand eject_command_ ;
-    private TrampTransferPositionCommand transfer_position_command_ ;
     private TrampTurtleCommand turtle_command_ ;
 
     public TrampSubsystem(XeroRobot robot) throws Exception {
@@ -49,14 +56,22 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
 
         eject_command_ = new TrampEjectCommand(this) ;
-        transfer_position_command_ = new TrampTransferPositionCommand(this) ;
-
         state_ = State.Idle ;
+
+        destination_ = NoteDestination.Speaker ;        
     }
 
     public boolean isIdle() {
         return state_ == State.Idle ;
     }
+
+    public boolean isInTransferPosition() {
+        return state_ == State.HoldingTransferPosition ;
+    }
+
+    public boolean isInDestinationPosition() {
+        return state_ == State.HoldingDestinationPosition ;
+    }    
 
     public Command ejectCommand() {
         return eject_command_ ;
@@ -66,13 +81,34 @@ public class TrampSubsystem extends XeroSubsystem {
         return turtle_command_ ;
     }
 
-    public Command moveToTransferPositionCommand() {
-        return transfer_position_command_ ;
+    public Command targetSpeakerCommand() {
+        return runOnce(() -> destination_ = NoteDestination.Speaker) ;
     }
+
+    public Command targetTrapCommand() {
+        return runOnce(() -> destination_ = NoteDestination.Trap) ;
+    }    
+
+    public Command targetAmpCommand() {
+        return runOnce(() -> destination_ = NoteDestination.Amp) ;
+    }    
 
     public void moveToTransferPosition() {
         gotoPosition(TrampConstants.Elevator.Positions.kTransfer, Double.NaN, Double.NaN, TrampConstants.Arm.Positions.kTransfer, Double.NaN, Double.NaN);
-        next_state_ = State.Idle ;
+        next_state_ = State.HoldingTransferPosition ;
+    }
+
+    public void moveToDestinationPosition() {
+        if (destination_ == NoteDestination.Trap) {
+            gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
+                         TrampConstants.Arm.Positions.kTrap, Double.NaN, Double.NaN);
+        }
+        else if (destination_ == NoteDestination.Amp) {
+            gotoPosition(TrampConstants.Elevator.Positions.kAmp, Double.NaN, Double.NaN, 
+                         TrampConstants.Arm.Positions.kAmp, Double.NaN, Double.NaN);
+        }
+
+        next_state_ = State.HoldingDestinationPosition ;
     }
 
     public void eject() {
@@ -82,8 +118,10 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     public void transfer() {
-        io_.setManipulatorVoltage(0.0);
-        state_ = State.Idle ;
+        if (state_ == State.HoldingTransferPosition) {
+            io_.setManipulatorVoltage(0.0);
+            state_ = State.Transferring ;
+        }
     }
 
     public void turtle() {
@@ -92,9 +130,12 @@ public class TrampSubsystem extends XeroSubsystem {
         next_state_ = State.Idle ;
     }
 
-    public void stopManipulator() {
-        io_.setManipulatorVoltage(0.0);
-        state_ = State.Idle ;
+    public void stopTransfer() {
+        if (state_ == State.Transferring) {
+            has_note_ = true ;
+            io_.setManipulatorVoltage(0.0);
+            state_ = State.Idle ;
+        }
     }
     
     @Override
@@ -159,6 +200,15 @@ public class TrampSubsystem extends XeroSubsystem {
                     setArmPosition(end_target_arm_);
                     state_ = State.GotoDirectToTarget ;
                 }
+                break ;
+
+            case HoldingTransferPosition:
+                break ;
+
+            case HoldingDestinationPosition:
+                break ;
+
+            case Transferring:
                 break ;
         }
         

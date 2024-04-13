@@ -6,9 +6,10 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 
 public class TransferNoteCommand extends Command {
     private enum State {
-        Idle,
         MoveToPosition,
-        InTransfer
+        InTransfer,
+        MoveTrampToDestination,
+        Done
     }
 
     private IntakeShooterSubsystem intake_shooter_;
@@ -32,7 +33,7 @@ public class TransferNoteCommand extends Command {
     @Override
     public void execute() {
         if (state_ == State.MoveToPosition) {
-            if (intake_shooter_.isIdle() && tramp_.isIdle()) {
+            if (intake_shooter_.isInTransferPosition() && tramp_.isInTransferPosition()) {
                 intake_shooter_.transfer();
                 tramp_.transfer();
                 state_ = State.InTransfer ;
@@ -40,17 +41,23 @@ public class TransferNoteCommand extends Command {
         }
         else if (state_ == State.InTransfer) {
             if (intake_shooter_.needStopManipulator()) {
-                tramp_.stopManipulator() ;
+                tramp_.stopTransfer() ;
             }
 
             if (intake_shooter_.isIdle() && tramp_.isIdle()) {
-                state_ = State.Idle ;
+                tramp_.moveToDestinationPosition() ;
+                state_ = State.MoveTrampToDestination ;
+            }
+        }
+        else if (state_ == State.MoveTrampToDestination) {
+            if (tramp_.isIdle()) {
+                state_ = State.Done ;
             }
         }
     }
 
     @Override
     public boolean isFinished() {
-        return intake_shooter_.isIdle() && tramp_.isIdle() ;
+        return state_ == State.Done ;
     }
 }

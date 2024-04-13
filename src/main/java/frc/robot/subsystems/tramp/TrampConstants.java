@@ -17,6 +17,8 @@ public class TrampConstants {
         public class Positions {
             public static final double kStowed = 0.0 ;
             public static final double kTransfer = 0.0 ;
+            public static final double kAmp = 0.0 ;
+            public static final double kTrap = 0.0 ;
         }
     }
 
@@ -30,6 +32,8 @@ public class TrampConstants {
         public class Positions {
             public static final double kStowed = 0.0 ;
             public static final double kTransfer = 0.0 ;
+            public static final double kAmp = 0.0 ;
+            public static final double kTrap = 0.0 ;            
         }        
     }
 
