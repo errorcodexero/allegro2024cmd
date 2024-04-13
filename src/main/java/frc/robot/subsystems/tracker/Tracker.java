@@ -21,12 +21,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTags;
 
 public class Tracker extends XeroSubsystem {
-    private String limelight_name_ ;
     private SwerveDrivetrain db_ ;
     private boolean has_target_info_ ;
     private int target_number_ ;
     private Pose2d target_pose_ ;
     private AprilTagFieldLayout layout_ ;
+
+    private TrackerIO io_ ;
+    private TrackerInputsAutoLogged inputs_ ;
 
     private String source_ ;
     private int zone_ ;
@@ -39,33 +41,36 @@ public class Tracker extends XeroSubsystem {
         super(robot, "tracker") ;
 
         db_ = db ;
-        limelight_name_ = name ;
         target_pose_ = null ;
         layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField() ;
         ok_to_shoot_ = false ;
+
+        io_ = new TrackerIOLimelight(name);
     }
 
     @Override
     public void periodic() {
         if (!has_target_info_) {
             has_target_info_ = getTargetPose() ;
+            if (!has_target_info_) {
+                //
+                // We have no target, so we can't do anything
+                //
+                return ;
+            }
         }
 
-        if (!has_target_info_) {
-            //
-            // We have no target, so we can't do anything
-            //
-            return ;
-        }
+        io_.updateInputs(inputs_) ;
+        Logger.processInputs("tracker", inputs_);
 
-        if (LimelightHelpers.getTV(limelight_name_)) {
+        if (inputs_.tv) {
             //
             // We see the april tag of interest, use the TX and TY values to
             // aim at the target.
             //
             ok_to_shoot_ = true ;
-            angle_to_target_ = -LimelightHelpers.getTX(limelight_name_) + angle_offset_ ;
-            distance_to_target_ = (TrackerConstants.kTargetHeight - TrackerConstants.kCameraHeight) / Math.tan(Math.toRadians(TrackerConstants.kCameraAngle + LimelightHelpers.getTY(limelight_name_))) ;
+            angle_to_target_ = -inputs_.tx + angle_offset_ ;
+            distance_to_target_ = (TrackerConstants.kTargetHeight - TrackerConstants.kCameraHeight) / Math.tan(Math.toRadians(TrackerConstants.kCameraAngle + inputs_.ty)) ;
             source_ = "AprilTag" ;
 
         } else {
@@ -217,7 +222,8 @@ public class Tracker extends XeroSubsystem {
         // This will cause TX, TY, TA, and TV to be about the target_number_
         // april tag.
         //
-        LimelightHelpers.setPriorityTagID(limelight_name_, target_number_) ;
+        io_.setTarget(target_number_) ;
+
         return true ;
     }
 }
