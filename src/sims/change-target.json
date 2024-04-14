@@ -1,0 +1,104 @@
+{
+    "initialization" : [
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        }
+    ],
+    "simulation" : [
+        {
+            "type" : "input",
+            "time" : 4.8,
+            "hardware" : {
+                "type" : "driverstation",
+                "subtype" : "mode",
+                "index" : 0,
+                "value" : "teleop"
+            }
+        },        
+        {
+            "type" : "input",
+            "time" : 5.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "1",
+                "index" : 2,
+                "value" : false
+            }
+        },     
+        {
+            "type" : "input",
+            "time" : 5.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "2",
+                "index" : 2,
+                "value" : false
+            }
+        },
+        {
+            "type" : "input",
+            "time" : 6.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "1",
+                "index" : 2,
+                "value" : true
+            }
+        },     
+        {
+            "type" : "input",
+            "time" : 6.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "2",
+                "index" : 2,
+                "value" : false
+            }
+        },
+        {
+            "type" : "input",
+            "time" : 7.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "1",
+                "index" : 2,
+                "value" : false
+            }
+        },     
+        {
+            "type" : "input",
+            "time" : 7.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "2",
+                "index" : 2,
+                "value" : true
+            }
+        }, 
+        {
+            "type" : "input",
+            "time" : 8.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "1",
+                "index" : 2,
+                "value" : false
+            }
+        },     
+        {
+            "type" : "input",
+            "time" : 8.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "2",
+                "index" : 2,
+                "value" : false
+            }
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "initialization" : [
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        }
+    ],
+    "simulation" : [
+        {
+            "type" : "input",
+            "time" : 4.8,
+            "hardware" : {
+                "type" : "driverstation",
+                "subtype" : "mode",
+                "index" : 0,
+                "value" : "teleop"
+            }
+        },        
+        {
+            "type" : "input",
+            "time" : 5.0,
+            "hardware" : {
+                "type" : "xboxgamepad",
+                "subtype" : "right-bumper",
+                "index" : 0,
+                "value" : false
+            }
+        },
+        {
+            "type" : "input",
+            "time" : 5.1,
+            "hardware" : {
+                "type" : "xboxgamepad",
+                "subtype" : "right-bumper",
+                "index" : 0,
+                "value" : true
+            }
+        },        
+        {
+            "type" : "input",
+            "time" : 7.5,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+        {
+            "type" : "input",
+            "time" : 7.6,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },        
+        {
+            "type" : "input",
+            "time" : 8.0,
+            "hardware" : {
+                "type" : "xboxgamepad",
+                "subtype" : "right-bumper",
+                "index" : 0,
+                "value" : false
+            }
+        }
+    ]
+}

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.tramp;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
@@ -40,25 +42,27 @@ public class TrampSubsystem extends XeroSubsystem {
     private double armpostol_ ;
     private double armveltol_ ;
 
-    private NoteDestination destination_ ;
+    private Supplier<NoteDestination> destsupplier_ ;
 
     private XeroTimer eject_timer_ ;
 
     private TrampEjectCommand eject_command_ ;
     private TrampTurtleCommand turtle_command_ ;
 
-    public TrampSubsystem(XeroRobot robot) throws Exception {
+    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
         super(robot, "trap-arm") ;
 
         io_ = new TrampIOHardware() ;
         inputs_ = new TrampIOInputsAutoLogged() ;
 
+        destsupplier_ = dest ;
+
         eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
 
         eject_command_ = new TrampEjectCommand(this) ;
+        turtle_command_ = new TrampTurtleCommand(this) ;
+        
         state_ = State.Idle ;
-
-        destination_ = NoteDestination.Speaker ;        
     }
 
     public boolean isIdle() {
@@ -81,29 +85,18 @@ public class TrampSubsystem extends XeroSubsystem {
         return turtle_command_ ;
     }
 
-    public Command targetSpeakerCommand() {
-        return runOnce(() -> destination_ = NoteDestination.Speaker) ;
-    }
-
-    public Command targetTrapCommand() {
-        return runOnce(() -> destination_ = NoteDestination.Trap) ;
-    }    
-
-    public Command targetAmpCommand() {
-        return runOnce(() -> destination_ = NoteDestination.Amp) ;
-    }    
-
     public void moveToTransferPosition() {
         gotoPosition(TrampConstants.Elevator.Positions.kTransfer, Double.NaN, Double.NaN, TrampConstants.Arm.Positions.kTransfer, Double.NaN, Double.NaN);
         next_state_ = State.HoldingTransferPosition ;
     }
 
     public void moveToDestinationPosition() {
-        if (destination_ == NoteDestination.Trap) {
+        NoteDestination dest = destsupplier_.get() ;
+        if (dest == NoteDestination.Trap) {
             gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kTrap, Double.NaN, Double.NaN);
         }
-        else if (destination_ == NoteDestination.Amp) {
+        else if (dest == NoteDestination.Amp) {
             gotoPosition(TrampConstants.Elevator.Positions.kAmp, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kAmp, Double.NaN, Double.NaN);
         }

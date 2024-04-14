@@ -60,6 +60,9 @@ public class IntakeShooterConstants {
         public static final double kTargetVelTolerance = 1.0 ;
         public static final double kAllowedDeviationFromTrack = 2.0 ;
         public static final double kDegreesPerRev = 20 ;
+        public static final double kMaxPosition = -72.0 ;
+        public static final double kMinPosition = 50.0 ;
+
         public class Positions {
             public static final double kStowed = -72.0 ;
             public static final double kStartTracking = -50.0 ;
@@ -78,8 +81,6 @@ public class IntakeShooterConstants {
             public static final double kS = 0.0 ;
         };
 
-        public static final double kMaxPosition = -72.0 ;
-        public static final double kMinPosition = 50.0 ;
         public class AbsoluteEncoder {
             public static final int kChannel = 0;
             public static final double kRobotMax = 90.0 ;
@@ -88,12 +89,13 @@ public class IntakeShooterConstants {
             public static final double kEncoderMax = 5.0 ;
             public static final double kEncoderMin = 0.0 ;
             public class Practice {
-                public static final double kEncoderCalibrationValue = 0.44311 ;
+                public static final double kEncoderCalibrationValue = 0.0 ;
             }
             public class Competition {
                 public static final double kEncoderCalibrationValue = 0.0 ;
             }
         }
+
         public static final double[] kPwlValues = new double[] {
             1.24,  -64, 
             1.52,  -60,

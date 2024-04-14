@@ -1,9 +1,10 @@
 package frc.robot;
 
 import frc.robot.commands.TransferNoteCommand;
-import frc.robot.constants.OIConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
+import frc.robot.subsystems.oi.OIConstants;
+import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveRotateToAngle;
@@ -12,14 +13,12 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-
 import org.xero1425.XeroContainer;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -42,6 +41,7 @@ public class AllegroContainer extends XeroContainer {
     private final TrampSubsystem trap_arm_  ;
     private final Tracker tracker_ ;
     private final VisionSubsystem vision_ ;
+    private final OISubsystem oi_ ;
 
     //
     // Limelight name
@@ -51,7 +51,6 @@ public class AllegroContainer extends XeroContainer {
     //
     // OI related devices
     //
-    private final CommandGenericHID oi_ ;
     private final CommandXboxController driver_controller_ ;
 
     //
@@ -83,8 +82,11 @@ public class AllegroContainer extends XeroContainer {
 
         tracker_ = new Tracker(robot, db_, limelight_name_) ;
         vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance()) ;
-        trap_arm_ = new TrampSubsystem(robot) ;
+        oi_ = new OISubsystem(robot, OIConstants.kOIControllerPort) ;
+
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), ()-> oi_.getNoteDestination()) ;
+        trap_arm_ = new TrampSubsystem(robot, ()-> oi_.getNoteDestination()) ;
+
 
         vision_.enable(true);
 
@@ -98,7 +100,6 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create OI devices
         //
-        oi_ = new CommandGenericHID(OIConstants.kOIControllerPort) ;
         driver_controller_ = new CommandXboxController(OIConstants.kDriverControllerPort);
 
         configureBindings();
@@ -138,33 +139,25 @@ public class AllegroContainer extends XeroContainer {
         // Collect command, bound to OI and the gamepad
         //
         // driver_controller_.rightBumper().or(oi_.button(OIConstants.Buttons.kCollect)).whileTrue(intake_shooter_.collectCommand()) ;
-        driver_controller_.rightBumper().whileTrue(intake_shooter_.collectCommand()) ;
+        
+        oi_.collect().whileTrue(intake_shooter_.collectCommand());
+        // driver_controller_.rightBumper().whileTrue(intake_shooter_.collectCommand()) ;
 
         //
         // Eject command, bound to the eject button on the OI
         //
-        oi_.button(OIConstants.Buttons.kEject).onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), trap_arm_.ejectCommand())) ;
+        oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), trap_arm_.ejectCommand())) ;
 
         //
         // Turtle command, bound to the turtle button on the OI
         // 
-        oi_.button(OIConstants.Buttons.kTurtle).onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), trap_arm_.turtleCommand())) ;
-
-        //
-        // Set the target based on changes to the target switch.  This tells the intake and tramp where to send the note. If the subsystems do not have a
-        // note, the change in destination is just recorded.
-        //
-        oi_.button(OIConstants.Buttons.kTarget1).and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(
-                    new ParallelCommandGroup(intake_shooter_.targetSpeakerCommand(), trap_arm_.targetSpeakerCommand())) ;
-        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2).negate()).onTrue(
-                    new ParallelCommandGroup(intake_shooter_.targetAmpCommand(), trap_arm_.targetAmpCommand())) ;
-        oi_.button(OIConstants.Buttons.kTarget1).negate().and(oi_.button(OIConstants.Buttons.kTarget2)).onTrue(
-                    new ParallelCommandGroup(intake_shooter_.targetTrapCommand(), trap_arm_.targetTrapCommand())) ;
+        oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), trap_arm_.turtleCommand())) ;
 
         //
         // Shoot command, bound to the shoot button on the OI
         //
-        oi_.button(OIConstants.Buttons.kShoot).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+        oi_.shoot().onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+        
         // oi_.button(OIConstants.Buttons.kAbort).onTrue(abort_shoot_) ;
 
         //

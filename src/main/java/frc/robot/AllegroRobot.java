@@ -28,6 +28,11 @@ public class AllegroRobot extends XeroRobot {
     private AllegroContainer container_;
 
     @Override
+    public String getRobotSimFileName() {
+        return "src/sims/collect-amp-oi.json" ;
+    }
+
+    @Override
     public String getName() {
         return "allegro";
     }
@@ -56,9 +61,11 @@ public class AllegroRobot extends XeroRobot {
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());            
                 break ;
+
             case SIM:
                 Logger.addDataReceiver(new NT4Publisher());            
                 break ;
+                
             case REPLAY:
                 setUseTiming(false); // Run as fast as possible
                 String logPath = LogFileUtil.findReplayLog();
@@ -92,6 +99,8 @@ public class AllegroRobot extends XeroRobot {
      */
     @Override
     public void robotPeriodic() {
+        super.robotPeriodic();      
+        
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled
         // commands, running already-scheduled commands, removing finished or

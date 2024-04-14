@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.subsystems.oi;
 
 public class OIConstants {
     public static final int kDriverControllerPort = 0;
@@ -14,7 +14,5 @@ public class OIConstants {
         public static int kAbort = 9 ;
         public static int kEject = 10 ;
         public static int kCollect = 11 ;
-        public static int kManual1 ;
-        public static int kManual2 ;
-    }    
+    }
 }

@@ -6,6 +6,7 @@ import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,7 +51,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private double target_velocity_ ;
     private double next_updown_ ;
     private double transfer_start_pos_ ;
-    private NoteDestination destination_ ;
 
     private boolean tracking_ ;
     private DoubleSupplier distsupplier_ ;
@@ -77,13 +77,17 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Command collect_command_ ;
     private Command turtle_command_ ;
 
+    private Supplier<NoteDestination> destsupplier_ ;
+
     private Trigger transfer_note_trigger_ ;
 
-    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier) throws Exception {
+    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
         super(robot, "intake-shooter") ;
 
         io_ = new IntakeShooterIOTalonFX(getRobot().isPracticeBot()) ;
         inputs_ = new IntakeShooterIOInputsAutoLogged() ;
+
+        destsupplier_ = destsupplier ;
 
         capture_timer_ = new XeroTimer(getRobot(), "collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
         reverse_timer_ = new XeroTimer(getRobot(), "reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
@@ -103,9 +107,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         velocity_pwl_ = new PieceWiseLinear(IntakeShooterConstants.Shooter.kPwlValues) ;
 
         state_ = State.Idle ;
-        destination_ = NoteDestination.Speaker ;
 
-        transfer_note_trigger_ = new Trigger(this::transferNote) ;
+        transfer_note_trigger_ = new Trigger(()-> transferNote()) ;
 
         eject_command_ = new IntakeEjectCommand(this) ;
         collect_command_ = new IntakeCollectCommand(this) ;
@@ -123,7 +126,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public boolean transferNote() {
-        return has_note_ && (destination_ == NoteDestination.Trap ||  destination_ == NoteDestination.Amp) ;
+        NoteDestination dest = destsupplier_.get() ;
+        boolean ret = has_note_ && 
+                     (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
+                     (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition) ;
+        return ret;
     }
 
     public boolean needStopManipulator() {
@@ -147,18 +154,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public Command turtleCommand() {
         return turtle_command_ ;
-    }
-
-    public Command targetSpeakerCommand() {
-        return runOnce(() -> destination_ = NoteDestination.Speaker) ;
-    }
-
-    public Command targetTrapCommand() {
-        return runOnce(() -> destination_ = NoteDestination.Trap) ;
-    }    
-
-    public Command targetAmpCommand() {
-        return runOnce(() -> destination_ = NoteDestination.Amp) ;
     }
 
     public Command shootCommand() {
@@ -288,7 +283,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // This method moves the intake/shooter and the elevator/arm to the transfer positions.
     //
     public void moveToTransferPosition() {
-        if (has_note_ && state_ == State.Idle) {
+        if (has_note_) {
             //
             // Move the updown and tilt to the transfer position
             //
@@ -403,7 +398,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             double tilt ;
             
             if (has_note_) {
-                switch(destination_) {
+                NoteDestination dest = destsupplier_.get() ;
+                switch(dest) {
                     case Speaker:
                         updown = IntakeShooterConstants.UpDown.Positions.kStartTracking ;
                         tilt = IntakeShooterConstants.Tilt.Positions.kStartTracking;                    
@@ -657,6 +653,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         Logger.recordOutput("is-updown-ready", isUpDownReady());
         Logger.recordOutput("has-note", has_note_);
         Logger.recordOutput("tracking", tracking_);
+        Logger.recordOutput("destination", destsupplier_.get()) ;
     }
 
     private double computeTiltFromUpdown(double updown) {

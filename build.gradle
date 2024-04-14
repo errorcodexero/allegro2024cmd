@@ -77,7 +77,6 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:$akitJson.version"    
 
-    implementation 'org.apache.commons:commons-csv:1.5'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'    
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
@@ -104,8 +103,8 @@ test {
 }
 
 // Simulation configuration (e.g. environment variables).
-wpi.sim.addGui().defaultEnabled = true
-wpi.sim.addDriverstation()
+// wpi.sim.addGui().defaultEnabled = true
+// wpi.sim.addDriverstation()
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib

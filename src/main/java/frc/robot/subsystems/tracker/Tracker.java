@@ -46,6 +46,7 @@ public class Tracker extends XeroSubsystem {
         ok_to_shoot_ = false ;
 
         io_ = new TrackerIOLimelight(name);
+        inputs_ = new TrackerInputsAutoLogged() ;
     }
 
     @Override

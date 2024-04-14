@@ -234,7 +234,6 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
     public void setTiltMotorPosition(double pos) {
         tilt_motor_.setPosition(pos / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
-        tilt_sim_.setState(pos/IntakeShooterConstants.Tilt.kDegreesPerRev, 0.0) ;
     }
  
     public void setShooter1Velocity(double vel) {
