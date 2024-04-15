@@ -26,4 +26,11 @@ public interface TrampIO {
 
     public default void setManipulatorVoltage(double volts) {
     }
+
+    public default double getManipulatorVoltage() {
+        return 0.0 ;
+    }
+
+    public default void simulate(double period) {
+    }    
 }

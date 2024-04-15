@@ -20,7 +20,8 @@ public class TrampSubsystem extends XeroSubsystem {
         CrossMaxToMin,
         CrossMaxToMinWaitArm,
         HoldingTransferPosition,
-        HoldingDestinationPosition,
+        HoldingAmpPosition,
+        HoldingTrapPosition,
         Transferring
     }
 
@@ -73,9 +74,13 @@ public class TrampSubsystem extends XeroSubsystem {
         return state_ == State.HoldingTransferPosition ;
     }
 
-    public boolean isInDestinationPosition() {
-        return state_ == State.HoldingDestinationPosition ;
+    public boolean isInTrapPosition() {
+        return state_ == State.HoldingTrapPosition ;
     }    
+
+    public boolean isInAmpPosition() {
+        return state_ == State.HoldingAmpPosition ;
+    }
 
     public Command ejectCommand() {
         return eject_command_ ;
@@ -95,13 +100,13 @@ public class TrampSubsystem extends XeroSubsystem {
         if (dest == NoteDestination.Trap) {
             gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kTrap, Double.NaN, Double.NaN);
+            next_state_ = State.HoldingTrapPosition ;
         }
         else if (dest == NoteDestination.Amp) {
             gotoPosition(TrampConstants.Elevator.Positions.kAmp, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kAmp, Double.NaN, Double.NaN);
+            next_state_ = State.HoldingAmpPosition ;                         
         }
-
-        next_state_ = State.HoldingDestinationPosition ;
     }
 
     public void eject() {
@@ -112,7 +117,7 @@ public class TrampSubsystem extends XeroSubsystem {
 
     public void transfer() {
         if (state_ == State.HoldingTransferPosition) {
-            io_.setManipulatorVoltage(0.0);
+            io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
             state_ = State.Transferring ;
         }
     }
@@ -129,6 +134,11 @@ public class TrampSubsystem extends XeroSubsystem {
             io_.setManipulatorVoltage(0.0);
             state_ = State.Idle ;
         }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        io_.simulate(getRobot().getPeriod()) ;
     }
     
     @Override
@@ -198,7 +208,10 @@ public class TrampSubsystem extends XeroSubsystem {
             case HoldingTransferPosition:
                 break ;
 
-            case HoldingDestinationPosition:
+            case HoldingAmpPosition:
+                break ;
+
+            case HoldingTrapPosition:
                 break ;
 
             case Transferring:
@@ -208,6 +221,7 @@ public class TrampSubsystem extends XeroSubsystem {
         Logger.recordOutput("tramp-state", state_);
         Logger.recordOutput("elev-target", target_elev_);
         Logger.recordOutput("arm-target", target_arm_);
+        Logger.recordOutput("manipulator-voltage", io_.getManipulatorVoltage());
     }
 
     private boolean isElevatorReady() {
@@ -233,22 +247,22 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     private void gotoPosition(double elevpos, double elevpostol, double elevveltol, double armpos, double armpostol, double armveltol) {
-        if (elevpostol == Double.NaN)
+        if (Double.isNaN(elevpostol))
             elevpostol_ = TrampConstants.Elevator.kTargetPosTolerance ;
         else
             elevpostol_ = elevpostol ;
 
-        if (elevveltol == Double.NaN)    
+        if (Double.isNaN(elevveltol))
             elevveltol_ = TrampConstants.Elevator.kTargetVelTolerance ;
         else
             elevveltol_ = elevveltol ;
             
-        if (armpostol == Double.NaN)
+        if (Double.isNaN(armpostol))
             armpostol_ = TrampConstants.Arm.kTargetPosTolerance ;
         else
             armpostol_ = armpostol ;
 
-        if (armveltol == Double.NaN)
+        if (Double.isNaN(armveltol))
             armveltol_ = TrampConstants.Arm.kTargetVelTolerance ;
         else
             armveltol_ = armveltol ;

@@ -14,5 +14,17 @@ public class OIConstants {
         public static int kAbort = 9 ;
         public static int kEject = 10 ;
         public static int kCollect = 11 ;
+        public static int kManual1 = 12 ;
+        public static int kManual2 = 13 ;
+    }
+
+    public class LEDs {
+        public static int kDBReady = 1 ;
+        public static int kShooterVelocityReady = 2 ;
+        public static int kTiltReady = 3 ;
+        public static int kAprilTagReady = 4 ;
+        public static int kClimbUpPrepEnabled = 5 ;
+        public static int kClimbUpExecEnabled = 6 ;
+        public static int kAutoTrapEnabled = 8 ;
     }
 }

@@ -61,7 +61,7 @@
         },
         {
             "type" : "input",
-            "time" : 10.1,
+            "time" : 10.2,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
@@ -77,6 +77,24 @@
                 "index" : 2,
                 "value" : false
             }
-        }   
+        },
+        {
+            "type" : "input",
+            "time" : 13.00,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+        {
+            "type" : "input",
+            "time" : 13.1,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        }
     ]
 }

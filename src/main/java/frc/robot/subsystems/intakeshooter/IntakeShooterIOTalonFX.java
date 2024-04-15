@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intakeshooter;
 
-import org.littletonrobotics.junction.Logger;
 import org.xero1425.EncoderMapper;
 import org.xero1425.TalonFXFactory;
 
@@ -35,8 +34,12 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private EncoderMapper encoder_mapper_ ;
     private boolean rising_seen_ ;
     private boolean falling_seen_ ;
+
     private DCMotorSim updown_sim_ ;
     private DCMotorSim tilt_sim_ ;
+    private DCMotorSim shooter1_sim_ ;
+    private DCMotorSim shooter2_sim_ ;
+
     private DIOSim note_sim_ ;
 
     private StatusSignal<Double> updown_position_signal_ ;
@@ -176,8 +179,10 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         feeder_motor_.optimizeBusUtilization();
 
         if (RobotBase.isSimulation()) {
-            updown_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 6.0, 0.001) ;
-            tilt_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 4.0, 0.001) ;
+            updown_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 6.0, 0.00001) ;
+            tilt_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 4.0, 0.00001) ;
+            shooter1_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 0.6, 0.00001) ;
+            shooter2_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 0.6, 0.00001) ;
             note_sim_ = new DIOSim(note_sensor_) ;
             note_sim_.setIsInput(true) ;
             note_sim_.setValue(true);
@@ -241,7 +246,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }
 
     public void setShooter1Voltage(double v) {
-        shooter2_motor_.setControl(new VoltageOut(v)) ;
+        shooter1_motor_.setControl(new VoltageOut(v)) ;
     }
 
     public void setShooter2Velocity(double vel) {
@@ -256,28 +261,20 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         feeder_motor_.setControl(new VoltageOut(v)) ;
     }
 
+    public void doSim(TalonFX motor, DCMotorSim sim, double period){
+        TalonFXSimState state = motor.getSimState() ;
+        state.setSupplyVoltage(RobotController.getBatteryVoltage()) ;
+        sim.setInputVoltage(state.getMotorVoltage());
+        sim.update(period) ;
+        state.setRawRotorPosition(sim.getAngularPositionRotations()) ;
+        state.setRotorVelocity(Units.radiansToRotations(sim.getAngularVelocityRadPerSec())) ;
+    }
+
     public void simulate(double period) {
-        TalonFXSimState state ;
-
-        state = tilt_motor_.getSimState() ;
-        state.setSupplyVoltage(RobotController.getBatteryVoltage()) ;
-
-        Logger.recordOutput("battery-voltage", RobotController.getBatteryVoltage()) ;
-
-        tilt_sim_.setInputVoltage(state.getMotorVoltage());
-        tilt_sim_.update(period);
-        Logger.recordOutput("tilt-voltage", state.getMotorVoltage()) ;
-        state.setRawRotorPosition(tilt_sim_.getAngularPositionRotations()) ;
-        state.setRotorVelocity(Units.radiansToRotations(tilt_sim_.getAngularVelocityRadPerSec())) ;
-
-        state = updown_motor_.getSimState() ;
-        state.setSupplyVoltage(RobotController.getBatteryVoltage()) ;
-
-        updown_sim_.setInputVoltage(state.getMotorVoltage());
-        updown_sim_.update(period);
-        Logger.recordOutput("updown-voltage", state.getMotorVoltage()) ;  
-        state.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
-        state.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;        
+        doSim(tilt_motor_, tilt_sim_, period) ;
+        doSim(updown_motor_, updown_sim_, period) ;        
+        doSim(shooter1_motor_, shooter1_sim_, period) ;
+        doSim(shooter2_motor_, shooter2_sim_, period) ;
     }
     
     private void noteInterruptHandler(boolean rising, boolean falling) {

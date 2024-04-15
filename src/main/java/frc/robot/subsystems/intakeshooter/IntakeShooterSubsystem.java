@@ -237,7 +237,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (has_note_ && state_ == State.HoldingTransferPosition) {
             need_stop_manipulator_ = false ;
 
-            if (inputs_.noteSensor) {
+            if (inputs_.noteSensor ^ IntakeShooterConstants.NoteSensor.kInverted) {
                 //
                 // The note is already sitting on the sensor.  We just wait for the note to
                 // move off the sensor
@@ -623,6 +623,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                     io_.setFeederVoltage(0.0);
                     setShooterVoltage(0.0);
                     state_ = State.Idle ;
+                    double where = inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.kTransferShooterTransferLength ;
+                    System.out.println("transfer " + where + " " + IntakeShooterConstants.kTransferShooterContLength) ;
                 }
                 break ;
 

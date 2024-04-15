@@ -20,8 +20,11 @@ public abstract class XeroRobot extends LoggedRobot {
         enableMessageLogger();
 
         if (XeroRobot.isSimulation()) {
-            simmgr_ = new SimEventsManager(getMessageLogger()) ;
-            simmgr_.readEventsFile(getSimFileName()) ;
+            String filename = getSimFileName() ;
+            if (filename != null) {
+                simmgr_ = new SimEventsManager(getMessageLogger()) ;
+                simmgr_.readEventsFile(filename) ;
+            }
         }
     }
 
