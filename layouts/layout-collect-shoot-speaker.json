@@ -1,0 +1,130 @@
+{
+  "hubs": [
+    {
+      "x": -2568,
+      "y": -202,
+      "width": 2576,
+      "height": 1408,
+      "state": {
+        "sidebar": {
+          "width": 424,
+          "expanded": [
+            "/DSLog/PowerDistributionCurrents",
+            "/Log1/DSLog/PowerDistributionCurrents",
+            "/Log0/DSLog",
+            "/Log0/DSLog/PowerDistributionCurrents",
+            "/Log6/DSLog",
+            "/Log5/DSLog",
+            "/Log5/DSLog/PowerDistributionCurrents",
+            "/Log4/DSLog",
+            "/Log4/DSLog/PowerDistributionCurrents",
+            "/Log3/DSLog",
+            "/Log3/DSLog/PowerDistributionCurrents",
+            "/Log2/DSLog",
+            "/Log2/DSLog/PowerDistributionCurrents",
+            "/DSLog",
+            "/Pose/robotPose",
+            "/LiveWindow/.status",
+            "/Pose",
+            "/Drive",
+            "/AdvantageKit/RealOutputs/robotpose/translation",
+            "/AdvantageKit",
+            "/AdvantageKit/RealOutputs/robotpose/rotation",
+            "/AdvantageKit/intake-shooter",
+            "/AdvantageKit/RealOutputs"
+          ]
+        },
+        "tabs": {
+          "selected": 1,
+          "tabs": [
+            {
+              "type": 0,
+              "path": "../docs/INDEX.md"
+            },
+            {
+              "type": 1,
+              "legendHeight": 0.2763664357197845,
+              "legends": {
+                "left": {
+                  "lockedRange": null,
+                  "unitConversion": {
+                    "type": null,
+                    "factor": 1
+                  },
+                  "fields": [
+                    {
+                      "key": "NT:/AdvantageKit/intake-shooter/TiltPosition",
+                      "color": "#2b66a2",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/intake-shooter/UpdownPosition",
+                      "color": "#af2437",
+                      "show": true
+                    }
+                  ]
+                },
+                "discrete": {
+                  "fields": [
+                    {
+                      "key": "NT:/AdvantageKit/RealOutputs/intake-shooter-state",
+                      "color": "#e5b31b",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/RealOutputs/is-tilt-ready",
+                      "color": "#aacaee",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/RealOutputs/is-updown-ready",
+                      "color": "#c0b487",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/RealOutputs/is-shooter-ready",
+                      "color": "#858584",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/oi/Shoot",
+                      "color": "#3b875a",
+                      "show": true
+                    }
+                  ]
+                },
+                "right": {
+                  "lockedRange": null,
+                  "unitConversion": {
+                    "type": null,
+                    "factor": 1
+                  },
+                  "fields": [
+                    {
+                      "key": "NT:/AdvantageKit/intake-shooter/Shooter1Velocity",
+                      "color": "#d993aa",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/RealOutputs/shooter-target",
+                      "color": "#5d4f92",
+                      "show": true
+                    },
+                    {
+                      "key": "NT:/AdvantageKit/intake-shooter/Shooter2Velocity",
+                      "color": "#80588e",
+                      "show": true
+                    }
+                  ]
+                }
+              },
+              "title": "Line Graph"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "3.2.1"
+}

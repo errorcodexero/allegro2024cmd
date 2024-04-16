@@ -12,6 +12,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.XeroRobot;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.autos.FourNoteDynamicAuto;
+import frc.robot.autos.ThreeNoteDynamicAuto;
 import frc.robot.constants.RobotConstants;
 
 /**
@@ -29,7 +31,7 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public String getRobotSimFileName() {
-        return "src/sims/collect-amp-oi.json" ;
+        return "src/sims/auto-four-note.jsonc" ;
     }
 
     @Override
@@ -44,7 +46,9 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public void enableMessages() {
-        getMessageLogger().enableSubsystem(container_.getIntakeShooterSubsystem().getName()) ;
+        getMessageLogger().enableSubsystem(container_.getIntakeShooter().getName()) ;
+        getMessageLogger().enableSubsystem(container_.getDriveTrain().getName()) ;
+        getMessageLogger().enableSubsystem(container_.getTramp().getName()) ;
     }      
 
     /**
@@ -83,6 +87,8 @@ public class AllegroRobot extends XeroRobot {
         try {
             container_ = new AllegroContainer(this);
             enableMessages() ;
+            createAutos();
+            
         } catch (Exception e) {
         }
     }
@@ -126,20 +132,24 @@ public class AllegroRobot extends XeroRobot {
      */
     @Override
     public void autonomousInit() {
+        super.autonomousInit();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
+        super.autonomousPeriodic();
     }
 
     @Override
     public void teleopInit() {
+        super.teleopInit();
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        super.teleopPeriodic();
     }
 
     @Override
@@ -156,10 +166,17 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called once when the robot is first started up. */
     @Override
     public void simulationInit() {
+        super.simulationInit();
     }
 
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
+        super.simulationPeriodic();
     }
+    
+    public void createAutos() {
+        addAutoMode(new FourNoteDynamicAuto(this, container_));
+        addAutoMode(new ThreeNoteDynamicAuto(this, container_));
+    }    
 }

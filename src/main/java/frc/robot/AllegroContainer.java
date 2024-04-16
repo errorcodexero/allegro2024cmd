@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.commands.TransferNoteCommand;
+import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
@@ -13,11 +14,15 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+
+import org.xero1425.HolonomicPathFollower;
 import org.xero1425.XeroContainer;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -38,7 +43,7 @@ public class AllegroContainer extends XeroContainer {
     //
     private final CommandSwerveDrivetrain db_ ;
     private final IntakeShooterSubsystem intake_shooter_ ;
-    private final TrampSubsystem trap_arm_  ;
+    private final TrampSubsystem tramp_  ;
     private final Tracker tracker_ ;
     private final VisionSubsystem vision_ ;
     private final OISubsystem oi_ ;
@@ -79,13 +84,14 @@ public class AllegroContainer extends XeroContainer {
         // Create subsystems
         //
         db_ = TunerConstants.DriveTrain ;
+        db_.createHolonimicPathFollower(getHolonomicConfig());
 
         tracker_ = new Tracker(robot, db_, limelight_name_) ;
         vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
         oi_ = new OISubsystem(robot, OIConstants.kOIControllerPort) ;
 
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), ()-> oi_.getNoteDestination()) ;
-        trap_arm_ = new TrampSubsystem(robot, ()-> oi_.getNoteDestination()) ;
+        tramp_ = new TrampSubsystem(robot, ()-> oi_.getNoteDestination()) ;
 
 
         vision_.enable(true);
@@ -105,12 +111,47 @@ public class AllegroContainer extends XeroContainer {
         configureBindings();
     }
 
+    public HolonomicPathFollower.Config getHolonomicConfig() {
+        HolonomicPathFollower.Config cfg = new HolonomicPathFollower.Config() ;
+
+        cfg.max_rot_velocity = SwerveConstants.kMaxRotationalSpeed ;
+        cfg.max_rot_acceleration = SwerveConstants.kMaxRotationalAccel ;
+
+        cfg.rot_p = RobotConstants.PathFollowing.RotCtrl.kP ;
+        cfg.rot_i = RobotConstants.PathFollowing.RotCtrl.kI ;
+        cfg.rot_d = RobotConstants.PathFollowing.RotCtrl.kD ;
+
+        cfg.x_d = RobotConstants.PathFollowing.XCtrl.kD ;
+        cfg.x_i = RobotConstants.PathFollowing.XCtrl.kI ;
+        cfg.x_p = RobotConstants.PathFollowing.XCtrl.kP ;
+
+        cfg.y_d = RobotConstants.PathFollowing.YCtrl.kD ;
+        cfg.y_i = RobotConstants.PathFollowing.YCtrl.kI ;
+        cfg.y_p = RobotConstants.PathFollowing.YCtrl.kP ;
+
+        cfg.xytolerance = RobotConstants.PathFollowing.kXYTolerance ;
+        cfg.rot_tolerance = Rotation2d.fromDegrees(RobotConstants.PathFollowing.kAngleTolerance) ;
+
+        cfg.pose_supplier = () -> getDriveTrain().getState().Pose ;
+        cfg.output_consumer = (ChassisSpeeds spd) -> setDriveTrainChassisSpeeds(spd) ;
+
+        return cfg ;
+    }
+
+    private void setDriveTrainChassisSpeeds(ChassisSpeeds spd) {
+        getDriveTrain().setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ;
+    }
+
+    public OISubsystem getOI() {
+        return oi_ ;
+    }
+
     public IntakeShooterSubsystem getIntakeShooter() {
         return intake_shooter_ ;
     }
 
-    public TrampSubsystem getTrapArm() {
-        return trap_arm_ ;
+    public TrampSubsystem getTramp() {
+        return tramp_ ;
     }
 
     public CommandSwerveDrivetrain getDriveTrain() {
@@ -138,49 +179,42 @@ public class AllegroContainer extends XeroContainer {
         //
         // Collect command, bound to OI and the gamepad
         //
-        // driver_controller_.rightBumper().or(oi_.button(OIConstants.Buttons.kCollect)).whileTrue(intake_shooter_.collectCommand()) ;
-        
-        oi_.collect().whileTrue(intake_shooter_.collectCommand());
-        // driver_controller_.rightBumper().whileTrue(intake_shooter_.collectCommand()) ;
+        driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand()) ;
 
         //
         // Eject command, bound to the eject button on the OI
         //
-        oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), trap_arm_.ejectCommand())) ;
+        oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), tramp_.ejectCommand())) ;
 
         //
         // Turtle command, bound to the turtle button on the OI
         // 
-        oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), trap_arm_.turtleCommand())) ;
+        oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), tramp_.turtleCommand())) ;
 
         //
-        // Shoot command, bound to the shoot button on the OI
+        // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+        oi_.shoot().and(intake_shooter_.readyForShoot()).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+
+        //
+        // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
+        //
+        oi_.shoot().and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
+
+        //
+        // Climb Up Exec, bound to complete the trap sequence
+        //
+        oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
         
-        // oi_.button(OIConstants.Buttons.kAbort).onTrue(abort_shoot_) ;
-
         //
         // If a note is collected and thet arget is the trap or amp, this trigger is fired to complete
         // the transfer action.  The transfer action moves the note from the intake to the manipulator.
         //
-        intake_shooter_.getTransferNoteTrigger().onTrue(new TransferNoteCommand(intake_shooter_, trap_arm_)) ;
+        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
     }
 
     private void configureBindings() {
         driveTrainBindings();
         superStructureBindings() ;
-    }
-
-    public Command getAutonomousCommand() {
-        return null ;
-    }
-
-    public IntakeShooterSubsystem getIntakeShooterSubsystem() {
-        return intake_shooter_ ;
-    }
-
-    public TrampSubsystem getTrapArmSubsystem() {
-        return trap_arm_ ;
     }
 }

@@ -1,0 +1,168 @@
+{
+    "initialization" : [
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "ainput",
+                "index" : 0,
+                "value" : 0.0
+            }
+        }    
+    ],
+    "simulation" : [
+        //
+        // Enable teleop mode
+        //
+        {
+            "type" : "input",
+            "time" : 2.8,
+            "hardware" : {
+                "type" : "driverstation",
+                "subtype" : "mode",
+                "index" : 0,
+                "value" : "teleop"
+            }
+        },
+
+        //
+        // Set the note destination to AMP
+        //
+        {
+            "type" : "input",
+            "time" : 2.8,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "2",
+                "index" : 2,
+                "value" : true
+            }
+        },
+        {
+            "type" : "input",
+            "time" : 2.8,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "1",
+                "index" : 2,
+                "value" : false
+            }
+        },
+
+        //
+        // Press the collect button
+        //
+        {
+            "type" : "input",
+            "time" : 3.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "11",
+                "index" : 2,
+                "value" : true
+            }
+        },
+
+        //
+        // Note sensor goes low, note detected in intake
+        //
+        {
+            "type" : "input",
+            "time" : 5.0,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+        
+        //
+        // Note sensor goes high, note has passed the sensor on the way in
+        //
+        {
+            "type" : "input",
+            "time" : 5.2,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },
+
+        //
+        // Release the collect button
+        //
+        {
+            "type" : "input",
+            "time" : 5.5,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "11",
+                "index" : 2,
+                "value" : false
+            }
+        },
+
+
+        //
+        // Note crosses the sensor as it is transferred to the trap/amp mechanism 
+        //
+        {
+            "type" : "input",
+            "time" : 7.00,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+
+        //
+        // Note clears the sensor as it is transfrred to the trap/amp mechanism
+        //
+        {
+            "type" : "input",
+            "time" : 7.40,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },
+        //
+        // The shoot button is pressed on the OI to shoot into the AMP
+        //
+        {
+            "type" : "input",
+            "time" : 9.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "4",
+                "index" : 2,
+                "value" : true
+            }
+        },
+
+        //
+        // The shoot button is released
+        //
+        {
+            "type" : "input",
+            "time" : 10.0,
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "4",
+                "index" : 2,
+                "value" : false
+            }
+        }          
+    ]
+}
+

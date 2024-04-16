@@ -6,9 +6,11 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -21,9 +23,12 @@ import com.revrobotics.CANSparkBase.IdleMode;
 public class TrampIOHardware implements TrampIO {
     private TalonFX elevator_motor_ ;
     private TalonFX arm_motor_ ;
+    private TalonFX climber_motor_ ;
     private CANSparkFlex manipulator_motor_ ;
+    private RelativeEncoder encoder_ ;    
     private DCMotorSim arm_sim_ ;
-    private DCMotorSim elevator_sim_ ;    
+    private DCMotorSim elevator_sim_ ;
+    private DCMotorSim climber_sim_ ;
 
     private StatusSignal<Double> elevator_pos_sig_ ;
     private StatusSignal<Double> elevator_vel_sig_ ;
@@ -31,8 +36,11 @@ public class TrampIOHardware implements TrampIO {
     private StatusSignal<Double> arm_pos_sig_ ;
     private StatusSignal<Double> arm_vel_sig_ ;
     private StatusSignal<Double> arm_current_sig_ ;
+    private StatusSignal<Double> climber_current_sig_ ;
+    private StatusSignal<Double> climber_pos_sig_ ;
 
     private double manipulator_voltage_ ;
+    private double climber_voltage_ ;
 
     public TrampIOHardware() throws Exception {
         Slot0Configs cfg ;
@@ -65,9 +73,16 @@ public class TrampIOHardware implements TrampIO {
                                 .withKS(TrampConstants.Arm.PID.kS) ;      
         arm_motor_.getConfigurator().apply(cfg) ;
 
+        climber_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Climber.kMotorId,
+                                                               false,
+                                                               TrampConstants.Climber.kCurrentLimit);
+        climber_motor_.getPosition().setUpdateFrequency(100) ;
+        climber_motor_.getVelocity().setUpdateFrequency(100) ;
+
         manipulator_motor_ = new CANSparkFlex(TrampConstants.Manipulator.kMotorId, CANSparkFlex.MotorType.kBrushless);
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
+        encoder_ = manipulator_motor_.getEncoder() ;
 
         elevator_pos_sig_ = elevator_motor_.getPosition() ;
         elevator_vel_sig_ = elevator_motor_.getVelocity() ;
@@ -77,22 +92,29 @@ public class TrampIOHardware implements TrampIO {
         arm_vel_sig_ = arm_motor_.getVelocity() ;
         arm_current_sig_ = arm_motor_.getSupplyCurrent() ;
 
+        climber_pos_sig_ = climber_motor_.getPosition() ;
+        climber_current_sig_ = climber_motor_.getSupplyCurrent() ;
+
         BaseStatusSignal.setUpdateFrequencyForAll(50.0,
                                 elevator_pos_sig_,
                                 elevator_vel_sig_,
                                 elevator_current_sig_,
                                 arm_pos_sig_,
                                 arm_vel_sig_,
-                                arm_current_sig_) ;
+                                arm_current_sig_,
+                                climber_current_sig_) ;
 
         elevator_motor_.optimizeBusUtilization() ;
         arm_motor_.optimizeBusUtilization() ;
+        climber_motor_.optimizeBusUtilization() ;
 
         manipulator_voltage_ = 0.0 ;
+        climber_voltage_ = 0.0 ;
 
         if (RobotBase.isSimulation()) {
-            arm_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 2.0, 0.001) ;
-            elevator_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 6.0, 0.001) ;
+            arm_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Arm.kSimGearRatio, TrampConstants.Arm.kSimMotorLoad) ;
+            elevator_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Elevator.kSimGearRatio, TrampConstants.Elevator.kSimMotorLoad);
+            climber_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Climber.kSimGearRatio, TrampConstants.Climber.kSimMotorLoad) ;
         }        
     }
 
@@ -105,7 +127,11 @@ public class TrampIOHardware implements TrampIO {
         inputs.armVelocity = arm_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Arm.kDegreesPerRev ;
         inputs.armCurrent = arm_current_sig_.refresh().getValueAsDouble() ;
 
-        inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
+        inputs.climberCurrent = climber_current_sig_.refresh().getValueAsDouble() ;
+        inputs.climberPositon = climber_pos_sig_.refresh().getValueAsDouble() ;
+
+        inputs.manipulatorPosition = encoder_.getPosition() ;
+        inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;        
     }
 
     public void setElevatorTargetPos(double pos) {
@@ -125,6 +151,15 @@ public class TrampIOHardware implements TrampIO {
         return manipulator_voltage_ ;
     }
 
+    public void setClimberVoltage(double volts) {
+        climber_voltage_ = volts ;
+        climber_motor_.setControl(new VoltageOut(climber_voltage_));
+    }
+
+    public double getClimberVoltage() {
+        return climber_voltage_;
+    }    
+
     public void doSim(TalonFX motor, DCMotorSim sim, double period){
         TalonFXSimState state = motor.getSimState() ;
         state.setSupplyVoltage(RobotController.getBatteryVoltage()) ;
@@ -137,5 +172,15 @@ public class TrampIOHardware implements TrampIO {
     public void simulate(double period) {
         doSim(arm_motor_, arm_sim_, period) ;
         doSim(elevator_motor_, elevator_sim_, period) ;
+        doSim(climber_motor_, climber_sim_, period) ;
+
+        //
+        // The RevRobotics motors do not provide simulation support, so we have to simulate them
+        // here "manually".  This simulation is specific to the use case here
+        //
+        if (Math.abs(manipulator_voltage_) > 0.01) {
+            double pos = encoder_.getPosition() + 0.04 ;
+            encoder_.setPosition(pos) ;
+        }
     }
 }

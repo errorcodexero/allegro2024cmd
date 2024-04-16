@@ -1,7 +1,8 @@
 package frc.robot;
 
 public enum NoteDestination {
-    Speaker,
+    AutoSpeaker,
+    ManualSpeaker,
     Trap,
     Amp,
     Undefined

@@ -4,6 +4,8 @@ import org.littletonrobotics.junction.Logger;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.NoteDestination;
 import frc.robot.ShootType;
@@ -23,6 +25,8 @@ public class OISubsystem extends XeroSubsystem {
     private Trigger climb_up_exec_trigger_ ;
     private Trigger auto_trap_trigger_ ;
 
+    private NoteDestination auto_node_dest_ ;
+
     private OIIos ios_ ;
     private OIIosInputsAutoLogged inputs_ ;
 
@@ -31,8 +35,9 @@ public class OISubsystem extends XeroSubsystem {
 
         ios_ = new OIIosHID(port) ;
         inputs_ = new OIIosInputsAutoLogged() ;
-        
-        note_dest_ = NoteDestination.Speaker ;
+
+        auto_node_dest_ = NoteDestination.AutoSpeaker ;
+        note_dest_ = NoteDestination.AutoSpeaker ;
 
         eject_trigger_ = new Trigger(() -> inputs_.eject) ;
         abort_trigger_ = new Trigger(() -> inputs_.abort) ;
@@ -80,14 +85,23 @@ public class OISubsystem extends XeroSubsystem {
         return auto_trap_trigger_ ;
     }
 
+    public void setAutoNoteDestination(NoteDestination dest) {
+        auto_node_dest_ = dest ;
+    }
 
     @Override
     public void periodic() {
         ios_.updateInputs(inputs_) ;
         Logger.processInputs("oi", inputs_);
 
-        note_dest_ = mapNoteDestination(inputs_.target1, inputs_.target2) ;
-        shoot_type_ = mapShootType(inputs_.manual1, inputs_.manual2) ;
+        if (DriverStation.isAutonomousEnabled()) {
+            note_dest_ = auto_node_dest_ ;
+            shoot_type_ = ShootType.Subwoofer ;
+        }
+        else {
+            note_dest_ = mapNoteDestination(inputs_.target1, inputs_.target2) ;
+            shoot_type_ = mapShootType(inputs_.manual1, inputs_.manual2) ;
+        }
 
         Logger.recordOutput("oi-note-dest", note_dest_) ;
         Logger.recordOutput("oi-shoot-type", shoot_type_) ;
@@ -100,7 +114,7 @@ public class OISubsystem extends XeroSubsystem {
         if (!b1 && !b2) {
             dest = NoteDestination.Amp ;
         } else if (b1 && !b2) {
-            dest = NoteDestination.Speaker ;
+            dest = NoteDestination.AutoSpeaker ;
         } else if (!b1 && b2) {
             dest = NoteDestination.Trap ;
         }

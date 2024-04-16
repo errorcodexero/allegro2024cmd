@@ -7,12 +7,20 @@
                 "index" : 1,
                 "value" : true
             }
-        }
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "ainput",
+                "index" : 0,
+                "value" : 0.0
+            }
+        }        
     ],
     "simulation" : [
         {
             "type" : "input",
-            "time" : 4.8,
+            "time" : 2.0,
             "hardware" : {
                 "type" : "driverstation",
                 "subtype" : "mode",
@@ -20,9 +28,13 @@
                 "value" : "teleop"
             }
         },
+
+        //
+        // Set the note destination to Speaker
+        //
         {
             "type" : "input",
-            "time" : 5.0,
+            "time" : 2.8,
             "hardware" : {
                 "type" : "oidevice",
                 "subtype" : "2",
@@ -32,17 +44,21 @@
         },
         {
             "type" : "input",
-            "time" : 5.0,
+            "time" : 2.8,
             "hardware" : {
                 "type" : "oidevice",
                 "subtype" : "1",
                 "index" : 2,
-                "value" : false
+                "value" : true
             }
         },
+
+        //
+        // Press the collect button
+        //
         {
             "type" : "input",
-            "time" : 6.0,
+            "time" : 3.0,
             "hardware" : {
                 "type" : "oidevice",
                 "subtype" : "11",
@@ -50,27 +66,39 @@
                 "value" : true
             }
         },
+
+        //
+        // Note sensor goes low, note detected in intake
+        //
         {
             "type" : "input",
-            "time" : 10.0,
+            "time" : 4.0,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
                 "value" : false
             }
         },
+        
+        //
+        // Note sensor goes high, note has passed the sensor on the way in
+        //
         {
             "type" : "input",
-            "time" : 10.2,
+            "time" : 4.2,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
                 "value" : true
             }
         },
+
+        //
+        // Release the collect button
+        //
         {
             "type" : "input",
-            "time" : 11.0,
+            "time" : 5.5,
             "hardware" : {
                 "type" : "oidevice",
                 "subtype" : "11",
@@ -78,22 +106,32 @@
                 "value" : false
             }
         },
+
+        //
+        // The shoot button is pressed on the OI to shoot into the AMP
+        //
         {
             "type" : "input",
-            "time" : 13.00,
+            "time" : 8.0,
             "hardware" : {
-                "type" : "dinput",
-                "index" : 1,
-                "value" : false
+                "type" : "oidevice",
+                "subtype" : "7",
+                "index" : 2,
+                "value" : true
             }
         },
+
+        //
+        // The shoot button is released
+        //
         {
             "type" : "input",
-            "time" : 13.1,
+            "time" : 9.0,
             "hardware" : {
-                "type" : "dinput",
-                "index" : 1,
-                "value" : true
+                "type" : "oidevice",
+                "subtype" : "7",
+                "index" : 2,
+                "value" : false
             }
         }
     ]

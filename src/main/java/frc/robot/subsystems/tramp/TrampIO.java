@@ -12,7 +12,10 @@ public interface TrampIO {
         public double armPosition = 0.0 ;
         public double armVelocity = 0.0 ;
         public double armCurrent = 0.0 ;
+        public double manipulatorPosition = 0.0 ;
         public double manipulatorCurrent = 0.0 ;
+        public double climberPositon = 0.0 ;
+        public double climberCurrent = 0.0 ;
     }
 
     public default void updateInputs(TrampIOInputs inputs) {
@@ -28,6 +31,13 @@ public interface TrampIO {
     }
 
     public default double getManipulatorVoltage() {
+        return 0.0 ;
+    }
+
+    public default void setClimberVoltage(double volts) {
+    }
+
+    public default double getClimberVoltage() {
         return 0.0 ;
     }
 

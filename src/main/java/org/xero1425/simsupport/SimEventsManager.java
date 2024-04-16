@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import org.xero1425.MessageLogger;
 import org.xero1425.MessageType;
 
+import edu.wpi.first.hal.simulation.AnalogInDataJNI;
 import edu.wpi.first.hal.simulation.DIODataJNI;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
@@ -97,7 +98,7 @@ public class SimEventsManager {
         return true;
     }
 
-    public boolean parseEvents(String filename, JSONArray arr, List<SimEvent> events, boolean needtime) {
+    private boolean parseEvents(String filename, JSONArray arr, List<SimEvent> events, boolean needtime) {
         for (Object obj : arr) {
             if (!(obj instanceof JSONObject)) {
                 logger_.startMessage(MessageType.Error);
@@ -228,13 +229,23 @@ public class SimEventsManager {
             DIODataJNI.setIsInput(ev.index_, true) ;
             DIODataJNI.setValue(ev.index_, ev.bvalue_) ;
         }
+        else if (ev.hardware_type_.equals("ainput")) {
+            AnalogInDataJNI.setVoltage(ev.index_, ev.dvalue_);
+        }
         else if (ev.hardware_type_.equals("driverstation")) {
             if (ev.hardware_subtype_.equals("mode")) {
                 if (ev.svalue_.equals("teleop")) {
                     DriverStationSim.setAutonomous(false);
                     DriverStationSim.setTest(false);
                     DriverStationSim.setEnabled(true);
+                    DriverStationSim.notifyNewData();
                 }
+                else if (ev.svalue_.equals("auto")) {
+                    DriverStationSim.setAutonomous(true);
+                    DriverStationSim.setTest(false);
+                    DriverStationSim.setEnabled(true);
+                    DriverStationSim.notifyNewData();                    
+                }                
             }
             else {
                 logger_.startMessage(MessageType.Error) ;
@@ -284,5 +295,11 @@ public class SimEventsManager {
         }
 
         Logger.recordOutput("simerror", simerror_) ;
+    }
+
+    public void initialize() {
+        for(SimEvent ev : initialization_) {
+            processOneEvent(0.0, ev) ;
+        }
     }
 }

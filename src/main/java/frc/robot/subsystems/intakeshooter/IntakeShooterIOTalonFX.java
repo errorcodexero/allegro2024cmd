@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intakeshooter;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.xero1425.EncoderMapper;
 import org.xero1425.TalonFXFactory;
 
@@ -32,8 +34,8 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private AnalogInput absolute_encoder_;
     private AsynchronousInterrupt note_interrupt_ ;
     private EncoderMapper encoder_mapper_ ;
-    private boolean rising_seen_ ;
-    private boolean falling_seen_ ;
+    private AtomicBoolean rising_seen_ ;
+    private AtomicBoolean falling_seen_ ;
 
     private DCMotorSim updown_sim_ ;
     private DCMotorSim tilt_sim_ ;
@@ -41,6 +43,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private DCMotorSim shooter2_sim_ ;
 
     private DIOSim note_sim_ ;
+    private boolean is_sim_ ;
 
     private StatusSignal<Double> updown_position_signal_ ;
     private StatusSignal<Double> updown_velocity_signal_ ;
@@ -58,6 +61,8 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
     public IntakeShooterIOTalonFX(boolean practice) throws Exception {
         Slot0Configs cfg ;
+
+        is_sim_ = RobotBase.isSimulation() ;
 
         feeder_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Feeder.kMotorId,
@@ -128,6 +133,9 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         note_interrupt_.setInterruptEdges(true, true);            
         note_interrupt_.enable();
 
+        rising_seen_ = new AtomicBoolean() ;
+        falling_seen_ = new AtomicBoolean() ;
+
         absolute_encoder_ = new AnalogInput(IntakeShooterConstants.Tilt.AbsoluteEncoder.kChannel) ;
         encoder_mapper_ = new EncoderMapper(IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotMax,
                                             IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotMin,
@@ -179,10 +187,11 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         feeder_motor_.optimizeBusUtilization();
 
         if (RobotBase.isSimulation()) {
-            updown_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 6.0, 0.00001) ;
-            tilt_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 4.0, 0.00001) ;
-            shooter1_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 0.6, 0.00001) ;
-            shooter2_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 0.6, 0.00001) ;
+            updown_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), IntakeShooterConstants.UpDown.kSimGearRatio, IntakeShooterConstants.UpDown.kSimMotorLoad) ;
+            tilt_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), IntakeShooterConstants.Tilt.kSimGearRatio, IntakeShooterConstants.Tilt.kSimMotorLoad) ;
+            shooter1_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), IntakeShooterConstants.Shooter.kSimGearRatio, IntakeShooterConstants.Shooter.kSimMotorLoad);
+            shooter2_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), IntakeShooterConstants.Shooter.kSimGearRatio, IntakeShooterConstants.Shooter.kSimMotorLoad) ;
+            
             note_sim_ = new DIOSim(note_sensor_) ;
             note_sim_.setIsInput(true) ;
             note_sim_.setValue(true);
@@ -208,17 +217,17 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         inputs.shooter1Current = shooter1_current_signal_.refresh().getValueAsDouble() ;
         inputs.shooter1Position = shooter1_position_signal_.refresh().getValueAsDouble() ;
 
-        inputs.shooter2Velocity = shooter2_velocity_signal_.getValueAsDouble() ;
-        inputs.shooter2Current = shooter2_current_signal_.getValueAsDouble() ;
-        inputs.shooter2Position = shooter2_position_signal_.getValueAsDouble() ;
+        inputs.shooter2Velocity = shooter2_velocity_signal_.refresh().getValueAsDouble() ;
+        inputs.shooter2Current = shooter2_current_signal_.refresh().getValueAsDouble() ;
+        inputs.shooter2Position = shooter2_position_signal_.refresh().getValueAsDouble() ;
 
-        inputs.risingEdge = rising_seen_ ;
-        inputs.fallingEdge = falling_seen_ ;
+        inputs.risingEdge = rising_seen_.get() ;
+        inputs.fallingEdge = falling_seen_.get() ;
 
         inputs.noteSensor = note_sensor_.get() ;
 
-        rising_seen_ = false ;
-        falling_seen_ = false ;
+        rising_seen_.set(false) ;
+        falling_seen_.set(false) ;
     }
 
     public double getTiltAbsoluteEncoderPosition() {
@@ -278,7 +287,22 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }
     
     private void noteInterruptHandler(boolean rising, boolean falling) {
-        rising_seen_ = rising ;
-        falling_seen_ =  falling ;
+        if (rising) {
+            if (is_sim_) {
+                falling_seen_.set(true) ;
+            }
+            else {
+                rising_seen_.set(true) ;                
+            }
+        }
+
+        if (falling) {
+            if (is_sim_) {
+                rising_seen_.set(true) ;
+            }
+            else {
+                falling_seen_.set(true) ;
+            }
+        }
     }
 }

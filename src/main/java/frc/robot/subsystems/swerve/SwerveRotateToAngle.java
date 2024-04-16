@@ -2,6 +2,8 @@ package frc.robot.subsystems.swerve;
 
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -50,6 +52,10 @@ public class SwerveRotateToAngle extends Command {
 
         double current_angular_velocity = db_.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() ;
         is_finished_ = Math.abs(target_angle) < postol_ && Math.abs(current_angular_velocity) < veltol_ ;
+
+        Logger.recordOutput("db-targ-angle", target_angle) ;
+        Logger.recordOutput("db-targ-ang-vel", target_angular_velocity) ;
+        Logger.recordOutput("db-rot-is-finished", is_finished_) ;
     }
 
     @Override

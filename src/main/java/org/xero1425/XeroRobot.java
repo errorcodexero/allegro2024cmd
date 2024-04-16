@@ -1,5 +1,8 @@
 package org.xero1425;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.littletonrobotics.junction.LoggedRobot;
 import org.xero1425.simsupport.SimArgs;
 import org.xero1425.simsupport.SimEventsManager;
@@ -7,25 +10,24 @@ import org.xero1425.simsupport.SimEventsManager;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public abstract class XeroRobot extends LoggedRobot {
     private MessageLogger logger_ ;
     private RobotPaths robot_paths_ ;
     private XeroContainer container_ ;
     private SimEventsManager simmgr_ ;
+    private XeroAutoMode auto_mode_ ;
+    private List<XeroAutoMode> automodes_ ;
+    private SendableChooser<XeroAutoMode> chooser_ ;
 
     public XeroRobot() {
-        robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());
-        
+        automodes_ = new ArrayList<>() ;        
+        robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());       
         enableMessageLogger();
-
-        if (XeroRobot.isSimulation()) {
-            String filename = getSimFileName() ;
-            if (filename != null) {
-                simmgr_ = new SimEventsManager(getMessageLogger()) ;
-                simmgr_.readEventsFile(filename) ;
-            }
-        }
+        auto_mode_ = null; 
     }
 
     public abstract String getRobotSimFileName() ;
@@ -46,6 +48,15 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     public abstract String getName() ;
+
+
+    protected void addAutoMode(XeroAutoMode mode) {
+        automodes_.add(mode) ;
+    }
+
+    List<XeroAutoMode> getAutoModes() {
+        return automodes_ ;
+    }    
 
     // \brief return the Serial number for the practice bot roborio
     protected abstract String getPracticeSerialNumber() ;
@@ -71,6 +82,35 @@ public abstract class XeroRobot extends LoggedRobot {
         if (simmgr_ != null) {
             simmgr_.processEvents(getTime()) ;
         }
+
+        autoModeChooser();
+    }
+
+    @Override
+    public void autonomousInit() {
+        super.autonomousInit() ;
+
+        if (auto_mode_ != null) {
+            auto_mode_.getCommand().schedule() ;
+        }
+    }
+
+    @Override
+    public void teleopInit() {
+        if (auto_mode_ != null) {
+            auto_mode_.getCommand().cancel() ;
+        }
+    }
+
+    @Override
+    public void simulationInit() {
+        String filename = getSimFileName() ;
+        if (filename != null) {
+            simmgr_ = new SimEventsManager(getMessageLogger()) ;
+            simmgr_.readEventsFile(filename) ;
+        }
+
+        simmgr_.initialize() ;
     }
 
     protected void enableMessages() {
@@ -86,5 +126,25 @@ public abstract class XeroRobot extends LoggedRobot {
 
     public double getTime() {
         return Timer.getFPGATimestamp() ;
+    }
+
+    void autoModeChooser() {
+        if (chooser_ == null && automodes_.size() > 0) {
+            chooser_ = new SendableChooser<>() ;
+            boolean defaultSet = false ;
+            for (XeroAutoMode mode : automodes_) {
+                chooser_.addOption(mode.toString(), mode) ;
+                if (!defaultSet) {
+                    chooser_.setDefaultOption(mode.toString(), mode) ;
+                    defaultSet = true ;
+                }
+            }
+
+            Shuffleboard.getTab("AutoMode").add("AutoMode", chooser_).withSize(2,1).withWidget(BuiltInWidgets.kComboBoxChooser) ;            
+        }
+
+        if (chooser_ != null) {
+            auto_mode_ = chooser_.getSelected() ;
+        }
     }
 }

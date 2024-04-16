@@ -8,9 +8,17 @@ import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.NoteDestination;
 
 public class TrampSubsystem extends XeroSubsystem {
+
+    private enum ClimberDir {
+        Up,
+        Down,
+        None
+    } ;
+
     private enum State {
         Idle,
         Eject,
@@ -21,8 +29,16 @@ public class TrampSubsystem extends XeroSubsystem {
         CrossMaxToMinWaitArm,
         HoldingTransferPosition,
         HoldingAmpPosition,
+        MoveNote,
+        MovingNote,
         HoldingTrapPosition,
-        Transferring
+        Climbing,
+        Trap1,
+        StartDepositNote,
+        DepositingNote,
+        Trap3,
+        Transferring,
+        Shooting,
     }
 
     private TrampIO io_ ;
@@ -46,9 +62,20 @@ public class TrampSubsystem extends XeroSubsystem {
     private Supplier<NoteDestination> destsupplier_ ;
 
     private XeroTimer eject_timer_ ;
+    private XeroTimer shoot_timer_ ;
+    private XeroTimer deposit_trap_timer_ ;
 
     private TrampEjectCommand eject_command_ ;
     private TrampTurtleCommand turtle_command_ ;
+    private TrampShootCommand shoot_command_ ;
+    private TrampTrapCommand trap_command_ ;
+
+    private Trigger ready_for_amp_trigger_ ;
+    private Trigger ready_for_trap_trigger_ ;
+
+    private ClimberDir climber_dir_ ;
+    private double climber_target_ ;
+    private double manipulator_target_ ;
 
     public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
         super(robot, "trap-arm") ;
@@ -59,12 +86,29 @@ public class TrampSubsystem extends XeroSubsystem {
         destsupplier_ = dest ;
 
         eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
+        shoot_timer_ = new XeroTimer(robot, "tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
+        deposit_trap_timer_ = new XeroTimer(robot, "tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
 
         eject_command_ = new TrampEjectCommand(this) ;
         turtle_command_ = new TrampTurtleCommand(this) ;
+        shoot_command_ = new TrampShootCommand(this) ;
+        trap_command_ = new TrampTrapCommand(this) ;
+
+        ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
+        ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ;        
         
         state_ = State.Idle ;
+        climber_dir_ = ClimberDir.None ;
+        climber_target_ = 0.0 ;
     }
+
+    public Trigger readyForAmp() {
+        return ready_for_amp_trigger_;
+    }
+
+    public Trigger readyForTrap() {
+        return ready_for_trap_trigger_;
+    }    
 
     public boolean isIdle() {
         return state_ == State.Idle ;
@@ -90,6 +134,29 @@ public class TrampSubsystem extends XeroSubsystem {
         return turtle_command_ ;
     }
 
+    public Command shootCommand() {
+        return shoot_command_ ;
+    }
+
+    public Command trapCommand() {
+        return trap_command_ ;
+    }
+
+    public void shoot() {
+        if (isInAmpPosition()) {
+            io_.setManipulatorVoltage(TrampConstants.Manipulator.kShootPower);
+            shoot_timer_.start() ;
+            state_ = State.Shooting ;
+        }
+    }
+
+    public void trap() {
+        if (isInTrapPosition()) {
+            climberDown();
+            state_ = State.Climbing ;
+        }
+    }
+
     public void moveToTransferPosition() {
         gotoPosition(TrampConstants.Elevator.Positions.kTransfer, Double.NaN, Double.NaN, TrampConstants.Arm.Positions.kTransfer, Double.NaN, Double.NaN);
         next_state_ = State.HoldingTransferPosition ;
@@ -100,7 +167,9 @@ public class TrampSubsystem extends XeroSubsystem {
         if (dest == NoteDestination.Trap) {
             gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kTrap, Double.NaN, Double.NaN);
-            next_state_ = State.HoldingTrapPosition ;
+            climberUp() ;
+
+            next_state_ = State.MoveNote ;
         }
         else if (dest == NoteDestination.Amp) {
             gotoPosition(TrampConstants.Elevator.Positions.kAmp, Double.NaN, Double.NaN, 
@@ -145,6 +214,19 @@ public class TrampSubsystem extends XeroSubsystem {
     public void periodic() {
         io_.updateInputs(inputs_) ;
         Logger.processInputs("tramp", inputs_);
+
+        if (climber_dir_ == ClimberDir.Up) {
+            if (inputs_.climberPositon >= climber_target_) {
+                io_.setClimberVoltage(0.0);
+                climber_dir_ = ClimberDir.None ;
+            }
+        }
+        else if (climber_dir_ == ClimberDir.Down) {
+            if (inputs_.climberPositon <= climber_target_) {
+                io_.setClimberVoltage(0.0);
+                climber_dir_ = ClimberDir.None ;
+            }
+        }
 
         switch(state_) {
             case Idle:
@@ -211,10 +293,69 @@ public class TrampSubsystem extends XeroSubsystem {
             case HoldingAmpPosition:
                 break ;
 
+            case MoveNote:
+                manipulator_target_ = inputs_.manipulatorPosition + TrampConstants.Manipulator.kTrapMoveNoteDistance ;
+                io_.setManipulatorVoltage(TrampConstants.Manipulator.kTrapMoveNotePower);
+                state_ = State.MovingNote ;
+                break ;
+
+            case MovingNote:                
+                if (inputs_.manipulatorPosition >= manipulator_target_) {
+                    io_.setManipulatorVoltage(0.0);
+                    state_ = State.HoldingTrapPosition ;
+                }
+                break ;
+
             case HoldingTrapPosition:
                 break ;
 
             case Transferring:
+                break ;
+
+            case Shooting:
+                if (shoot_timer_.isExpired()) {
+                    io_.setManipulatorVoltage(0.0);
+                    gotoPosition(TrampConstants.Elevator.Positions.kStowed, Double.NaN, Double.NaN,
+                                 TrampConstants.Arm.Positions.kStowed, Double.NaN, Double.NaN) ;
+                    next_state_ = State.Idle ;
+                }
+                break ;
+
+            case Climbing:
+                if (climber_dir_ == ClimberDir.None) {
+                    gotoPosition(TrampConstants.Elevator.Positions.kTrap1, Double.NaN, Double.NaN,
+                                 TrampConstants.Arm.Positions.kTrap1, Double.NaN, Double.NaN) ;
+                    next_state_ = State.Trap1 ;
+                }
+                break ;
+
+            case Trap1:
+                gotoPosition(TrampConstants.Elevator.Positions.kTrap2, Double.NaN, Double.NaN,
+                                TrampConstants.Arm.Positions.kTrap2, Double.NaN, Double.NaN) ;
+                next_state_ = State.StartDepositNote ;
+                break ;
+
+            case StartDepositNote:
+                //
+                // Ok, trap 2 is done, need to deposit the note
+                //
+                io_.setManipulatorVoltage(TrampConstants.Manipulator.kDepositPower);
+                deposit_trap_timer_.start();
+                state_ = State.DepositingNote ;
+                break ;
+
+            case DepositingNote:
+                if (deposit_trap_timer_.isExpired()) {
+                    gotoPosition(TrampConstants.Elevator.Positions.kTrap3, Double.NaN, Double.NaN,
+                                TrampConstants.Arm.Positions.kTrap3, Double.NaN, Double.NaN) ;
+                    next_state_ = State.Trap3 ;                    
+                }
+                break ;
+
+            case Trap3:
+                gotoPosition(TrampConstants.Elevator.Positions.kTrap4, Double.NaN, Double.NaN,
+                             TrampConstants.Arm.Positions.kTrap4, Double.NaN, Double.NaN) ;
+                next_state_ = State.Idle ;
                 break ;
         }
         
@@ -222,6 +363,21 @@ public class TrampSubsystem extends XeroSubsystem {
         Logger.recordOutput("elev-target", target_elev_);
         Logger.recordOutput("arm-target", target_arm_);
         Logger.recordOutput("manipulator-voltage", io_.getManipulatorVoltage());
+        Logger.recordOutput("climber-voltage", io_.getClimberVoltage());
+        Logger.recordOutput("is-elev-ready", isElevatorReady());
+        Logger.recordOutput("is-arm-ready", isArmReady());
+    }
+
+    private void climberUp() {
+        io_.setClimberVoltage(TrampConstants.Climber.kMoveClimberVoltage);
+        climber_target_ = TrampConstants.Climber.kClimberUpPosition ;
+        climber_dir_ = ClimberDir.Up ;
+    }
+
+    private void climberDown() {
+        io_.setClimberVoltage(-TrampConstants.Climber.kMoveClimberVoltage);
+        climber_target_ = TrampConstants.Climber.kClimberDownPosition ;
+        climber_dir_ = ClimberDir.Down;
     }
 
     private boolean isElevatorReady() {

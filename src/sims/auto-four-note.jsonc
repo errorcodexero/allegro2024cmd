@@ -1,0 +1,110 @@
+{
+    "initialization" : [
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "ainput",
+                "index" : 0,
+                "value" : 0.0
+            }
+        }    
+    ],
+    "simulation" : [
+        //
+        // Enable auto mode
+        //
+        {
+            "type" : "input",
+            "time" : 3.0,
+            "hardware" : {
+                "type" : "driverstation",
+                "subtype" : "mode",
+                "index" : 0,
+                "value" : "auto"
+            }
+        },
+        //
+        // Note sensor goes low, note detected in intake
+        //
+        {
+            "type" : "input",
+            "time" : 5.6,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+        
+        //
+        // Note sensor goes high, note has passed the sensor on the way in
+        //
+        {
+            "type" : "input",
+            "time" : 5.7,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },
+        //
+        // Note sensor goes low, note detected in intake
+        //
+        {
+            "type" : "input",
+            "time" : 8.2,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+        
+        //
+        // Note sensor goes high, note has passed the sensor on the way in
+        //
+        {
+            "type" : "input",
+            "time" : 8.3,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        },
+        //
+        // Note sensor goes low, note detected in intake
+        //
+        {
+            "type" : "input",
+            "time" : 11.6,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : false
+            }
+        },
+        
+        //
+        // Note sensor goes high, note has passed the sensor on the way in
+        //
+        {
+            "type" : "input",
+            "time" : 11.7,
+            "hardware" : {
+                "type" : "dinput",
+                "index" : 1,
+                "value" : true
+            }
+        }                      
+    ]
+}

@@ -28,7 +28,7 @@ public class VisionSubsystem extends XeroSubsystem {
     public void periodic() {
         io_.updateInputs(inputs_);
 
-        Logger.processInputs("vision", inputs_);
+        // Logger.processInputs("vision", inputs_);
 
         if (enabled_) {
 
