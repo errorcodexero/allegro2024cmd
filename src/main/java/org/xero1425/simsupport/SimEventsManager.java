@@ -14,26 +14,30 @@ import org.xero1425.MessageType;
 import edu.wpi.first.hal.simulation.AnalogInDataJNI;
 import edu.wpi.first.hal.simulation.DIODataJNI;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 public class SimEventsManager {
+    private static final String button_prefix = "button-" ;
+    private static final String axis_prefix = "axis-" ;
+
     private MessageLogger logger_;
     private boolean simerror_ ;
     private List<SimEvent> initialization_;
     private List<SimEvent> events_;
+    private double start_time_ ;
+    private String filename_ ;
 
     public SimEventsManager(MessageLogger logger) {
         logger_ = logger;
         events_ = new ArrayList<>();
         initialization_ = new ArrayList<>();
-        simerror_ = false ;
 
-        DriverStationDataJNI.setJoystickButtonCount(0, 16) ;
-        DriverStationDataJNI.setJoystickAxisCount(0, 8) ;
-        DriverStationDataJNI.setJoystickButtonCount(2, 16) ;
+        start_time_ = Double.NaN ;
     }
 
     public boolean readEventsFile(String filename) {
+        filename_ = filename ;
         JSONObject jobj = JsonReader.readFile(filename, logger_);
         if (jobj == null) {
             logger_.startMessage(MessageType.Error);
@@ -196,12 +200,14 @@ public class SimEventsManager {
             else {
                 ev = new SimEvent(hwtype, hwsubtype, hwindex, (Double)value) ;
             }                
-        } else if (value instanceof Integer) {
+        } else if (value instanceof Long) {
             if (needtime) {
-                ev = new SimEvent(time, hwtype, hwsubtype, hwindex, (Integer)value) ;
+                long v = (long)value ;                
+                ev = new SimEvent(time, hwtype, hwsubtype, hwindex, (int)v) ;
             }
             else {
-                ev = new SimEvent(hwtype, hwsubtype, hwindex, (Integer)value) ;
+                long v = (long)value ;
+                ev = new SimEvent(hwtype, hwsubtype, hwindex, (int)v);
             }    
         } else if (value instanceof String) {
             if (needtime) {
@@ -223,6 +229,73 @@ public class SimEventsManager {
 
         return true ;
     }
+
+    private Integer mapSubtypeToButtonNumber(String subtype) {
+        Integer ret = null ;
+
+        if (subtype.startsWith(button_prefix)) {
+            ret = Integer.decode(subtype.substring(button_prefix.length())) ;
+        }
+        else if (subtype.equals("right-bumper")) {
+            ret = Integer.valueOf(XboxController.Button.kRightBumper.value) ;
+        }
+        else if (subtype.equals("left-bumper")) {
+            ret = Integer.valueOf(XboxController.Button.kLeftBumper.value) ; 
+        }
+        else if (subtype.equals("left-stick")) {
+            ret = Integer.valueOf(XboxController.Button.kLeftStick.value) ; 
+        }
+        else if (subtype.equals("right-stick")) {
+            ret = Integer.valueOf(XboxController.Button.kRightStick.value) ; 
+        }
+        else if (subtype.equals("a")) {
+            ret = Integer.valueOf(XboxController.Button.kA.value) ; 
+        }
+        else if (subtype.equals("b")) {
+            ret = Integer.valueOf(XboxController.Button.kB.value) ; 
+        }
+        else if (subtype.equals("x")) {
+            ret = Integer.valueOf(XboxController.Button.kX.value) ; 
+        }
+        else if (subtype.equals("y")) {
+            ret = Integer.valueOf(XboxController.Button.kY.value) ; 
+        }
+        else if (subtype.equals("back")) {
+            ret = Integer.valueOf(XboxController.Button.kBack.value) ; 
+        }
+        else if (subtype.equals("start")) {
+            ret = Integer.valueOf(XboxController.Button.kStart.value) ;
+        }
+        return ret;
+    }
+
+    private Integer mapSubtypeToAxisNumber(String subtype) {
+        Integer ret = null ;
+
+        if (subtype.startsWith(axis_prefix)) {
+            ret = Integer.decode(subtype.substring(axis_prefix.length())) ;
+        }
+        else if (subtype.equals("left-x")) {
+            ret = Integer.valueOf(XboxController.Axis.kLeftX.value) ;
+        }
+        else if (subtype.equals("left-y")) {
+            ret = Integer.valueOf(XboxController.Axis.kLeftY.value) ;
+        }
+        else if (subtype.equals("right-x")) {
+            ret = Integer.valueOf(XboxController.Axis.kRightX.value) ;
+        }
+        else if (subtype.equals("right-y")) {
+            ret = Integer.valueOf(XboxController.Axis.kRightY.value) ;
+        }
+        else if (subtype.equals("left-trigger")) {
+            ret = Integer.valueOf(XboxController.Axis.kLeftTrigger.value) ;
+        }
+        else if (subtype.equals("right-trigger")) {
+            ret = Integer.valueOf(XboxController.Axis.kRightTrigger.value) ;
+        }
+        
+        return ret ;
+    }    
 
     private void processOneEvent(double now, SimEvent ev) {
         if (ev.hardware_type_.equals("dinput")) {
@@ -256,24 +329,48 @@ public class SimEventsManager {
                 return ;                
             }
         }
-        else if (ev.hardware_type_.equals("xboxgamepad")) {
-            if (ev.hardware_subtype_.equals("right-bumper")) {
-                DriverStationDataJNI.setJoystickButton(ev.index_, 6, ev.bvalue_) ;
-                DriverStationSim.notifyNewData();                
+        else if (ev.hardware_type_.equals("oidevice")) {
+            if (ev.hardware_subtype_.equals("button-count")) {
+                DriverStationDataJNI.setJoystickButtonCount(ev.index_, ev.ivalue_) ;
+            }
+            else if (ev.hardware_subtype_.equals("axis-count")) {
+                DriverStationDataJNI.setJoystickAxisCount(ev.index_, ev.ivalue_) ;
+            }
+            else {
+                Integer value = mapSubtypeToButtonNumber(ev.hardware_subtype_) ;
+                if (value != null) {
+                    DriverStationDataJNI.setJoystickButton(ev.index_, value, ev.bvalue_) ;
+                    DriverStationSim.notifyNewData();
+                }
+                else {
+                    value = mapSubtypeToAxisNumber(ev.hardware_subtype_) ;
+                    if (value != null) {
+                        DriverStationDataJNI.setJoystickAxis(ev.index_, value, ev.dvalue_);
+                        DriverStationSim.notifyNewData();
+                    }
+                    else {
+                        logger_.startMessage(MessageType.Error) ;
+                        logger_.add("event has an oidevice type but unknown subtype") ;
+                        logger_.add("subtype", ev.hardware_subtype_) ;
+                        logger_.endMessage() ;
+                        simerror_ = true ;                
+                        return ;
+                    }
+                }
+            }
+        }
+        else if (ev.hardware_type_.equals("control")) {
+            if (ev.hardware_subtype_.equals("exit")) {
+                System.exit(0) ;
             }
             else {
                 logger_.startMessage(MessageType.Error) ;
-                logger_.add("event has an xboxgamepad type but unknown subtype") ;
+                logger_.add("event has an control type but unknown subtype") ;
                 logger_.add("subtype", ev.hardware_subtype_) ;
                 logger_.endMessage() ;
                 simerror_ = true ;                
-                return ;
+                return ;                
             }
-        }
-        else if (ev.hardware_type_.equals("oidevice")) {
-            int button = Integer.parseInt(ev.hardware_subtype_) ;
-            DriverStationDataJNI.setJoystickButton(ev.index_, button, ev.bvalue_) ;
-            DriverStationSim.notifyNewData();              
         }
         else {
                 logger_.startMessage(MessageType.Error) ;
@@ -285,16 +382,23 @@ public class SimEventsManager {
     }
 
     public void processEvents(double now) {
+        if (Double.isNaN(start_time_)) {
+            start_time_ = now ;
+        }
+
         while(events_.size() > 0) {
             SimEvent ev = events_.get(0) ;
-            if (ev.time_ > now)
+            if (ev.time_ + start_time_ > now)
                 break ;
 
             processOneEvent(now, ev);
             events_.remove(0) ;
         }
 
-        Logger.recordOutput("simerror", simerror_) ;
+        if (simerror_)
+            Logger.recordOutput("simfile", "**ERROR**") ;
+        else
+            Logger.recordOutput("simfile", filename_) ;
     }
 
     public void initialize() {

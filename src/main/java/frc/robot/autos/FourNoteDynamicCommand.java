@@ -2,7 +2,6 @@ package frc.robot.autos;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.HolonomicPathFollower;
-import org.xero1425.Pose2dWithRotation;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroTimer;
 
@@ -19,25 +18,18 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
         DelayForIntake,
         ShootSecond,        
         ShootThird,        
-        ShootFourth,        
+        ShootFourth,   
         MovingToSecondNote,
         MovingToThirdNote,
         MovingToFourthNote,
+        FinishSecond,
+        FinishThird,
+        FinishFourth,
         Done
     } ;
 
-    // private static final double kDistToShoot = 0.50 ;
-
-    // private static final double [] kPathMaxVelocity = { 3.0, 3.0, 1.25, 1.5, 1.25, 1.5, 4.0 } ;
-    // private static final double [] kPathMaxAccel = { 2.5, 2.5, 1.0, 1.5, 1.0, 1.5, 3.5 } ;
-
-    private static final Pose2dWithRotation kShootPoseConst = new Pose2dWithRotation(new Pose2d(1.50, 5.55, Rotation2d.fromDegrees(180.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kCollect1PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kCollect2PoseConst = new Pose2dWithRotation(new Pose2d(2.50, 6.32, Rotation2d.fromDegrees(45.0)), Rotation2d.fromDegrees(45.0)) ;
-    private static final Pose2dWithRotation kCollect3PoseConst = new Pose2dWithRotation(new Pose2d(2.30, 4.55, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;
-
     private State state_ ;
-    private XeroTimer delay_timer_ ;
+    private XeroTimer collect_delay_timer_ ;
     
     public FourNoteDynamicCommand(XeroRobot robot, AllegroContainer container) {
         super(robot, container) ;
@@ -45,12 +37,13 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
 
         addRequirements(container.getDriveTrain(), container.getIntakeShooter(), container.getTramp());
 
-        delay_timer_ = new XeroTimer(getRobot(), "four-note-delay", AutoModeConstants.FourNoteDynamic.kDelayForIntakeDownTime) ;
+        collect_delay_timer_ = new XeroTimer(getRobot(), "four-note-collect-delay", AutoModeConstants.FourNoteDynamic.kDelayForIntakeDownTime) ;
     }
 
     @Override
     public void initialize() {
-        getContainer().getDriveTrain().seedFieldRelative(new Pose2d(kShootPoseConst.getTranslation(), kShootPoseConst.getRobotRotation()));
+        getContainer().getDriveTrain().seedFieldRelative(new Pose2d(AutoModeConstants.FourNoteDynamic.kShootPoseConst.getTranslation(), 
+                                                            AutoModeConstants.FourNoteDynamic.kShootPoseConst.getRobotRotation()));
         getContainer().getIntakeShooter().setHasNote(true) ;
         getContainer().getIntakeShooter().manualShoot(
                 AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
@@ -78,17 +71,18 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
                     getContainer().getIntakeShooter().setManualShootParameters(AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualTilt) ;
                     getContainer().getIntakeShooter().collect() ;
   
-                    delay_timer_.start();
+                    collect_delay_timer_.start();
                     state_ = State.DelayForIntake ;
                 }
                 break ;
 
             case DelayForIntake:
-                if (delay_timer_.isExpired()) {
+                if (collect_delay_timer_.isExpired()) {
                     //
                     // Drive to the second note to collect it (the first note we collect)
                     //
-                    getFollower().driveTo("Shoot-C1", kCollect1PoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;
+                    getFollower().driveTo("Shoot-C2", AutoModeConstants.FourNoteDynamic.kCollect1PoseConst, 3.0, 2.5, 
+                                          new Rotation2d(), new Rotation2d(), 0.2) ;
                     state_ = State.MovingToSecondNote ;
                 }
                 break ;
@@ -99,32 +93,41 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
                         //
                         // We have the second note in the robot, drive to the subwoofer to shoot it.
                         //           
-                        getFollower().driveTo("C1-Shoot", kShootPoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;
-                        getContainer().getIntakeShooter().manualShoot(
-                                AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
-                                AutoModeConstants.FourNoteDynamic.kLowManualTilt, AutoModeConstants.FourNoteDynamic.kLowManualTiltPosTol, AutoModeConstants.FourNoteDynamic.kLowManualTiltVelTol,
-                                AutoModeConstants.FourNoteDynamic.kLowManualShooter, AutoModeConstants.FourNoteDynamic.kLowManualShooterVelTol, true) ;
+                        getFollower().driveTo("C2-Shoot", AutoModeConstants.FourNoteDynamic.kShootPoseConst, 3.0, 2.5, 
+                                              new Rotation2d(), new Rotation2d(), 0.2) ;
                         state_ = State.ShootSecond ;
                     }
                     else {
                         //
                         // We missed the second note, skip stright to the third node
                         //
-                        getFollower().driveTo("C1-C2", kCollect2PoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;
+                        getFollower().driveTo("C2-C3", AutoModeConstants.FourNoteDynamic.kCollect2PoseConst, 3.0, 2.5, 
+                                              new Rotation2d(), new Rotation2d(), 0.2) ;
                         state_ = State.MovingToThirdNote ;
                     }
                 }
                 break ;
 
             case ShootSecond:
-                if (!getFollower().isDriving()) {
+                if (getFollower().getDistance() > AutoModeConstants.FourNoteDynamic.kDistanceShoot2) {
+                        getContainer().getIntakeShooter().manualShoot(
+                                AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
+                                AutoModeConstants.FourNoteDynamic.kLowManualTilt, AutoModeConstants.FourNoteDynamic.kLowManualTiltPosTol, AutoModeConstants.FourNoteDynamic.kLowManualTiltVelTol,
+                                AutoModeConstants.FourNoteDynamic.kLowManualShooter, AutoModeConstants.FourNoteDynamic.kLowManualShooterVelTol, true) ;
+                    state_ = State.FinishSecond ;
+                }
+                break ;
+
+            case FinishSecond:
+                if (!getFollower().isDriving() && !getContainer().getIntakeShooter().hasNote()) {
                     //
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
                     getContainer().getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     getContainer().getIntakeShooter().setManualShootParameters(AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualTilt) ;
                     getContainer().getIntakeShooter().collect() ;                    
-                    getFollower().driveTo("Shoot-C2", kCollect2PoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;
+                    getFollower().driveTo("Shoot-C3", AutoModeConstants.FourNoteDynamic.kCollect2PoseConst, 3.0, 2.5, 
+                                          new Rotation2d(), new Rotation2d(), 0.2) ;
                     state_ = State.MovingToThirdNote ;
                 }
                 break ;
@@ -135,7 +138,8 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
                         //
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
-                        getFollower().driveTo("C2-Shoot", kShootPoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;                            
+                        getFollower().driveTo("C3-Shoot", AutoModeConstants.FourNoteDynamic.kShootPoseConst, 3.0, 2.5, 
+                                              new Rotation2d(), new Rotation2d(), 0.2) ;                            
                         getContainer().getIntakeShooter().manualShoot(
                                 AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
                                 AutoModeConstants.FourNoteDynamic.kLowManualTilt, AutoModeConstants.FourNoteDynamic.kLowManualTiltPosTol, AutoModeConstants.FourNoteDynamic.kLowManualTiltVelTol,
@@ -147,21 +151,33 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
                         //
                         // Missed the third note, skip to the fourth note
                         //
-                        getFollower().driveTo("C2-C3", kCollect3PoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;
+                        getFollower().driveTo("C3-C4", AutoModeConstants.FourNoteDynamic.kCollect3PoseConst, 3.0, 2.5, 
+                                              new Rotation2d(), new Rotation2d(), 0.2) ;
                         state_ = State.MovingToFourthNote ;
                     }
                 }
                 break ;
 
             case ShootThird:
-                if (!getFollower().isDriving()) {
+                if (getFollower().getDistance() > AutoModeConstants.FourNoteDynamic.kDistanceShoot2) {
+                    getContainer().getIntakeShooter().manualShoot(
+                            AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
+                            AutoModeConstants.FourNoteDynamic.kLowManualTilt, AutoModeConstants.FourNoteDynamic.kLowManualTiltPosTol, AutoModeConstants.FourNoteDynamic.kLowManualTiltVelTol,
+                            AutoModeConstants.FourNoteDynamic.kLowManualShooter, AutoModeConstants.FourNoteDynamic.kLowManualShooterVelTol, true) ;
+                    state_ = State.FinishThird ;
+                }
+                break ;
+
+            case FinishThird:
+                if (!getFollower().isDriving() && !getContainer().getIntakeShooter().hasNote()) {
                     //
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
                     getContainer().getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     getContainer().getIntakeShooter().setManualShootParameters(AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualTilt) ;
                     getContainer().getIntakeShooter().collect() ;                    
-                    getFollower().driveTo("Shoot-C3", kCollect3PoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;
+                    getFollower().driveTo("Shoot-C4", AutoModeConstants.FourNoteDynamic.kCollect3PoseConst, 3.0, 2.5, 
+                                          new Rotation2d(), new Rotation2d(), 0.2) ;
                     state_ = State.MovingToFourthNote ;
                 }
                 break ;
@@ -172,7 +188,8 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
                         //
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
-                        getFollower().driveTo("C3-Shoot", kShootPoseConst, 3.0, 2.5, new Rotation2d(), new Rotation2d(), 0.2) ;                            
+                        getFollower().driveTo("C4-Shoot", AutoModeConstants.FourNoteDynamic.kShootPoseConst, 3.0, 2.5, 
+                                              new Rotation2d(), new Rotation2d(), 0.2) ;                            
                         getContainer().getIntakeShooter().manualShoot(
                                 AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
                                 AutoModeConstants.FourNoteDynamic.kLowManualTilt, AutoModeConstants.FourNoteDynamic.kLowManualTiltPosTol, AutoModeConstants.FourNoteDynamic.kLowManualTiltVelTol,
@@ -187,7 +204,18 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
                 break ;
 
             case ShootFourth:
-                if (!getFollower().isDriving()) {
+                if (getFollower().getDistance() > AutoModeConstants.FourNoteDynamic.kDistanceShoot2) {
+                        getContainer().getIntakeShooter().manualShoot(
+                                AutoModeConstants.FourNoteDynamic.kLowManualUpDown, AutoModeConstants.FourNoteDynamic.kLowManualUpDownPosTol, AutoModeConstants.FourNoteDynamic.kLowManualUpDownVelTol, 
+                                AutoModeConstants.FourNoteDynamic.kLowManualTilt, AutoModeConstants.FourNoteDynamic.kLowManualTiltPosTol, AutoModeConstants.FourNoteDynamic.kLowManualTiltVelTol,
+                                AutoModeConstants.FourNoteDynamic.kLowManualShooter, AutoModeConstants.FourNoteDynamic.kLowManualShooterVelTol, true) ;
+
+                    state_ = State.FinishFourth ;
+                }
+                break ;
+
+            case FinishFourth:
+                if (!getFollower().isDriving() && !getContainer().getIntakeShooter().hasNote()) {
                     state_ = State.Done;
                 }
                 break ;

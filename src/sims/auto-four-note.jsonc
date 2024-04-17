@@ -15,7 +15,49 @@
                 "index" : 0,
                 "value" : 0.0
             }
-        }    
+        },
+        //
+        // The XBox game controller
+        //
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "button-count",
+                "index" : 0,
+                "value" : 16
+            }            
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "axis-count",
+                "index" : 0,
+                "value" : 6
+            }            
+        },
+        //
+        // The OI
+        //
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "button-count",
+                "index" : 2,
+                "value" : 16
+            }            
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "axis-count",
+                "index" : 2,
+                "value" : 0
+            }            
+        }   
     ],
     "simulation" : [
         //
@@ -23,7 +65,7 @@
         //
         {
             "type" : "input",
-            "time" : 3.0,
+            "time" : 1.0,
             "hardware" : {
                 "type" : "driverstation",
                 "subtype" : "mode",
@@ -36,7 +78,7 @@
         //
         {
             "type" : "input",
-            "time" : 5.6,
+            "time" : 3.0,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
@@ -49,7 +91,7 @@
         //
         {
             "type" : "input",
-            "time" : 5.7,
+            "time" : 3.1,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
@@ -61,7 +103,7 @@
         //
         {
             "type" : "input",
-            "time" : 8.2,
+            "time" : 6.2,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
@@ -74,7 +116,7 @@
         //
         {
             "type" : "input",
-            "time" : 8.3,
+            "time" : 6.3,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
@@ -86,7 +128,7 @@
         //
         {
             "type" : "input",
-            "time" : 11.6,
+            "time" : 9.9,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
@@ -99,12 +141,22 @@
         //
         {
             "type" : "input",
-            "time" : 11.7,
+            "time" : 10.0,
             "hardware" : {
                 "type" : "dinput",
                 "index" : 1,
                 "value" : true
             }
-        }                      
+        },
+        {
+            "type" : "input",
+            "time" : 15.0,
+            "hardware" : {
+                "type" : "control",
+                "subtype" : "exit",
+                "index" : 2,
+                "value" : true
+            }
+        }          
     ]
 }

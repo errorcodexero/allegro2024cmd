@@ -5,7 +5,6 @@ import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.NoteDestination;
 import frc.robot.ShootType;

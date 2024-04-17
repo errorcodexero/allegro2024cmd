@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -47,6 +48,7 @@ public class HolonomicPathFollower {
     private boolean driving_ ;
     private double start_time_ ;
     private double timeout_ ;
+    private double distance_ ;
 
     private Pose2dWithRotation start_pose_ ;
     private Pose2dWithRotation end_pose_ ;
@@ -58,6 +60,8 @@ public class HolonomicPathFollower {
 
     private boolean did_timeout_ ;
     private String path_name_ ;
+
+    private Translation2d last_pos_ ;
 
     public HolonomicPathFollower(Config cfg) {
         pose_ = cfg.pose_supplier ;
@@ -74,6 +78,13 @@ public class HolonomicPathFollower {
         did_timeout_ = false ;
     }
 
+    //
+    // Returns the distance along the current path in meters
+    //
+    public double getDistance() {
+        return distance_ ;
+    }
+
     public void driveTo(String pathname, Pose2dWithRotation dest, double maxv, double maxa, Rotation2d pre_rot, Rotation2d pose_rot, double to) {
         path_name_ = pathname ;
         Pose2d st = pose_.get() ;
@@ -81,6 +92,7 @@ public class HolonomicPathFollower {
         start_time_ = Timer.getFPGATimestamp() ;
         end_pose_ = dest ;
         timeout_ = to ;
+        distance_ = 0.0 ;
 
         TrajectoryConfig config = new TrajectoryConfig(maxv, maxa) ;
 
@@ -89,6 +101,8 @@ public class HolonomicPathFollower {
         pts.add(dest) ;
         traj_ = TrajectoryGenerator.generateTrajectory(pts, config);
         driving_ = true ;
+
+        last_pos_ = start_pose_.getTranslation() ;
     }
 
     public boolean didTimeout() {
@@ -126,6 +140,11 @@ public class HolonomicPathFollower {
                 driving_ = false ;
             }
         }
+        
+        distance_ += here.getTranslation().getDistance(last_pos_) ;
+        last_pos_ = here.getTranslation() ;
+
+        Logger.recordOutput("path-distance", distance_) ;
     }
 
     private Rotation2d rotatationValue(double elapsed) {

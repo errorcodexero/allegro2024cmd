@@ -15,7 +15,50 @@
                 "index" : 0,
                 "value" : 0.0
             }
-        }    
+        },
+        //
+        // The XBox game controller
+        //
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "button-count",
+                "index" : 0,
+                "value" : 16
+            }            
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "axis-count",
+                "index" : 0,
+                "value" : 6
+            }            
+        },
+
+        //
+        // The OI
+        //
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "button-count",
+                "index" : 2,
+                "value" : 16
+            }            
+        },
+        {
+            "type" : "input",
+            "hardware" : {
+                "type" : "oidevice",
+                "subtype" : "axis-count",
+                "index" : 2,
+                "value" : 0
+            }            
+        }          
     ],
     "simulation" : [
         //
@@ -40,7 +83,7 @@
             "time" : 2.8,
             "hardware" : {
                 "type" : "oidevice",
-                "subtype" : "2",
+                "subtype" : "button-2",
                 "index" : 2,
                 "value" : false
             }
@@ -50,22 +93,22 @@
             "time" : 2.8,
             "hardware" : {
                 "type" : "oidevice",
-                "subtype" : "1",
+                "subtype" : "button-1",
                 "index" : 2,
                 "value" : false
             }
         },
 
         //
-        // Press the collect button
+        // Press the collect button (on the game pad)
         //
         {
             "type" : "input",
             "time" : 3.0,
             "hardware" : {
                 "type" : "oidevice",
-                "subtype" : "11",
-                "index" : 2,
+                "subtype" : "right-bumper",
+                "index" : 0,
                 "value" : true
             }
         },
@@ -104,7 +147,7 @@
             "time" : 5.5,
             "hardware" : {
                 "type" : "oidevice",
-                "subtype" : "11",
+                "subtype" : "button-11",
                 "index" : 2,
                 "value" : false
             }
@@ -145,7 +188,7 @@
             "time" : 8.0,
             "hardware" : {
                 "type" : "oidevice",
-                "subtype" : "7",
+                "subtype" : "button-7",
                 "index" : 2,
                 "value" : true
             }
@@ -159,10 +202,20 @@
             "time" : 9.0,
             "hardware" : {
                 "type" : "oidevice",
-                "subtype" : "7",
+                "subtype" : "button-7",
                 "index" : 2,
                 "value" : false
             }
-        }              
+        },
+        {
+            "type" : "input",
+            "time" : 12.0,
+            "hardware" : {
+                "type" : "control",
+                "subtype" : "exit",
+                "index" : 2,
+                "value" : true
+            }
+        }  
     ]
 }

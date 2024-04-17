@@ -16,6 +16,7 @@ import frc.robot.NoteDestination;
 public class IntakeShooterSubsystem extends XeroSubsystem {
    
     private enum State {
+        Invalid,
         Idle,
         MoveTiltToPosition,
         MoveBothToPosition,
@@ -115,6 +116,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         velocity_pwl_ = new PieceWiseLinear(IntakeShooterConstants.Shooter.kPwlValues) ;
 
         state_ = State.Idle ;
+        next_state_ = State.Invalid ;
 
         transfer_note_trigger_ = new Trigger(()-> transferNote()) ;
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
@@ -394,6 +396,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void moveBothToPositionState() {
         if (isTiltReady() && isUpDownReady()) {
             state_ = next_state_ ;
+            next_state_ = State.Invalid ;
         }
     }
 
@@ -433,7 +436,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 case ManualSpeaker:
                     updown = manual_shoot_updown_ ;
                     tilt = manual_shoot_tilt_ ;
-                    next_state_ = State.WaitingToShoot ;
+                    next_state_ = State.Idle ;
                     break ;
 
                 case Trap:
@@ -587,6 +590,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         switch(state_) {
             case Idle:
+            case Invalid:
                 break ;
 
             case MoveTiltToPosition:
@@ -707,6 +711,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         }
         Logger.recordOutput("intake-shooter-state", ststr);
+        Logger.recordOutput("intake-next-state", next_state_) ;
 
         Logger.recordOutput("updown-target", target_updown_) ;
         Logger.recordOutput("tilt-target", target_tilt_) ;
