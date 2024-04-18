@@ -93,7 +93,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
         super(robot, "intake-shooter") ;
 
-        io_ = new IntakeShooterIOTalonFX(getRobot().isPracticeBot()) ;
+        io_ = new IntakeShooterIOTalonFX() ;
         inputs_ = new IntakeShooterIOInputsAutoLogged() ;
 
         destsupplier_ = destsupplier ;

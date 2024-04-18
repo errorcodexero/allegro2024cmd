@@ -12,8 +12,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.XeroRobot;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.autos.FourNoteDynamicAuto;
-import frc.robot.autos.ThreeNoteDynamicAuto;
+import frc.robot.autos.FourNoteDynamicCommand;
+import frc.robot.autos.ThreeNoteDynamicCommand;
 import frc.robot.constants.RobotConstants;
 
 /**
@@ -176,7 +176,7 @@ public class AllegroRobot extends XeroRobot {
     }
     
     public void createAutos() {
-        addAutoMode(new FourNoteDynamicAuto(this, container_));
-        addAutoMode(new ThreeNoteDynamicAuto(this, container_));
+        addAutoMode(new FourNoteDynamicCommand(this, container_));
+        addAutoMode(new ThreeNoteDynamicCommand(this, container_));
     }    
 }

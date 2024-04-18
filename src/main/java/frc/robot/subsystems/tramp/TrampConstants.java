@@ -84,7 +84,7 @@ public class TrampConstants {
     }
 
     public class Climber {
-        public static final int kMotorId = 9 ;
+        public static final int kMotorId = 10 ;
         public static final double kCurrentLimit = 60.0 ;
         public static final double kSimGearRatio = 2.0 ;      
         public static final double kSimMotorLoad = 0.00001 ;  

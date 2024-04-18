@@ -15,19 +15,35 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 public abstract class XeroRobot extends LoggedRobot {
+
+    private static XeroRobot robot_ = null ;
+
     private MessageLogger logger_ ;
     private RobotPaths robot_paths_ ;
     private XeroContainer container_ ;
     private SimEventsManager simmgr_ ;
-    private XeroAutoMode auto_mode_ ;
-    private List<XeroAutoMode> automodes_ ;
-    private SendableChooser<XeroAutoMode> chooser_ ;
+    private XeroAutoCommand auto_mode_ ;
+    private List<XeroAutoCommand> automodes_ ;
+    private SendableChooser<XeroAutoCommand> chooser_ ;
 
     public XeroRobot() {
+        if (robot_ != null) {
+            throw new RuntimeException("XeroRobot is a singleton class") ;
+        }
+
+        robot_ = this ;
         automodes_ = new ArrayList<>() ;        
         robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());       
         enableMessageLogger();
         auto_mode_ = null; 
+    }
+
+    public static boolean isPractice() {
+        return RobotBase.isReal() && robot_.isPracticeBot() ;
+    }
+
+    public static boolean isCompetition() {
+        return RobotBase.isReal() && !robot_.isPracticeBot() ;
     }
 
     public abstract String getRobotSimFileName() ;
@@ -50,13 +66,9 @@ public abstract class XeroRobot extends LoggedRobot {
     public abstract String getName() ;
 
 
-    protected void addAutoMode(XeroAutoMode mode) {
+    protected void addAutoMode(XeroAutoCommand mode) {
         automodes_.add(mode) ;
     }
-
-    List<XeroAutoMode> getAutoModes() {
-        return automodes_ ;
-    }    
 
     // \brief return the Serial number for the practice bot roborio
     protected abstract String getPracticeSerialNumber() ;
@@ -91,14 +103,14 @@ public abstract class XeroRobot extends LoggedRobot {
         super.autonomousInit() ;
 
         if (auto_mode_ != null) {
-            auto_mode_.getCommand().schedule() ;
+            auto_mode_.schedule() ;
         }
     }
 
     @Override
     public void teleopInit() {
         if (auto_mode_ != null) {
-            auto_mode_.getCommand().cancel() ;
+            auto_mode_.cancel() ;
         }
     }
 
@@ -132,7 +144,7 @@ public abstract class XeroRobot extends LoggedRobot {
         if (chooser_ == null && automodes_.size() > 0) {
             chooser_ = new SendableChooser<>() ;
             boolean defaultSet = false ;
-            for (XeroAutoMode mode : automodes_) {
+            for (XeroAutoCommand mode : automodes_) {
                 chooser_.addOption(mode.toString(), mode) ;
                 if (!defaultSet) {
                     chooser_.setDefaultOption(mode.toString(), mode) ;

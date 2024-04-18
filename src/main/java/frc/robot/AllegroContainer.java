@@ -2,7 +2,9 @@ package frc.robot;
 
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
-import frc.robot.generated.TunerConstants;
+import frc.robot.generated.TunerConstantsCompetition;
+import frc.robot.generated.TunerConstantsPractice;
+import frc.robot.generated.TunerConstantsSimulation;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -17,6 +19,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import org.xero1425.HolonomicPathFollower;
 import org.xero1425.XeroContainer;
+import org.xero1425.XeroRobot;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
@@ -61,13 +64,13 @@ public class AllegroContainer extends XeroContainer {
     //
     // Telemetry related
     //
-    private final Telemetry logger_ = new Telemetry(TunerConstants.kSpeedAt12VoltsMps);
+    private final Telemetry logger_ = new Telemetry(TunerConstantsCompetition.kSpeedAt12VoltsMps);
 
     //
     // Commands
     //
     private final SwerveRequest.FieldCentric drive_ = new SwerveRequest.FieldCentric()
-                                                            .withDeadband(TunerConstants.kSpeedAt12VoltsMps * 0.1)
+                                                            .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
                                                             .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
                                                             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -83,7 +86,13 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create subsystems
         //
-        db_ = TunerConstants.DriveTrain ;
+        if (XeroRobot.isCompetition())
+            db_ = TunerConstantsCompetition.DriveTrain ;
+        else if (XeroRobot.isPractice())
+            db_ = TunerConstantsPractice.DriveTrain ;
+        else
+            db_ = TunerConstantsSimulation.DriveTrain ;
+
         db_.createHolonimicPathFollower(getHolonomicConfig());
 
         tracker_ = new Tracker(robot, db_, limelight_name_) ;
@@ -160,8 +169,8 @@ public class AllegroContainer extends XeroContainer {
 
     private void driveTrainBindings() {
         db_.setDefaultCommand(
-            db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstants.kSpeedAt12VoltsMps)
-                                         .withVelocityY(-driver_controller_.getLeftX() * TunerConstants.kSpeedAt12VoltsMps)
+            db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
+                                         .withVelocityY(-driver_controller_.getLeftX() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
                                          .withRotationalRate(-driver_controller_.getRightX() * SwerveConstants.kMaxRotationalSpeed)
                             ).ignoringDisable(true));
 

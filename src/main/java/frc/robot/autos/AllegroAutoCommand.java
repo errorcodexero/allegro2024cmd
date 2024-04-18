@@ -8,8 +8,8 @@ import frc.robot.AllegroContainer;
 public class AllegroAutoCommand extends XeroAutoCommand {
     private AllegroContainer container_ ;
 
-    public AllegroAutoCommand(XeroRobot robot, AllegroContainer container) {
-        super(robot) ;
+    public AllegroAutoCommand(XeroRobot robot, String name, AllegroContainer container) {
+        super(robot, name) ;
         container_ = container ;
     }
 

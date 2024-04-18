@@ -6,7 +6,7 @@ import frc.robot.AllegroContainer;
 
 public class ThreeNoteDynamicCommand extends AllegroAutoCommand {
     public ThreeNoteDynamicCommand(XeroRobot robot, AllegroContainer container) {
-        super(robot, container) ;
+        super(robot, "three-note", container) ;
     }
 
     @Override

@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.HolonomicPathFollower;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -140,5 +141,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (follower_ != null) {
             follower_.execute() ;
         }
+
+        Logger.recordOutput("SwerveState", getState().ModuleStates) ;
     }
 }

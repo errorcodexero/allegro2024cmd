@@ -32,7 +32,7 @@ public class FourNoteDynamicCommand extends AllegroAutoCommand {
     private XeroTimer collect_delay_timer_ ;
     
     public FourNoteDynamicCommand(XeroRobot robot, AllegroContainer container) {
-        super(robot, container) ;
+        super(robot, "four-note", container) ;
         state_ = State.Start ;
 
         addRequirements(container.getDriveTrain(), container.getIntakeShooter(), container.getTramp());

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class TalonFXFactory {
@@ -27,6 +28,8 @@ public class TalonFXFactory {
             config.CurrentLimits.SupplyCurrentLimit = limit ;
             config.CurrentLimits.SupplyCurrentLimitEnable = true ;
         }
+
+        config.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive ;
 
         checkError("TalonFXMotorController - apply configuration", () -> fx.getConfigurator().apply(config));        
         return fx ;

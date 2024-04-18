@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intakeshooter;
 
+import org.xero1425.XeroRobot;
+
 public class IntakeShooterConstants {
     public static final double kCollectDelayTime = 0.1 ;
     public static final double kReverseDelayTime = 0.3 ;
@@ -55,7 +57,7 @@ public class IntakeShooterConstants {
 
     public class Tilt {
         public static final int kMotorId = 5 ;
-        public static final boolean kInvert = false ;            
+        public static final boolean kInvert = true ;            
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 0.5 ;
         public static final double kTargetVelTolerance = 1.0 ;
@@ -91,12 +93,23 @@ public class IntakeShooterConstants {
             public static final double kRobotCalibrationValue = -72.0 ;
             public static final double kEncoderMax = 5.0 ;
             public static final double kEncoderMin = 0.0 ;
+            public static final double kEncoderCalibrationValue() {
+                if (XeroRobot.isPractice())
+                    return Practice.kEncoderCalibrationValue ;
+                else if (XeroRobot.isCompetition())
+                    return Competition.kEncoderCalibrationValue ;
+
+                return Simulation.kEncoderCalibrationValue ;
+            }
             public class Practice {
                 public static final double kEncoderCalibrationValue = 0.0 ;
             }
             public class Competition {
-                public static final double kEncoderCalibrationValue = 0.0 ;
+                public static final double kEncoderCalibrationValue = 4.283 ;
             }
+            public class Simulation {
+                public static final double kEncoderCalibrationValue = 4.283 ;
+            }            
         }
 
         public static final double[] kPwlValues = new double[] {

@@ -59,14 +59,14 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private StatusSignal<Double> shooter2_current_signal_ ;
     private StatusSignal<Double> shooter2_position_signal_ ;
 
-    public IntakeShooterIOTalonFX(boolean practice) throws Exception {
+    public IntakeShooterIOTalonFX() throws Exception {
         Slot0Configs cfg ;
 
         is_sim_ = RobotBase.isSimulation() ;
 
         feeder_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Feeder.kMotorId,
-                    false,
+                    IntakeShooterConstants.Feeder.kInvert,
                     IntakeShooterConstants.Feeder.kCurrentLimit);
 
         updown_motor_ = TalonFXFactory.getFactory().createTalonFX(
@@ -87,7 +87,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                     
         tilt_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Tilt.kMotorId,
-                    false,
+                    IntakeShooterConstants.Tilt.kInvert,
                     IntakeShooterConstants.Tilt.kCurrentLimit);
         tilt_motor_.getPosition().setUpdateFrequency(100) ;
         tilt_motor_.getVelocity().setUpdateFrequency(100) ;        
@@ -102,7 +102,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
         shooter1_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Shooter1.kMotorId,
-                    false,
+                    IntakeShooterConstants.Shooter1.kInvert,
                     IntakeShooterConstants.Shooter1.kCurrentLimit);
         shooter1_motor_.getVelocity().setUpdateFrequency(100) ;
         cfg = new Slot0Configs().withKP(IntakeShooterConstants.Shooter.kP)
@@ -116,7 +116,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
 
         shooter2_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Shooter2.kMotorId,
-                    false,
+                    IntakeShooterConstants.Shooter2.kInvert,
                     IntakeShooterConstants.Shooter2.kCurrentLimit);
         shooter2_motor_.getVelocity().setUpdateFrequency(100) ;                    
         cfg = new Slot0Configs().withKP(IntakeShooterConstants.Shooter.kP)
@@ -142,14 +142,8 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                                             IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderMax,
                                             IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderMin) ;
 
-        if (practice) {
-            encoder_mapper_.calibrate(IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotCalibrationValue,
-                                        IntakeShooterConstants.Tilt.AbsoluteEncoder.Practice.kEncoderCalibrationValue) ;
-        }
-        else {
-            encoder_mapper_.calibrate(IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotCalibrationValue,
-                                        IntakeShooterConstants.Tilt.AbsoluteEncoder.Competition.kEncoderCalibrationValue) ;            
-        }       
+        encoder_mapper_.calibrate(IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotCalibrationValue,
+                                  IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderCalibrationValue()) ;
         
         updown_position_signal_ = updown_motor_.getPosition() ;
         updown_velocity_signal_ = updown_motor_.getVelocity() ;
