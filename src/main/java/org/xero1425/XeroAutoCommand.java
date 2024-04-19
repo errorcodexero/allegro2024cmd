@@ -20,6 +20,10 @@ public class XeroAutoCommand extends Command {
     }
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
     public void execute() {
     }
 }

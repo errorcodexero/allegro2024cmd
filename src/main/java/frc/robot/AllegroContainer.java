@@ -17,6 +17,8 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import java.util.function.Supplier;
+
 import org.xero1425.HolonomicPathFollower;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
@@ -78,11 +80,11 @@ public class AllegroContainer extends XeroContainer {
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
-     * @throws Exception 
+     * @throws Exception
      */
     public AllegroContainer(AllegroRobot robot) throws Exception {
         super(robot) ;
-        
+
         //
         // Create subsystems
         //
@@ -97,11 +99,25 @@ public class AllegroContainer extends XeroContainer {
 
         tracker_ = new Tracker(robot, db_, limelight_name_) ;
         vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
-        oi_ = new OISubsystem(robot, OIConstants.kOIControllerPort) ;
 
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), ()-> oi_.getNoteDestination()) ;
-        tramp_ = new TrampSubsystem(robot, ()-> oi_.getNoteDestination()) ;
+        Supplier<NoteDestination> notesupply = null ;
 
+        if (!robot.isCharacterizing()) {
+            //
+            // Characterization is triggered all by the game pad.
+            //
+            oi_ = new OISubsystem(robot, OIConstants.kOIControllerPort) ;
+            notesupply = () -> oi_.getNoteDestination() ;
+        }
+        else {
+            //
+            // No OI when we are characterizing
+            //
+            oi_ = null ;
+        }
+
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply) ;
+        tramp_ = new TrampSubsystem(robot, notesupply) ;
 
         vision_.enable(true);
 
@@ -167,6 +183,80 @@ public class AllegroContainer extends XeroContainer {
         return db_ ;
     }
 
+    private void charBindings() throws Exception {
+
+        int total = 0 ;
+
+
+        if (RobotConstants.kCharDBSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(db_.sysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(db_.sysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(db_.sysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(db_.sysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (RobotConstants.kCharUpDownSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.upDownSysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.upDownSysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.upDownSysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(intake_shooter_.upDownSysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (RobotConstants.kCharTiltSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.tiltSysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.tiltSysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.tiltSysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(intake_shooter_.tiltSysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (RobotConstants.kCharShooter1Subsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.shooter1SysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.shooter1SysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.shooter1SysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(intake_shooter_.shooter1SysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (RobotConstants.kCharShooter2Subsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.shooter2SysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.shooter2SysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.shooter2SysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(intake_shooter_.shooter2SysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if(RobotConstants.kCharElevatorSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.elevatorSysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.elevatorSysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.elevatorSysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(tramp_.elevatorSysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (RobotConstants.kCharArmSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.armSysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.armSysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.armSysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(tramp_.armSysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (RobotConstants.kCharClimberSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.climberSysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.climberSysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.climberSysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(tramp_.climberSysIdDynamic(Direction.kReverse));
+            total++ ;
+        }
+
+        if (total > 1) {
+            throw new Exception("Only one subsystem can be characterized at a time") ;
+        }
+    }
+
     private void driveTrainBindings() {
         db_.setDefaultCommand(
             db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
@@ -177,11 +267,6 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.a().onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
 
         db_.registerTelemetry(logger_::telemeterize) ;
-
-        driver_controller_.back().and(driver_controller_.y()).whileTrue(db_.sysIdDynamic(Direction.kForward));
-        driver_controller_.back().and(driver_controller_.x()).whileTrue(db_.sysIdDynamic(Direction.kReverse));
-        driver_controller_.start().and(driver_controller_.y()).whileTrue(db_.sysIdQuasistatic(Direction.kForward));
-        driver_controller_.start().and(driver_controller_.x()).whileTrue(db_.sysIdQuasistatic(Direction.kReverse));        
     }
 
     private void superStructureBindings() {
@@ -197,7 +282,7 @@ public class AllegroContainer extends XeroContainer {
 
         //
         // Turtle command, bound to the turtle button on the OI
-        // 
+        //
         oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), tramp_.turtleCommand())) ;
 
         //
@@ -214,7 +299,7 @@ public class AllegroContainer extends XeroContainer {
         // Climb Up Exec, bound to complete the trap sequence
         //
         oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
-        
+
         //
         // If a note is collected and thet arget is the trap or amp, this trigger is fired to complete
         // the transfer action.  The transfer action moves the note from the intake to the manipulator.
@@ -222,8 +307,13 @@ public class AllegroContainer extends XeroContainer {
         intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
     }
 
-    private void configureBindings() {
-        driveTrainBindings();
-        superStructureBindings() ;
+    private void configureBindings() throws Exception {
+        if (RobotConstants.kCharacterize) {
+            charBindings() ;
+        }
+        else {
+            driveTrainBindings();
+            superStructureBindings() ;
+        }
     }
 }

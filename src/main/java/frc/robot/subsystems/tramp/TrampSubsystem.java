@@ -7,8 +7,13 @@ import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
 
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
 
 public class TrampSubsystem extends XeroSubsystem {
@@ -217,13 +222,13 @@ public class TrampSubsystem extends XeroSubsystem {
 
         if (climber_dir_ == ClimberDir.Up) {
             if (inputs_.climberPositon >= climber_target_) {
-                io_.setClimberVoltage(0.0);
+                io_.setClimberMotorVoltage(0.0);
                 climber_dir_ = ClimberDir.None ;
             }
         }
         else if (climber_dir_ == ClimberDir.Down) {
             if (inputs_.climberPositon <= climber_target_) {
-                io_.setClimberVoltage(0.0);
+                io_.setClimberMotorVoltage(0.0);
                 climber_dir_ = ClimberDir.None ;
             }
         }
@@ -363,19 +368,19 @@ public class TrampSubsystem extends XeroSubsystem {
         Logger.recordOutput("elev-target", target_elev_);
         Logger.recordOutput("arm-target", target_arm_);
         Logger.recordOutput("manipulator-voltage", io_.getManipulatorVoltage());
-        Logger.recordOutput("climber-voltage", io_.getClimberVoltage());
+        Logger.recordOutput("climber-voltage", io_.getClimberMotorVoltage());
         Logger.recordOutput("is-elev-ready", isElevatorReady());
         Logger.recordOutput("is-arm-ready", isArmReady());
     }
 
     private void climberUp() {
-        io_.setClimberVoltage(TrampConstants.Climber.kMoveClimberVoltage);
+        io_.setClimberMotorVoltage(TrampConstants.Climber.kMoveClimberVoltage);
         climber_target_ = TrampConstants.Climber.kClimberUpPosition ;
         climber_dir_ = ClimberDir.Up ;
     }
 
     private void climberDown() {
-        io_.setClimberVoltage(-TrampConstants.Climber.kMoveClimberVoltage);
+        io_.setClimberMotorVoltage(-TrampConstants.Climber.kMoveClimberVoltage);
         climber_target_ = TrampConstants.Climber.kClimberDownPosition ;
         climber_dir_ = ClimberDir.Down;
     }
@@ -485,4 +490,67 @@ public class TrampSubsystem extends XeroSubsystem {
             state_ = State.GotoDirectToTarget ;
         }
     }
+
+    private SysIdRoutine elevatorSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setElevatorMotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logElevatorMotor(log),
+                                        this) ;
+
+        return new SysIdRoutine(cfg, mfg) ;
+    }
+
+    private SysIdRoutine armSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setArmMotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logArmMotor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }   
+    
+    private SysIdRoutine climberSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setClimberMotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logClimberMotor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }
+
+    public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return elevatorSysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command elevatorSysIdDynamic(SysIdRoutine.Direction dir) {
+        return elevatorSysIdRoutine().dynamic(dir) ;
+    }   
+    
+    public Command armSysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return armSysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command armSysIdDynamic(SysIdRoutine.Direction dir) {
+        return armSysIdRoutine().dynamic(dir) ;
+    } 
+    
+    public Command climberSysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return climberSysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command climberSysIdDynamic(SysIdRoutine.Direction dir) {
+        return climberSysIdRoutine().dynamic(dir) ;
+    }     
 }

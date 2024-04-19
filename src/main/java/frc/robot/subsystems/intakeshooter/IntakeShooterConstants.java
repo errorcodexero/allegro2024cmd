@@ -28,6 +28,8 @@ public class IntakeShooterConstants {
         public static final double kDegreesPerRev = 7.2727273 ;
         public static final double kSimGearRatio = 2.0 ;
         public static final double kSimMotorLoad = 0.00001 ;
+        public static final double kMaxPosition = 118.0 ;
+        public static final double kMinPosition = -10.0 ;
 
         public class Positions {
             public static final double kStowed = 118.0 ;
@@ -77,14 +79,20 @@ public class IntakeShooterConstants {
             public static final double kEject = -50.0 ;
         }             
         public class PID {
-            public static final double kP = 100.0 ;
+            public static final double kP = 1.3 ;
             public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.0 ;
-            public static final double kA = 100.0 ;
+            public static final double kD = 0.35 ;
+            public static final double kV = 0.2 ;
+            public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
         };
+
+        public class MotionMagic {
+            public static final double kV = 15 ;
+            public static final double kA = 40 ;
+            public static final double kJ = 50 ;
+        }
 
         public class AbsoluteEncoder {
             public static final int kChannel = 0;

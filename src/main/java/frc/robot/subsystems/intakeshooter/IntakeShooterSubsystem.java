@@ -9,8 +9,14 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
+import edu.wpi.first.units.Units ;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
@@ -141,7 +147,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public boolean transferNote() {
-        NoteDestination dest = destsupplier_.get() ;
+        NoteDestination dest = getNoteDestination() ;
         boolean ret = has_note_ && 
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
                      (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition) ;
@@ -211,7 +217,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Turn on the feeder
             //
-            io_.setFeederVoltage(IntakeShooterConstants.Feeder.kCollectVoltage);
+            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kCollectVoltage);
 
             //
             // Move the updown and tilt to the collect position
@@ -239,7 +245,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Turn off the feeder and stop the tilt and updown
             //
-            io_.setFeederVoltage(0.0) ;
+            io_.setFeederMotorVoltage(0.0) ;
             io_.setTiltTargetPos(inputs_.tiltPosition);
             io_.setUpDownMotorPosition(inputs_.updownPosition);
             reverse_timer_.start() ;
@@ -351,6 +357,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private NoteDestination getNoteDestination() {
+        if (destsupplier_ != null)
+            return destsupplier_.get() ;
+
+        return NoteDestination.AutoSpeaker ;
+    }
+
     private void setUpDownTarget(double pos) {
         io_.setUpDownTargetPos(pos);
         target_updown_ = pos ;
@@ -370,8 +383,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     private void setShooterVoltage(double v) {
-        io_.setShooter1Voltage(v);
-        io_.setShooter2Voltage(v);
+        io_.setShooter1MotorVoltage(v);
+        io_.setShooter2MotorVoltage(v);
     }
 
     private boolean isMoving() {
@@ -417,7 +430,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Turn off the feeder
             //
-            io_.setFeederVoltage(0.0);
+            io_.setFeederMotorVoltage(0.0);
 
             //
             // Move the updown and tilt to the stowed position
@@ -425,7 +438,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             double updown ;
             double tilt ;
             
-            NoteDestination dest = destsupplier_.get() ;
+            NoteDestination dest = getNoteDestination();
             switch(dest) {
                 case AutoSpeaker:
                     updown = IntakeShooterConstants.UpDown.Positions.kStartTracking ;
@@ -491,7 +504,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private void waitingToShootState() {
         if (isTiltReady() && isUpDownReady() && isShooterReady()) {
-            io_.setFeederVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
+            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
             shoot_timer_.start() ;
             state_ = State.WaitForShotFinish ;
         }
@@ -507,7 +520,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Turn off the feeder
             //
-            io_.setFeederVoltage(0.0);
+            io_.setFeederMotorVoltage(0.0);
 
             if (!collect_after_manual_) {
                 //
@@ -536,7 +549,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void ejectForwardState() {
         if (eject_forward_timer_.isExpired()) {
             setShooterVoltage(0.0);
-            io_.setFeederVoltage(0.0);
+            io_.setFeederMotorVoltage(0.0);
             eject_pause_timer_.start() ;
             state_ = State.EjectPause ;
         }
@@ -545,7 +558,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void ejectPauseState() {
         if (eject_pause_timer_.isExpired()) {
             setShooterVoltage(-IntakeShooterConstants.Shooter.kEjectVoltage) ;
-            io_.setFeederVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
+            io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
             eject_reverse_timer_.start() ;
             state_ = State.EjectReverse ;
         }
@@ -554,14 +567,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void ejectReverseState() {
         if (eject_reverse_timer_.isExpired()) {
             setShooterVoltage(0.0);
-            io_.setFeederVoltage(0.0);
+            io_.setFeederMotorVoltage(0.0);
             state_ = State.Idle ;
         }
     }
 
     private void transferStartedShooterState() {
         if (transfer_shooter_to_feeder_timer_.isExpired()) {
-            io_.setFeederVoltage(IntakeShooterConstants.Feeder.kTransferVoltage);
+            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kTransferVoltage);
             state_ = initial_transfer_state_ ;
         }
     }
@@ -673,7 +686,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
             case TransferContinueShooter:
                 if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
-                    io_.setFeederVoltage(0.0);
+                    io_.setFeederMotorVoltage(0.0);
                     setShooterVoltage(0.0);
                     state_ = State.Idle ;
                 }
@@ -721,7 +734,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         Logger.recordOutput("is-shooter-ready", isShooterReady());
         Logger.recordOutput("has-note", has_note_);
         Logger.recordOutput("tracking", tracking_);
-        Logger.recordOutput("destination", destsupplier_.get()) ;
+        Logger.recordOutput("destination", getNoteDestination()) ;
     }
 
     private double computeTiltFromUpdown(double updown) {
@@ -793,5 +806,89 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             setTiltTarget(tilt);
             state_ = State.MoveBothToPosition ;            
         }
+    }
+
+    private SysIdRoutine tiltSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(7) ;
+        Measure<Time> to = Units.Seconds.of(10.0) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setTiltMotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logTiltMotor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }
+
+    private SysIdRoutine upDownSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setUpDownMotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logUpdownMotor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }
+
+    private SysIdRoutine shooter1SysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setShooter1MotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logShooter1Motor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }
+    
+    private SysIdRoutine shooter2SysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setShooter2MotorVoltage(volts.magnitude()),
+                                        (log) -> io_.logShooter2Motor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }
+
+    public Command upDownSysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return upDownSysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command upDownSysIdDynamic(SysIdRoutine.Direction dir) {
+        return upDownSysIdRoutine().dynamic(dir) ;
+    }
+
+    public Command tiltSysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return tiltSysIdRoutine().quasistatic(dir) ;
+    }
+    
+    public Command tiltSysIdDynamic(SysIdRoutine.Direction dir) {
+        return tiltSysIdRoutine().dynamic(dir) ;
+    }
+
+    public Command shooter1SysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return shooter1SysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command shooter1SysIdDynamic(SysIdRoutine.Direction dir) {
+        return shooter1SysIdRoutine().dynamic(dir) ;
+    }
+
+    public Command shooter2SysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return shooter2SysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command shooter2SysIdDynamic(SysIdRoutine.Direction dir) {
+        return shooter2SysIdRoutine().dynamic(dir) ;
     }
 }

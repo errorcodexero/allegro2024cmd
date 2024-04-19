@@ -38,6 +38,12 @@ public abstract class XeroRobot extends LoggedRobot {
         auto_mode_ = null; 
     }
 
+    public abstract boolean isCharacterizing() ;
+
+    public static boolean isChar() {
+        return robot_.isCharacterizing() ;
+    }
+
     public static boolean isPractice() {
         return RobotBase.isReal() && robot_.isPracticeBot() ;
     }
@@ -120,9 +126,8 @@ public abstract class XeroRobot extends LoggedRobot {
         if (filename != null) {
             simmgr_ = new SimEventsManager(getMessageLogger()) ;
             simmgr_.readEventsFile(filename) ;
+            simmgr_.initialize() ;            
         }
-
-        simmgr_.initialize() ;
     }
 
     protected void enableMessages() {

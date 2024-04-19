@@ -30,8 +30,14 @@ public class AllegroRobot extends XeroRobot {
     private AllegroContainer container_;
 
     @Override
+    public boolean isCharacterizing() {
+        return RobotConstants.kCharacterize;
+    }
+
+    @Override
     public String getRobotSimFileName() {
-        return "src/sims/auto-four-note.jsonc" ;
+        // return "src/sims/auto-four-note.jsonc" ;
+        return null ;
     }
 
     @Override
@@ -59,23 +65,18 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void robotInit() {
 
-        switch(RobotConstants.currentMode)
-        {
-            case REAL:
-                Logger.addDataReceiver(new WPILOGWriter());
-                Logger.addDataReceiver(new NT4Publisher());            
-                break ;
-
-            case SIM:
-                Logger.addDataReceiver(new NT4Publisher());            
-                break ;
-                
-            case REPLAY:
-                setUseTiming(false); // Run as fast as possible
-                String logPath = LogFileUtil.findReplayLog();
-                Logger.setReplaySource(new WPILOGReader(logPath));
-                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));            
-                break ;
+        if (XeroRobot.isReal()) {
+            Logger.addDataReceiver(new WPILOGWriter());
+            Logger.addDataReceiver(new NT4Publisher());            
+        }
+        else if (RobotConstants.kReplay) {
+            setUseTiming(false); // Run as fast as possible
+            String logPath = LogFileUtil.findReplayLog();
+            Logger.setReplaySource(new WPILOGReader(logPath));
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));                
+        }
+        else {
+            Logger.addDataReceiver(new NT4Publisher());            
         }
 
         Logger.start() ;
