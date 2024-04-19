@@ -25,6 +25,7 @@ public class TransferNoteCommand extends Command {
 
     @Override
     public void initialize() {
+        intake_shooter_.abortShot();
         intake_shooter_.moveToTransferPosition();
         tramp_.moveToTransferPosition();
         state_ = State.MoveToPosition ;

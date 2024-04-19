@@ -67,8 +67,8 @@ public class IntakeShooterConstants {
         public static final double kDegreesPerRev = 20 ;
         public static final double kMaxPosition = -72.0 ;
         public static final double kMinPosition = 50.0 ;
-        public static final double kSimGearRatio = 2.0 ;        
-        public static final double kSimMotorLoad = 0.00001 ;
+        public static final double kSimGearRatio = 18.0 ;        
+        public static final double kSimMotorLoad = 0.1;
 
         public class Positions {
             public static final double kStowed = -72.0 ;
@@ -116,7 +116,7 @@ public class IntakeShooterConstants {
                 public static final double kEncoderCalibrationValue = 4.283 ;
             }
             public class Simulation {
-                public static final double kEncoderCalibrationValue = 4.283 ;
+                public static final double kEncoderCalibrationValue = 0.0 ;
             }            
         }
 

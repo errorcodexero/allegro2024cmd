@@ -1,10 +1,10 @@
-Figure out how to characterize the swerve drive base
-Go through the swerve drive generation process via Tuner X
-How do I use the CommandSwerveDriveTrain to rotate the drivebase.
+TODO
+----
+- Characterize the swerve drive base using SysID
+- Enable Pro Licenses on the current robot.
+
 Use TunerX to tune the PID controllers/Motion Magic for TalonFX motors.
-Enable Pro Licenses on the current robot.
-Automodes
-Pathfollowing
-Trap Sequence
-Amp Sequence
+
 Holding note in intake (speaker), switch to Trap/Amp
+
+Mirroring auto modes

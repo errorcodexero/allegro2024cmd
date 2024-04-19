@@ -1,6 +1,7 @@
 package org.xero1425;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -85,7 +86,7 @@ public class HolonomicPathFollower {
         return distance_ ;
     }
 
-    public void driveTo(String pathname, Pose2dWithRotation dest, double maxv, double maxa, Rotation2d pre_rot, Rotation2d pose_rot, double to) {
+    public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
         path_name_ = pathname ;
         Pose2d st = pose_.get() ;
         start_pose_ = new Pose2dWithRotation(st, st.getRotation());
@@ -94,10 +95,16 @@ public class HolonomicPathFollower {
         timeout_ = to ;
         distance_ = 0.0 ;
 
+        rot_pre_ = pre_rot_time ;
+        rot_post_ = pose_rot_time ;
+
         TrajectoryConfig config = new TrajectoryConfig(maxv, maxa) ;
 
         List<Pose2d> pts = new ArrayList<>() ;
         pts.add(start_pose_) ;
+        if (imd != null) {
+            pts.addAll(Arrays.asList(imd));
+        }
         pts.add(dest) ;
         traj_ = TrajectoryGenerator.generateTrajectory(pts, config);
         driving_ = true ;

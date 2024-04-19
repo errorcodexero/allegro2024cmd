@@ -12,9 +12,14 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.XeroRobot;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.autos.FourNoteDynamicCommand;
-import frc.robot.autos.ThreeNoteDynamicCommand;
+import frc.robot.automodes.competition.FourNoteDynamicCommand;
+import frc.robot.automodes.competition.JustShootCommand;
+import frc.robot.automodes.competition.NothingCommand;
+import frc.robot.automodes.competition.ThreeNoteDynamicCommand;
+import frc.robot.automodes.competition.JustShootCommand.StartLocation;
+import frc.robot.automodes.testmodes.TeeTestModeCommand;
 import frc.robot.constants.RobotConstants;
+import frc.robot.subsystems.oi.OIConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -26,6 +31,9 @@ import frc.robot.constants.RobotConstants;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
+    public AllegroRobot() {
+        super(OIConstants.kDriverControllerPort, OIConstants.kOIControllerPort) ;
+    }
     
     private AllegroContainer container_;
 
@@ -36,7 +44,7 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public String getRobotSimFileName() {
-        // return "src/sims/auto-four-note.jsonc" ;
+        // return "src/sims/collect-shoot-transfer.jsonc" ;
         return null ;
     }
 
@@ -88,8 +96,7 @@ public class AllegroRobot extends XeroRobot {
         try {
             container_ = new AllegroContainer(this);
             enableMessages() ;
-            createAutos();
-            
+
         } catch (Exception e) {
         }
     }
@@ -125,6 +132,7 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public void disabledPeriodic() {
+        super.disabledPeriodic();
     }
 
     /**
@@ -175,9 +183,22 @@ public class AllegroRobot extends XeroRobot {
     public void simulationPeriodic() {
         super.simulationPeriodic();
     }
+
+    @Override
+    public boolean needTestModes() {
+        return RobotConstants.kTestModeEnabled;
+    }
     
-    public void createAutos() {
+    public void createCompetitionAutoModes() {
         addAutoMode(new FourNoteDynamicCommand(this, container_));
         addAutoMode(new ThreeNoteDynamicCommand(this, container_));
-    }    
+        addAutoMode(new JustShootCommand(null, container_, StartLocation.AmpSide));
+        addAutoMode(new JustShootCommand(null, container_, StartLocation.SourceSide));
+        addAutoMode(new JustShootCommand(null, container_, StartLocation.Center));
+        addAutoMode(new NothingCommand(this));
+    }
+
+    public void createTestAutoModes() {
+        addAutoMode(new TeeTestModeCommand(this, container_)) ;
+    }
 }

@@ -188,7 +188,7 @@ public class AllegroContainer extends XeroContainer {
         int total = 0 ;
 
 
-        if (RobotConstants.kCharDBSubsystem) {
+        if (RobotConstants.WhichSubsystem.kCharDBSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(db_.sysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(db_.sysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(db_.sysIdDynamic(Direction.kForward));
@@ -196,7 +196,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if (RobotConstants.kCharUpDownSubsystem) {
+        if (RobotConstants.WhichSubsystem.kCharUpDownSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.upDownSysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.upDownSysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.upDownSysIdDynamic(Direction.kForward));
@@ -204,7 +204,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if (RobotConstants.kCharTiltSubsystem) {
+        if (RobotConstants.WhichSubsystem.kCharTiltSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.tiltSysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.tiltSysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.tiltSysIdDynamic(Direction.kForward));
@@ -212,7 +212,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if (RobotConstants.kCharShooter1Subsystem) {
+        if (RobotConstants.WhichSubsystem.kCharShooter1Subsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.shooter1SysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.shooter1SysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.shooter1SysIdDynamic(Direction.kForward));
@@ -220,7 +220,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if (RobotConstants.kCharShooter2Subsystem) {
+        if (RobotConstants.WhichSubsystem.kCharShooter2Subsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(intake_shooter_.shooter2SysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(intake_shooter_.shooter2SysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(intake_shooter_.shooter2SysIdDynamic(Direction.kForward));
@@ -228,7 +228,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if(RobotConstants.kCharElevatorSubsystem) {
+        if(RobotConstants.WhichSubsystem.kCharElevatorSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.elevatorSysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.elevatorSysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.elevatorSysIdDynamic(Direction.kForward));
@@ -236,7 +236,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if (RobotConstants.kCharArmSubsystem) {
+        if (RobotConstants.WhichSubsystem.kCharArmSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.armSysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.armSysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.armSysIdDynamic(Direction.kForward));
@@ -244,7 +244,7 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
-        if (RobotConstants.kCharClimberSubsystem) {
+        if (RobotConstants.WhichSubsystem.kCharClimberSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.climberSysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.climberSysIdQuasistatic(Direction.kReverse));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.climberSysIdDynamic(Direction.kForward));

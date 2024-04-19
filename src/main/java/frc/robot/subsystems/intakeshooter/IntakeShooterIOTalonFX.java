@@ -264,7 +264,6 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }    
 
     public void updateInputs(IntakeShooterIOInputs inputs) {
-
         inputs.updownPosition = updown_position_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
         inputs.updownVelocity = updown_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
         inputs.updownCurrent = updown_current_signal_.refresh().getValueAsDouble() ;
@@ -316,11 +315,11 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
             .voltage(Units.Volts.of(updown_voltage_))
             .angularPosition(Units.Revolutions.of(updown_position_signal_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(updown_velocity_signal_.refresh().getValueAsDouble())) ;
-    }    
+    }
 
     public double getTiltAbsoluteEncoderPosition() {
         return encoder_mapper_.toRobot(absolute_encoder_.getVoltage()) ;
-    }        
+    }
 
     public void setTiltTargetPos(double t) {
         tilt_motor_.setControl(new MotionMagicVoltage(t / IntakeShooterConstants.Tilt.kDegreesPerRev)) ;
@@ -386,7 +385,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     public void doSim(String name, TalonFX motor, DCMotorSim sim, double period){
         TalonFXSimState state = motor.getSimState() ;
         state.setSupplyVoltage(RobotController.getBatteryVoltage()) ;
-        sim.setInputVoltage(state.getMotorVoltage());
+        sim.setInputVoltage(state.getMotorVoltage()) ;
         sim.update(period) ;
         state.setRawRotorPosition(sim.getAngularPositionRotations()) ;
         state.setRotorVelocity(edu.wpi.first.math.util.Units.radiansToRotations(sim.getAngularVelocityRadPerSec())) ;

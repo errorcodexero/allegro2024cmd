@@ -150,7 +150,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         NoteDestination dest = getNoteDestination() ;
         boolean ret = has_note_ && 
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
-                     (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition) ;
+                     (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
         return ret;
     }
 
@@ -336,6 +336,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         //
         tracking_ = false ;
         state_ = State.WaitingToShoot ;
+    }
+
+    public void abortShot() {
+        tracking_ = false ;
+        io_.setShooter1MotorVoltage(0.0);
+        io_.setShooter2MotorVoltage(0.0);
     }
 
     public void eject() {
@@ -758,6 +764,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
 
         return ret;
+    }
+
+    public void gotoPositionThenIdle(double updown, double updowntol, double updownvel, double tilt, double tilttol, double tiltvel) {
+        next_state_ = State.Idle ;
+        gotoPosition(updown, updowntol, updownvel, tilt, tilttol, tiltvel);
     }
 
     private void gotoPosition(double updown, double updowntol, double updownvel, double tilt, double tilttol, double tiltvel) {
