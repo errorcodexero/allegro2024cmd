@@ -1,10 +1,16 @@
 TODO
 ----
-- Characterize the swerve drive base using SysID
-- Enable Pro Licenses on the current robot.
+- SysID
+  o Characterize the elevator using SysID
 
-Use TunerX to tune the PID controllers/Motion Magic for TalonFX motors.
+- Pro Licenses
+  o Re images the roborio and set the team number
 
-Holding note in intake (speaker), switch to Trap/Amp
+- Play with performance of the tilt/updown using Tuner X
 
-Mirroring auto modes
+- Mirroring auto modes
+
+- Testing all of the code
+
+- Enable replay support
+
