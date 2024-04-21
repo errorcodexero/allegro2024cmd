@@ -3,9 +3,6 @@ TODO
 - SysID
   o Characterize the elevator using SysID
 
-- Pro Licenses
-  o Re images the roborio and set the team number
-
 - Play with performance of the tilt/updown using Tuner X
 
 - Mirroring auto modes
@@ -13,4 +10,3 @@ TODO
 - Testing all of the code
 
 - Enable replay support
-

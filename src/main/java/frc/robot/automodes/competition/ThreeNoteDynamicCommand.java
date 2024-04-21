@@ -6,30 +6,10 @@ import org.xero1425.XeroAutoCommand;
 import org.xero1425.XeroRobot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.AllegroContainer;
 import frc.robot.NoteDestination;
-import frc.robot.automodes.competition.FourNoteDynamicCommand.FourNoteConstants;
 
 public class ThreeNoteDynamicCommand extends XeroAutoCommand {
-
-    public final class ThreeNoteConstants {
-        public static final double kLowManualTilt = 3.0 ;
-        public static final double kLowManualTiltPosTol = 2.0 ;
-        public static final double kLowManualTiltVelTol = 2.0 ;
-        public static final double kLowManualUpDown = 35.0 ;
-        public static final double kLowManualUpDownPosTol = 5.0 ;
-        public static final double kLowManualUpDownVelTol = 5.0 ;
-        public static final double kLowManualShooter = 65.0 ;
-        public static final double kLowManualShooterVelTol = 5.0 ;
-        
-        public static final Pose2dWithRotation kP1StartPoseConst = new Pose2dWithRotation(new Pose2d(0.73, 4.27, Rotation2d.fromDegrees(-60.0)), Rotation2d.fromDegrees(-60.0)) ;   
-        public static final Pose2dWithRotation kP1Imd1PoseConst = new Pose2dWithRotation(new Pose2d(4.0, 1.0, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
-        public static final Pose2dWithRotation kP1EndPoseConst = new Pose2dWithRotation(new Pose2d(7.63, 0.73, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
-        public static final Pose2dWithRotation kP2EndPoseConst = new Pose2dWithRotation(new Pose2d(2.79, 2.87, Rotation2d.fromDegrees(135.0)), Rotation2d.fromDegrees(-45.0)) ;
-        public static final Pose2dWithRotation kP3EndPoseConst = new Pose2dWithRotation(new Pose2d(7.62, 2.16, Rotation2d.fromDegrees(30.0)), Rotation2d.fromDegrees(30.0)) ; 
-        public static final Pose2dWithRotation kP4EndPoseConst = new Pose2dWithRotation(new Pose2d(2.79, 2.87, Rotation2d.fromDegrees(135.0)), Rotation2d.fromDegrees(-45.0)) ;
-    }
 
     private enum State {
         Start,
@@ -40,11 +20,18 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
         DriveToCollect3,
         DriveToShoot3,
         Shoot3,
-        Done
+        Done,
+        Error
     } ;    
 
     private State state_ ; 
     private AllegroContainer container_ ;
+    private Pose2dWithRotation start1_ ;
+    private Pose2dWithRotation imd1_ ;
+    private Pose2dWithRotation end1_ ;
+    private Pose2dWithRotation end2_ ;
+    private Pose2dWithRotation end3_ ;
+    private Pose2dWithRotation end4_ ;
 
     private final static String desc = "This auto mode starts against the subwoofer on the source side.  It shoots the loaded note and then collects the two notes in the center of the field closest to the source wall and shoots them." ;
 
@@ -59,13 +46,25 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
 
     @Override
     public void initialize() {
-        container_.getDriveTrain().seedFieldRelative(new Pose2d(ThreeNoteConstants.kP1StartPoseConst.getTranslation(), 
-                                                            ThreeNoteConstants.kP1StartPoseConst.getRobotRotation()));
+        try {
+            start1_ = ThreeNoteDynamicConstants.getStartPose(getRobot().getFieldLayout().getFieldWidth()) ;
+            imd1_ = ThreeNoteDynamicConstants.getImd1Pose(getRobot().getFieldLayout().getFieldWidth()) ;
+            end1_ = ThreeNoteDynamicConstants.getEndPose(getRobot().getFieldLayout().getFieldWidth()) ;
+            end2_ = ThreeNoteDynamicConstants.getEndPose2(getRobot().getFieldLayout().getFieldWidth()) ;
+            end3_ = ThreeNoteDynamicConstants.getEndPose3(getRobot().getFieldLayout().getFieldWidth()) ;
+            end4_ = ThreeNoteDynamicConstants.getEndPose4(getRobot().getFieldLayout().getFieldWidth()) ;
+        }
+        catch(Exception ex) {
+            state_ = State.Error ;
+            return ;
+        }
+
+        container_.getDriveTrain().seedFieldRelative(new Pose2d(start1_.getTranslation(), start1_. getRobotRotation())) ; 
         container_.getIntakeShooter().setHasNote(true) ;
         container_.getIntakeShooter().manualShoot(
-                ThreeNoteConstants.kLowManualUpDown, ThreeNoteConstants.kLowManualUpDownPosTol, ThreeNoteConstants.kLowManualUpDownVelTol, 
-                ThreeNoteConstants.kLowManualTilt, ThreeNoteConstants.kLowManualTiltPosTol, ThreeNoteConstants.kLowManualTiltVelTol,
-                ThreeNoteConstants.kLowManualShooter, ThreeNoteConstants.kLowManualShooterVelTol,
+                ThreeNoteDynamicConstants.kLowManualUpDown, ThreeNoteDynamicConstants.kLowManualUpDownPosTol, ThreeNoteDynamicConstants.kLowManualUpDownVelTol, 
+                ThreeNoteDynamicConstants.kLowManualTilt, ThreeNoteDynamicConstants.kLowManualTiltPosTol, ThreeNoteDynamicConstants.kLowManualTiltVelTol,
+                ThreeNoteDynamicConstants.kLowManualShooter, ThreeNoteDynamicConstants.kLowManualShooterVelTol,
                 true) ;
         state_ = State.Shoot1 ;        
     }
@@ -77,13 +76,15 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
         switch(state_) {
             case Start:
                 break ;
+            case Error:
+                break ;
 
             case Shoot1:
                 if (!container_.getIntakeShooter().hasNote()) {
                     container_.getOI().setAutoNoteDestination(NoteDestination.AutoSpeaker) ;                    
                     container_.getIntakeShooter().collect() ;
-                    Pose2d [] imd = new Pose2d[] { ThreeNoteConstants.kP1Imd1PoseConst } ;
-                    getFollower().driveTo("Start-C2", imd, FourNoteConstants.kCollect1PoseConst, 3.0, 2.5, 0.0, 0.0, 0.2) ;
+                    Pose2d [] imd = new Pose2d[] { imd1_ } ;
+                    getFollower().driveTo("Start-C2", imd, end1_, 3.0, 2.5, 0.0, 0.0, 0.2) ;
                     state_ = State.DriveToCollect2 ;
                 }
                 break ;
@@ -91,11 +92,11 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
             case DriveToCollect2:
                 if (!getFollower().isDriving()) {
                     if (container_.getIntakeShooter().hasNote()) {
-                        getFollower().driveTo("C2-S2", null, ThreeNoteConstants.kP2EndPoseConst, 3.0, 2.5, 0.0, 0.0, 0.2) ;
+                        getFollower().driveTo("C2-S2", null, end2_, 3.0, 2.5, 0.0, 0.0, 0.2) ;
                         state_ = State.DriveToShoot2 ;                        
                     } else {
                         container_.getIntakeShooter().collect() ;
-                        getFollower().driveTo("C2-C3", null, ThreeNoteConstants.kP3EndPoseConst, 3.0, 2.5, 0.0, 0.0, 0.2) ;
+                        getFollower().driveTo("C2-C3", null, end3_, 3.0, 2.5, 0.0, 0.0, 0.2) ;
                         state_ = State.DriveToCollect3 ;
                     }
                 }
@@ -110,7 +111,7 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
 
             case Shoot2:
                 if (!container_.getIntakeShooter().hasNote()) {
-                    getFollower().driveTo("S2-C3", null, ThreeNoteConstants.kP3EndPoseConst, 3.0, 2.5, 0.0, 0.0, 0.2) ;
+                    getFollower().driveTo("S2-C3", null, end3_, 3.0, 2.5, 0.0, 0.0, 0.2) ;
                     state_ = State.DriveToCollect3 ;
                 }
                 break; 
@@ -118,7 +119,7 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
             case DriveToCollect3:
                 if (!getFollower().isDriving()) {
                     if (container_.getIntakeShooter().hasNote()) {
-                        getFollower().driveTo("C3-S3", null, ThreeNoteConstants.kP4EndPoseConst, 3.0, 2.5, 0.0, 0.0, 0.2) ;
+                        getFollower().driveTo("C3-S3", null, end4_, 3.0, 2.5, 0.0, 0.0, 0.2) ;
                         state_ = State.DriveToShoot3 ;                        
                     } else {
                         state_ = State.Done ;
@@ -150,7 +151,7 @@ public class ThreeNoteDynamicCommand extends XeroAutoCommand {
 
     @Override
     public boolean isFinished() {
-        return state_ == State.Done ;
+        return state_ == State.Done || state_ == State.Error ;
     }    
 
     private HolonomicPathFollower getFollower() {

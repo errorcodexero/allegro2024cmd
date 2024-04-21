@@ -62,10 +62,8 @@ public class TrampIOHardware implements TrampIO {
         // Elevator motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////            
         elevator_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Elevator.kMotorId,
-                                                                    false,
+                                                                    TrampConstants.Elevator.kInverted,
                                                                     TrampConstants.Elevator.kCurrentLimit);
-        elevator_motor_.getPosition().setUpdateFrequency(100) ;
-        elevator_motor_.getVelocity().setUpdateFrequency(100) ;
         final Slot0Configs elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.PID.kP)
                                 .withKI(TrampConstants.Elevator.PID.kI)
                                 .withKD(TrampConstants.Elevator.PID.kD)
@@ -83,10 +81,8 @@ public class TrampIOHardware implements TrampIO {
         // Arm motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////         
         arm_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Arm.kMotorId,
-                                                               false,
+                                                               TrampConstants.Arm.kInverted,
                                                                TrampConstants.Arm.kCurrentLimit);
-        arm_motor_.getPosition().setUpdateFrequency(100) ;
-        arm_motor_.getVelocity().setUpdateFrequency(100) ;
         final Slot0Configs armcfg = new Slot0Configs().withKP(TrampConstants.Arm.PID.kP)
                                 .withKI(TrampConstants.Arm.PID.kI)
                                 .withKD(TrampConstants.Arm.PID.kD)
@@ -104,8 +100,8 @@ public class TrampIOHardware implements TrampIO {
         // Climber motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////          
         climber_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Climber.kMotorId,
-                                                               false,
-                                                               TrampConstants.Climber.kCurrentLimit);
+                                                                   TrampConstants.Climber.kInverted,
+                                                                   TrampConstants.Climber.kCurrentLimit);
         climber_pos_sig_ = climber_motor_.getPosition() ;
         climber_current_sig_ = climber_motor_.getSupplyCurrent() ;
         climber_voltage_sig_ = climber_motor_.getSupplyVoltage() ;
@@ -184,10 +180,13 @@ public class TrampIOHardware implements TrampIO {
     }
 
     public void logElevatorMotor(SysIdRoutineLog log) {
+        double pos = elevator_pos_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;
+        double vel = elevator_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;
+
         log.motor("elevator")
             .voltage(Units.Volts.of(elevator_voltage_))
-            .angularPosition(Units.Revolutions.of(elevator_pos_sig_.refresh().getValueAsDouble()))
-            .angularVelocity(Units.RevolutionsPerSecond.of(elevator_vel_sig_.refresh().getValueAsDouble())) ;
+            .linearPosition(Units.Meters.of(pos))
+            .linearVelocity(Units.MetersPerSecond.of(vel)) ;
     }
 
     public void setArmTargetPos(double pos) {

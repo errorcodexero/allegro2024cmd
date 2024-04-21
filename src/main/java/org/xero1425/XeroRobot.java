@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.xero1425.simsupport.SimArgs;
 import org.xero1425.simsupport.SimEventsManager;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -33,6 +34,7 @@ public abstract class XeroRobot extends LoggedRobot {
     private GenericEntry desc_ ;
     private int gamepad_port_ ;
     private int oi_port_ ;
+    private AprilTagFieldLayout layout_ ;
 
     public XeroRobot(int gp, int oi) {
         if (robot_ != null) {
@@ -47,6 +49,14 @@ public abstract class XeroRobot extends LoggedRobot {
         robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());       
         enableMessageLogger();
         auto_mode_ = null; 
+    }
+
+    public AprilTagFieldLayout getFieldLayout() {
+        return layout_ ;
+    }
+
+    protected void setFieldLayout(AprilTagFieldLayout layout) {
+        layout_ = layout ;
     }
 
     protected abstract void createCompetitionAutoModes() ;

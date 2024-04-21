@@ -8,9 +8,6 @@ import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroMath;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,8 +22,6 @@ public class Tracker extends XeroSubsystem {
     private boolean has_target_info_ ;
     private int target_number_ ;
     private Pose2d target_pose_ ;
-    private AprilTagFieldLayout layout_ ;
-
     private TrackerIO io_ ;
     private TrackerInputsAutoLogged inputs_ ;
 
@@ -42,7 +37,7 @@ public class Tracker extends XeroSubsystem {
 
         db_ = db ;
         target_pose_ = null ;
-        layout_ = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField() ;
+
         ok_to_shoot_ = false ;
 
         io_ = new TrackerIOLimelight(name);
@@ -212,7 +207,7 @@ public class Tracker extends XeroSubsystem {
             target_number_ = AprilTags.BLUE_SPEAKER_CENTER ;
         }
 
-        Optional<Pose3d> pose = layout_.getTagPose(target_number_) ;
+        Optional<Pose3d> pose = getRobot().getFieldLayout().getTagPose(target_number_) ;
         if (pose.isEmpty()) {
             return false ;
         }

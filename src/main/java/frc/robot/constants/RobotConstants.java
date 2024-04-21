@@ -10,7 +10,7 @@ public class RobotConstants {
         public static final boolean kCharUpDownSubsystem = false ;        
         public static final boolean kCharShooter1Subsystem = false ;
         public static final boolean kCharShooter2Subsystem = false ;
-        public static final boolean kCharElevatorSubsystem = false ;
+        public static final boolean kCharElevatorSubsystem = true ;
         public static final boolean kCharArmSubsystem = false ;
         public static final boolean kCharClimberSubsystem = false ;    
     }

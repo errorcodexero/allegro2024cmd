@@ -269,12 +269,14 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         inputs.updownCurrent = updown_current_signal_.refresh().getValueAsDouble() ;
         inputs.updownVoltage = updown_voltage_signal_.refresh().getValueAsDouble() ;
 
-        inputs.tiltPosition = tilt_position_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
+        double tenc = tilt_position_signal_.refresh().getValueAsDouble() ;
+        inputs.tiltPosition = tenc * IntakeShooterConstants.Tilt.kDegreesPerRev ;
         inputs.tiltVelocity = tilt_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
         inputs.tiltCurrent = tilt_current_signal_.refresh().getValueAsDouble() ;
         inputs.tiltVoltage = tilt_voltage_signal_.refresh().getValueAsDouble() ;
+        inputs.tiltEncoder = tenc ;
 
-        inputs.getTiltAbsoluteEncoderPosition = getTiltAbsoluteEncoderPosition() ;
+        inputs.tiltAbsoluteEncoderPosition = getTiltAbsoluteEncoderPosition() ;
 
         inputs.feederCurrent = feeder_current_signal_.refresh().getValueAsDouble() ;
 

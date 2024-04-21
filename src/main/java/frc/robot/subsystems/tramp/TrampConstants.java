@@ -9,6 +9,7 @@ public class TrampConstants {
 
     public class Elevator {
         public static final int kMotorId = 6 ;
+        public static final boolean kInverted = true ;
         public static final double kCurrentLimit = 60.0 ;
         public static final double kMetersPerRev = 0.003551136 ;
         public static final double kTargetPosTolerance = 0.5 ;
@@ -40,6 +41,7 @@ public class TrampConstants {
 
     public class Arm {
         public static final int kMotorId = 7 ;
+        public static final boolean kInverted = true ;        
         public static final double kCurrentLimit = 60.0 ;
         public static final double kDegreesPerRev = 24.30790007 ;
         public static final double kTargetPosTolerance = 0.5 ;
@@ -85,6 +87,7 @@ public class TrampConstants {
 
     public class Climber {
         public static final int kMotorId = 10 ;
+        public static final boolean kInverted = true ;        
         public static final double kCurrentLimit = 60.0 ;
         public static final double kSimGearRatio = 2.0 ;      
         public static final double kSimMotorLoad = 0.00001 ;  

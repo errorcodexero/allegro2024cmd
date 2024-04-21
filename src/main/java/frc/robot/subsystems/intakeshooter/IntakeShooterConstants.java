@@ -65,8 +65,8 @@ public class IntakeShooterConstants {
         public static final double kTargetVelTolerance = 1.0 ;
         public static final double kAllowedDeviationFromTrack = 2.0 ;
         public static final double kDegreesPerRev = 20 ;
-        public static final double kMaxPosition = -72.0 ;
-        public static final double kMinPosition = 50.0 ;
+        public static final double kMinPosition = -72.0 ;
+        public static final double kMaxPosition = 50.0 ;
         public static final double kSimGearRatio = 18.0 ;        
         public static final double kSimMotorLoad = 0.1;
 
@@ -79,10 +79,10 @@ public class IntakeShooterConstants {
             public static final double kEject = -50.0 ;
         }             
         public class PID {
-            public static final double kP = 1.3 ;
+            public static final double kP = 3.5 ;
             public static final double kI = 0.0 ;
-            public static final double kD = 0.35 ;
-            public static final double kV = 0.2 ;
+            public static final double kD = 0.3 ;
+            public static final double kV = 0.0 ;
             public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;

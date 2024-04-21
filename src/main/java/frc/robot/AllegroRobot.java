@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.XeroRobot;
 
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.competition.JustShootCommand;
@@ -31,11 +32,12 @@ import frc.robot.subsystems.oi.OIConstants;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
+    private AllegroContainer container_;
+
     public AllegroRobot() {
         super(OIConstants.kDriverControllerPort, OIConstants.kOIControllerPort) ;
-    }
-    
-    private AllegroContainer container_;
+        setFieldLayout(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()) ;
+    }  
 
     @Override
     public boolean isCharacterizing() {
@@ -189,6 +191,7 @@ public class AllegroRobot extends XeroRobot {
         return RobotConstants.kTestModeEnabled;
     }
     
+    @Override
     public void createCompetitionAutoModes() {
         addAutoMode(new FourNoteDynamicCommand(this, container_));
         addAutoMode(new ThreeNoteDynamicCommand(this, container_));
@@ -198,6 +201,7 @@ public class AllegroRobot extends XeroRobot {
         addAutoMode(new NothingCommand(this));
     }
 
+    @Override
     public void createTestAutoModes() {
         addAutoMode(new TeeTestModeCommand(this, container_)) ;
     }

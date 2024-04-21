@@ -729,9 +729,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             ststr += ":" + target_updown_ + ":" + target_tilt_ ;
 
         }
+
         Logger.recordOutput("intake-shooter-state", ststr);
         Logger.recordOutput("intake-next-state", next_state_) ;
-
         Logger.recordOutput("updown-target", target_updown_) ;
         Logger.recordOutput("tilt-target", target_tilt_) ;
         Logger.recordOutput("shooter-target", target_velocity_) ;
