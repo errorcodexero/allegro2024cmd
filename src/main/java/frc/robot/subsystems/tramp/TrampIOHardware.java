@@ -7,10 +7,13 @@ import org.xero1425.TalonFXFactory;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
@@ -64,14 +67,30 @@ public class TrampIOHardware implements TrampIO {
         elevator_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Elevator.kMotorId,
                                                                     TrampConstants.Elevator.kInverted,
                                                                     TrampConstants.Elevator.kCurrentLimit);
+                                                                    elevator_motor_.setPosition(0.0) ;
         final Slot0Configs elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.PID.kP)
                                 .withKI(TrampConstants.Elevator.PID.kI)
                                 .withKD(TrampConstants.Elevator.PID.kD)
                                 .withKV(TrampConstants.Elevator.PID.kV)
                                 .withKA(TrampConstants.Elevator.PID.kA)
                                 .withKG(TrampConstants.Elevator.PID.kG)
-                                .withKS(TrampConstants.Elevator.PID.kS) ;
+                                .withKS(TrampConstants.Elevator.PID.kS)
+                                .withGravityType(GravityTypeValue.Elevator_Static) ;
         checkError("set-elevator-PID-value", () -> elevator_motor_.getConfigurator().apply(elevatorcfg)) ;
+
+        final MotionMagicConfigs mmcfg = new MotionMagicConfigs()
+                            .withMotionMagicCruiseVelocity(TrampConstants.Elevator.MotionMagic.kMaxVelocity)
+                            .withMotionMagicAcceleration(TrampConstants.Elevator.MotionMagic.kMaxAcceleration)
+                            .withMotionMagicJerk(TrampConstants.Elevator.MotionMagic.kJerk) ;
+        checkError("set-elevator-motion-magic", () -> elevator_motor_.getConfigurator().apply(mmcfg)) ;
+
+        final SoftwareLimitSwitchConfigs elevlimitcfg = new SoftwareLimitSwitchConfigs()
+                            .withForwardSoftLimitEnable(true)
+                            .withForwardSoftLimitThreshold(TrampConstants.Elevator.kMaxPosition / TrampConstants.Elevator.kMetersPerRev)
+                            .withReverseSoftLimitEnable(true)
+                            .withReverseSoftLimitThreshold(TrampConstants.Elevator.kMinPosition / TrampConstants.Elevator.kMetersPerRev) ;
+        checkError("set-elevator-soft-limit-value", () -> elevator_motor_.getConfigurator().apply(elevlimitcfg)) ;
+
         elevator_pos_sig_ = elevator_motor_.getPosition() ;
         elevator_vel_sig_ = elevator_motor_.getVelocity() ;
         elevator_current_sig_ = elevator_motor_.getSupplyCurrent() ;
@@ -89,8 +108,17 @@ public class TrampIOHardware implements TrampIO {
                                 .withKV(TrampConstants.Arm.PID.kV)
                                 .withKA(TrampConstants.Arm.PID.kA)
                                 .withKG(TrampConstants.Arm.PID.kG)
-                                .withKS(TrampConstants.Arm.PID.kS) ;      
+                                .withKS(TrampConstants.Arm.PID.kS)
+                                .withGravityType(GravityTypeValue.Arm_Cosine) ;
         checkError("set-arm-PID-value", () -> arm_motor_.getConfigurator().apply(armcfg)) ;
+
+        final SoftwareLimitSwitchConfigs armlimitcfg = new SoftwareLimitSwitchConfigs()
+                            .withForwardSoftLimitEnable(true)
+                            .withForwardSoftLimitThreshold(armDegreesToRevs(TrampConstants.Arm.kMaxPosition))
+                            .withReverseSoftLimitEnable(true)
+                            .withReverseSoftLimitThreshold(armDegreesToRevs(TrampConstants.Arm.kMinPosition)) ;
+        checkError("set-elevator-soft-limit-value", () -> arm_motor_.getConfigurator().apply(armlimitcfg)) ;
+
         arm_pos_sig_ = arm_motor_.getPosition() ;
         arm_vel_sig_ = arm_motor_.getVelocity() ;
         arm_current_sig_ = arm_motor_.getSupplyCurrent() ;
@@ -118,7 +146,7 @@ public class TrampIOHardware implements TrampIO {
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
         /////////////////////////////////////////////////////////////////////////////////////////////////            
-        BaseStatusSignal.setUpdateFrequencyForAll(100.0,
+        BaseStatusSignal.setUpdateFrequencyForAll(75.0,
                                 elevator_pos_sig_,
                                 elevator_vel_sig_,
                                 elevator_current_sig_,
@@ -147,20 +175,28 @@ public class TrampIOHardware implements TrampIO {
     }
 
     public void updateInputs(TrampIOInputs inputs) {
-        inputs.elevatorPosition = elevator_pos_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;
+        double enc ;
+        
+        enc = elevator_pos_sig_.refresh().getValueAsDouble() ;
+        inputs.elevatorPosition = enc * TrampConstants.Elevator.kMetersPerRev ;
         inputs.elevatorVelocity = elevator_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;
         inputs.elevatorCurrent = elevator_current_sig_.refresh().getValueAsDouble() ;
         inputs.elevatorVoltage = elevator_voltage_sig_.refresh().getValueAsDouble() ;
+        inputs.elevatorEncoder = enc ;
 
-        inputs.armPosition = arm_pos_sig_.refresh().getValueAsDouble() * TrampConstants.Arm.kDegreesPerRev ;
+        enc = arm_pos_sig_.refresh().getValueAsDouble() ;
+        inputs.armPosition = armRevsToDegrees(enc) ;
         inputs.armVelocity = arm_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Arm.kDegreesPerRev ;
         inputs.armCurrent = arm_current_sig_.refresh().getValueAsDouble() ;
         inputs.armVoltage = arm_voltage_sig_.refresh().getValueAsDouble() ;
+        inputs.armEncoder = enc ;
 
+        enc = climber_pos_sig_.refresh().getValueAsDouble() ;
+        inputs.climberPositon = enc ;        
         inputs.climberCurrent = climber_current_sig_.refresh().getValueAsDouble() ;
-        inputs.climberPositon = climber_pos_sig_.refresh().getValueAsDouble() ;
         inputs.climberVoltage = climber_voltage_sig_.refresh().getValueAsDouble() ;
         inputs.climberVelocity = climber_velocity_sig_.refresh().getValueAsDouble() ;
+        inputs.climberEncoder = enc ;
 
         inputs.manipulatorPosition = encoder_.getPosition() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;        
@@ -191,6 +227,10 @@ public class TrampIOHardware implements TrampIO {
 
     public void setArmTargetPos(double pos) {
         arm_motor_.setControl(new PositionTorqueCurrentFOC(pos / TrampConstants.Arm.kDegreesPerRev)) ;
+    }
+
+    public void setArmPosition(double pos) {
+        arm_motor_.setPosition(armDegreesToRevs(pos));
     }
 
     public void setArmMotorVoltage(double volts) {
@@ -256,6 +296,14 @@ public class TrampIOHardware implements TrampIO {
             double pos = encoder_.getPosition() + 0.04 ;
             encoder_.setPosition(pos) ;
         }
+    }
+
+    private double armDegreesToRevs(double degs) {
+        return degs / TrampConstants.Arm.kDegreesPerRev - TrampConstants.Arm.kEncoderOffset ;
+    }
+
+    private double armRevsToDegrees(double revs) {
+        return (revs + TrampConstants.Arm.kEncoderOffset) * TrampConstants.Arm.kDegreesPerRev;
     }
 
     private static void checkError(String msg, Supplier<StatusCode> toApply) throws Exception {

@@ -21,6 +21,8 @@ public class TalonFXFactory {
     //
     public TalonFX createTalonFX(int id, String bus, boolean invert, double limit) throws Exception {
         TalonFX fx = new TalonFX(id, bus) ;
+        checkError("TalonFXMotorController - setPosition", () -> fx.setPosition(0.0)) ;
+        fx.setPosition(0.0) ;
         TalonFXConfiguration config = new TalonFXConfiguration() ;       
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake ;
 

@@ -9,6 +9,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.xero1425.MessageLogger;
+import org.xero1425.MessageType;
 import org.xero1425.XeroRobot;
 
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -100,6 +102,11 @@ public class AllegroRobot extends XeroRobot {
             enableMessages() ;
 
         } catch (Exception e) {
+            MessageLogger logger = getMessageLogger() ;
+            logger.startMessage(MessageType.Error) ;
+            logger.add("exception caught creating robot container - " + e.getMessage()) ;
+            logger.endMessage();
+            logger.logStackTrace(e.getStackTrace());
         }
     }
 

@@ -88,6 +88,8 @@ public class TrampSubsystem extends XeroSubsystem {
         io_ = new TrampIOHardware() ;
         inputs_ = new TrampIOInputsAutoLogged() ;
 
+        io_.setArmPosition(TrampConstants.Arm.kMinPosition);
+
         destsupplier_ = dest ;
 
         eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
