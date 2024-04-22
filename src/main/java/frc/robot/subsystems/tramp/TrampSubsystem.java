@@ -99,27 +99,31 @@ public class TrampSubsystem extends XeroSubsystem {
 
         eject_command_ = new FunctionalCommand(
                                     () -> eject(),
-                                    null,
-                                    null,
+                                    () -> {},
+                                    (Boolean b) -> {},
                                     () -> isIdle()) ;
+        eject_command_.setName("eject") ;
 
         turtle_command_ = new FunctionalCommand(
                                     () -> turtle(),
-                                    null,
-                                    null,
+                                    () -> {},
+                                    (Boolean b) -> {},
                                     () -> isIdle()) ;
+        turtle_command_.setName("turtle") ;
 
         shoot_command_ = new FunctionalCommand(
                                     () -> shoot(),
-                                    null,
-                                    null,
+                                    () -> {},
+                                    (Boolean b) -> {},
                                     () -> isIdle()) ;
+        shoot_command_.setName("shoot") ;
 
         trap_command_ = new FunctionalCommand(
                                     () -> trap(),
-                                    null,
-                                    null,
+                                    () -> {},
+                                    (Boolean b) -> {},
                                     () -> isIdle()) ;
+        trap_command_.setName("trap") ;
                                     
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ;        

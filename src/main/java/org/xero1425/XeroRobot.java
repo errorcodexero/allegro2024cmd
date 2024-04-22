@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public abstract class XeroRobot extends LoggedRobot {
 
@@ -48,7 +50,33 @@ public abstract class XeroRobot extends LoggedRobot {
         automodes_ = new ArrayList<>() ;        
         robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());       
         enableMessageLogger();
-        auto_mode_ = null; 
+        auto_mode_ = null;
+    }
+
+    private void commandInitialized(Command cmd) {
+        logger_.startMessage(MessageType.Info) ;
+        logger_.add("started command '" + cmd.getName() + "'") ;
+        logger_.endMessage();
+    }
+
+    private void commandFinished(Command cmd) {
+        logger_.startMessage(MessageType.Info) ;
+        logger_.add("finished command '" + cmd.getName() + "'") ;
+        logger_.endMessage();
+    }
+
+    private void commandInterrupted(Command cmd) {
+        logger_.startMessage(MessageType.Info) ;
+        logger_.add("interrupted command '" + cmd.getName() + "'") ;
+        logger_.endMessage();
+    }    
+
+    public void robotInit() {
+        super.robotInit() ;
+
+        CommandScheduler.getInstance().onCommandInitialize((cmd) -> commandInitialized(cmd)) ;
+        CommandScheduler.getInstance().onCommandFinish((cmd) -> commandFinished(cmd)) ;
+        CommandScheduler.getInstance().onCommandInterrupt((cmd) -> commandInterrupted(cmd)) ;
     }
 
     public AprilTagFieldLayout getFieldLayout() {

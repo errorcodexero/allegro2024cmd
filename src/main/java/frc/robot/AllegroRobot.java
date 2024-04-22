@@ -76,6 +76,7 @@ public class AllegroRobot extends XeroRobot {
      */
     @Override
     public void robotInit() {
+        super.robotInit() ;
 
         if (XeroRobot.isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());

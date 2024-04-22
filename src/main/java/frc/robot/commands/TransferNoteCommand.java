@@ -21,6 +21,8 @@ public class TransferNoteCommand extends Command {
 
         intake_shooter_ = intake_shooter;
         tramp_ = tramp ;
+
+        setName("transfer-note") ;
     }
 
     @Override

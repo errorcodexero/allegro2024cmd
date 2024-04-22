@@ -78,7 +78,7 @@ public class IntakeShooterConstants {
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;
         }             
-        public class PID {
+        public class TrackingPIDSlot0 {
             public static final double kP = 3.5 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.3 ;
@@ -87,6 +87,16 @@ public class IntakeShooterConstants {
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
         };
+
+        public class MovementPIDSlot1 {
+            public static final double kP = 3.5 ;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.3 ;
+            public static final double kV = 0.0 ;
+            public static final double kA = 0.0 ;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.0 ;
+        };        
 
         public class MotionMagic {
             public static final double kV = 15 ;

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intakeshooter ;
 
+import org.xero1425.MessageLogger;
+import org.xero1425.MessageType;
 import org.xero1425.PieceWiseLinear;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
@@ -108,15 +110,15 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         capture_timer_ = new XeroTimer(getRobot(), "collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
         reverse_timer_ = new XeroTimer(getRobot(), "reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
         shoot_timer_ = new XeroTimer(getRobot(), "shoot-timer", IntakeShooterConstants.Feeder.kShootTime) ;
-        eject_forward_timer_ = new XeroTimer(getRobot(), "eject-1", IntakeShooterConstants.Shooter.kEjectForwardTime) ;
-        eject_reverse_timer_ = new XeroTimer(getRobot(), "eject-1", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
-        eject_pause_timer_ = new XeroTimer(getRobot(), "eject-1", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
+        eject_forward_timer_ = new XeroTimer(getRobot(), "eject-forward", IntakeShooterConstants.Shooter.kEjectForwardTime) ;
+        eject_reverse_timer_ = new XeroTimer(getRobot(), "eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
+        eject_pause_timer_ = new XeroTimer(getRobot(), "eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
         transfer_shooter_to_feeder_timer_ = new XeroTimer(getRobot(), "transfer-shooter-to-feeder", IntakeShooterConstants.kTransferFeederToShooterDelay) ;
 
         io_.setTiltMotorPosition(io_.getTiltAbsoluteEncoderPosition());
         io_.setUpDownMotorPosition(IntakeShooterConstants.UpDown.Positions.kStowed);
 
-        tracking_ = false ;
+        setTracking(false) ;
         distsupplier_ = distsupplier ;
         updown_pwl_ = new PieceWiseLinear(IntakeShooterConstants.UpDown.kPwlValues) ;
         tilt_pwl_ = new PieceWiseLinear(IntakeShooterConstants.Tilt.kPwlValues) ;
@@ -130,21 +132,24 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         eject_command_ = new FunctionalCommand(
                                 ()->eject(),
-                                null,
-                                null,
+                                () -> {},
+                                (Boolean b) -> {},
                                 ()->isIdle()) ;
+        eject_command_.setName("eject") ;
 
         collect_command_ = new FunctionalCommand(
                                 ()->collect(),
-                                null,
+                                () -> {},
                                 (Boolean b) -> { if (b) stopCollect(); },
                                 ()->isIdle() || hasNote()) ;
+        collect_command_.setName("collect") ;
 
         turtle_command_ = new FunctionalCommand(
                                 ()->turtle(),
-                                null,
-                                null,
+                                () -> {},
+                                (Boolean b) -> {},
                                 ()->isIdle()) ;
+        turtle_command_.setName("turtle") ;
 
         need_stop_manipulator_ = false ;
     }
@@ -261,7 +266,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Turn off the feeder and stop the tilt and updown
             //
             io_.setFeederMotorVoltage(0.0) ;
-            io_.setTiltTargetPos(inputs_.tiltPosition);
+            io_.setTiltTargetPos(false, inputs_.tiltPosition);
             io_.setUpDownMotorPosition(inputs_.updownPosition);
             reverse_timer_.start() ;
 
@@ -349,17 +354,17 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         //
         // This locks in the parameteters for the shot.
         //
-        tracking_ = false ;
+        setTracking(false);
         state_ = State.WaitingToShoot ;
     }
 
     public void abortShot() {
-        tracking_ = false ;
         io_.setShooter1MotorVoltage(0.0);
         io_.setShooter2MotorVoltage(0.0);
     }
 
     public void eject() {
+        setTracking(false);
         gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, Double.NaN, Double.NaN, 
                      IntakeShooterConstants.Tilt.Positions.kEject, Double.NaN, Double.NaN) ;
         state_ = State.GoToEjectPosition ;
@@ -391,7 +396,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public void setTiltTarget(double pos) {
-        io_.setTiltTargetPos(pos);
+        io_.setTiltTargetPos(tracking_, pos);
         target_tilt_ = pos ;
     }
 
@@ -714,7 +719,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case EnableTracking:
-                tracking_ = true ;
+                setTracking(true);
                 state_ = State.HoldForShoot ;
                 break ;
 
@@ -756,6 +761,23 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         Logger.recordOutput("has-note", has_note_);
         Logger.recordOutput("tracking", tracking_);
         Logger.recordOutput("destination", getNoteDestination()) ;
+    }
+
+    private void setTracking(boolean b) {
+        try {
+            tracking_ = b ;
+            if (tracking_) {
+                io_.setTiltTrackingPID();
+            }
+            else {
+                io_.setTiltMovementPID();
+            }
+        }
+        catch(Exception ex) {
+            MessageLogger logger = getRobot().getMessageLogger() ;
+            logger.startMessage(MessageType.Error).add("exception setting tracking mode - ").add(ex.getMessage()).endMessage();
+            logger.logStackTrace(ex.getStackTrace());
+        }
     }
 
     private double computeTiltFromUpdown(double updown) {

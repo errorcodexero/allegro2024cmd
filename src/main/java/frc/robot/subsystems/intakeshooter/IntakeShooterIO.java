@@ -34,9 +34,6 @@ public interface IntakeShooterIO {
     public default void updateInputs(IntakeShooterIOInputs inputs) {
     }
 
-    public default double getTiltAbsoluteEncoderPosition() {
-        return 0.0;
-    }
 
     public default void setUpDownTargetPos(double pos) {
     }
@@ -50,13 +47,23 @@ public interface IntakeShooterIO {
     public default void logUpdownMotor(SysIdRoutineLog log) {
     }    
 
-    public default void setTiltTargetPos(double pos) {
+    public default void setTiltTargetPos(boolean tracking, double pos) {
     }
 
     public default void setTiltMotorPosition(double pos) {
     }
 
     public default void setTiltMotorVoltage(double vol) {
+    }
+
+    public default double getTiltAbsoluteEncoderPosition() {
+        return 0.0;
+    }    
+
+    public default void setTiltMovementPID() throws Exception{
+    }
+
+    public default void setTiltTrackingPID() throws Exception{
     }
 
     public default void logTiltMotor(SysIdRoutineLog log) {

@@ -12,6 +12,8 @@ public class XeroAutoCommand extends Command {
         robot_ = robot;
         name_ = name;
         desc_ = desc;
+
+        setName(name) ;
     }
 
     public String toString() {

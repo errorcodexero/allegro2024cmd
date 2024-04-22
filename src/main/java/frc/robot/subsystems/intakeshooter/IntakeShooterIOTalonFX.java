@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -131,13 +132,13 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                     IntakeShooterConstants.Tilt.kCurrentLimit);
         tilt_motor_.getPosition().setUpdateFrequency(100) ;
         tilt_motor_.getVelocity().setUpdateFrequency(100) ;        
-        final Slot0Configs tiltslot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Tilt.PID.kP)
-                                .withKI(IntakeShooterConstants.Tilt.PID.kI)
-                                .withKD(IntakeShooterConstants.Tilt.PID.kD)
-                                .withKV(IntakeShooterConstants.Tilt.PID.kV)
-                                .withKA(IntakeShooterConstants.Tilt.PID.kA)
-                                .withKG(IntakeShooterConstants.Tilt.PID.kG)
-                                .withKS(IntakeShooterConstants.Tilt.PID.kS) ;
+        final Slot0Configs tiltslot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Tilt.MovementPIDSlot1.kP)
+                                .withKI(IntakeShooterConstants.Tilt.MovementPIDSlot1.kI)
+                                .withKD(IntakeShooterConstants.Tilt.MovementPIDSlot1.kD)
+                                .withKV(IntakeShooterConstants.Tilt.MovementPIDSlot1.kV)
+                                .withKA(IntakeShooterConstants.Tilt.MovementPIDSlot1.kA)
+                                .withKG(IntakeShooterConstants.Tilt.MovementPIDSlot1.kG)
+                                .withKS(IntakeShooterConstants.Tilt.MovementPIDSlot1.kS) ;
         checkError("tilt-set-PID-value", () -> tilt_motor_.getConfigurator().apply(tiltslot0cfg)) ;
         final MotionMagicConfigs tiltmagiccfg = new MotionMagicConfigs().withMotionMagicCruiseVelocity(IntakeShooterConstants.Tilt.MotionMagic.kV)
                                 .withMotionMagicAcceleration(IntakeShooterConstants.Tilt.MotionMagic.kA)
@@ -323,8 +324,13 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         return encoder_mapper_.toRobot(absolute_encoder_.getVoltage()) ;
     }
 
-    public void setTiltTargetPos(double t) {
-        tilt_motor_.setControl(new MotionMagicVoltage(t / IntakeShooterConstants.Tilt.kDegreesPerRev)) ;
+    public void setTiltTargetPos(boolean tracking, double t) {
+        if (tracking) {
+            tilt_motor_.setControl(new PositionVoltage(t / IntakeShooterConstants.Tilt.kDegreesPerRev)) ;
+        }
+        else {
+            tilt_motor_.setControl(new MotionMagicVoltage(t / IntakeShooterConstants.Tilt.kDegreesPerRev)) ;
+        }
     }    
 
     public void setTiltMotorPosition(double pos) {
@@ -335,6 +341,28 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         tilt_voltage_ = vol ;
         tilt_motor_.setControl(new VoltageOut(vol)) ;
     }
+
+    public void setTiltMovementPID() throws Exception {
+        final Slot0Configs tiltslot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Tilt.MovementPIDSlot1.kP)
+                                .withKI(IntakeShooterConstants.Tilt.MovementPIDSlot1.kI)
+                                .withKD(IntakeShooterConstants.Tilt.MovementPIDSlot1.kD)
+                                .withKV(IntakeShooterConstants.Tilt.MovementPIDSlot1.kV)
+                                .withKA(IntakeShooterConstants.Tilt.MovementPIDSlot1.kA)
+                                .withKG(IntakeShooterConstants.Tilt.MovementPIDSlot1.kG)
+                                .withKS(IntakeShooterConstants.Tilt.MovementPIDSlot1.kS) ;
+        checkError("tilt-set-Movement-PID-value", () -> tilt_motor_.getConfigurator().apply(tiltslot0cfg)) ;     
+    }
+
+    public void setTiltTrackingPID() throws Exception {
+        final Slot0Configs tiltslot1cfg = new Slot0Configs().withKP(IntakeShooterConstants.Tilt.MovementPIDSlot1.kP)
+                                .withKI(IntakeShooterConstants.Tilt.MovementPIDSlot1.kI)
+                                .withKD(IntakeShooterConstants.Tilt.MovementPIDSlot1.kD)
+                                .withKV(IntakeShooterConstants.Tilt.MovementPIDSlot1.kV)
+                                .withKA(IntakeShooterConstants.Tilt.MovementPIDSlot1.kA)
+                                .withKG(IntakeShooterConstants.Tilt.MovementPIDSlot1.kG)
+                                .withKS(IntakeShooterConstants.Tilt.MovementPIDSlot1.kS) ;
+        checkError("tilt-set-Movement-PID-value", () -> tilt_motor_.getConfigurator().apply(tiltslot1cfg)) ;           
+    }    
 
     public void logTiltMotor(SysIdRoutineLog log) {
         log.motor("tilt")

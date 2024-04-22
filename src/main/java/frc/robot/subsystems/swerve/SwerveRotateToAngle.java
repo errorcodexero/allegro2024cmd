@@ -20,6 +20,8 @@ public class SwerveRotateToAngle extends Command {
     public SwerveRotateToAngle(CommandSwerveDrivetrain db, DoubleSupplier angSupplier) {
         addRequirements(db);
 
+        setName("swerve-rotate-to-angle");
+
         db_ = db;
         angle_supplier_ = angSupplier;
         chassis_speeds_ = new SwerveRequest.ApplyChassisSpeeds();
