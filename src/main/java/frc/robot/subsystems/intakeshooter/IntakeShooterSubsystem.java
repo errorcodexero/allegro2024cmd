@@ -15,6 +15,7 @@ import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
@@ -127,9 +128,23 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         transfer_note_trigger_ = new Trigger(()-> transferNote()) ;
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
-        eject_command_ = new IntakeEjectCommand(this) ;
-        collect_command_ = new IntakeCollectCommand(this) ;
-        turtle_command_ = new IntakeTurtleCommand(this) ;
+        eject_command_ = new FunctionalCommand(
+                                ()->eject(),
+                                null,
+                                null,
+                                ()->isIdle()) ;
+
+        collect_command_ = new FunctionalCommand(
+                                ()->collect(),
+                                null,
+                                (Boolean b) -> { if (b) stopCollect(); },
+                                ()->isIdle() || hasNote()) ;
+
+        turtle_command_ = new FunctionalCommand(
+                                ()->turtle(),
+                                null,
+                                null,
+                                ()->isIdle()) ;
 
         need_stop_manipulator_ = false ;
     }

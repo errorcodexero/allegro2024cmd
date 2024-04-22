@@ -42,16 +42,16 @@ public class TrampIOHardware implements TrampIO {
     private StatusSignal<Double> elevator_pos_sig_ ;
     private StatusSignal<Double> elevator_vel_sig_ ;
     private StatusSignal<Double> elevator_current_sig_ ;
-    private StatusSignal<Double> elevator_voltage_sig_ ;
+    private StatusSignal<Double> elevator_output_sig_ ;
 
     private StatusSignal<Double> arm_pos_sig_ ;
     private StatusSignal<Double> arm_vel_sig_ ;
     private StatusSignal<Double> arm_current_sig_ ;
-    private StatusSignal<Double> arm_voltage_sig_ ;
+    private StatusSignal<Double> arm_output_sig_ ;
 
     private StatusSignal<Double> climber_current_sig_ ;
     private StatusSignal<Double> climber_pos_sig_ ;
-    private StatusSignal<Double> climber_voltage_sig_ ;
+    private StatusSignal<Double> climber_output_sig_ ;
     private StatusSignal<Double> climber_velocity_sig_ ;
 
     private double manipulator_voltage_ ;
@@ -94,7 +94,7 @@ public class TrampIOHardware implements TrampIO {
         elevator_pos_sig_ = elevator_motor_.getPosition() ;
         elevator_vel_sig_ = elevator_motor_.getVelocity() ;
         elevator_current_sig_ = elevator_motor_.getSupplyCurrent() ;
-        elevator_voltage_sig_ = elevator_motor_.getSupplyVoltage() ;
+        elevator_output_sig_ = elevator_motor_.getClosedLoopOutput() ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Arm motor initialization
@@ -122,7 +122,7 @@ public class TrampIOHardware implements TrampIO {
         arm_pos_sig_ = arm_motor_.getPosition() ;
         arm_vel_sig_ = arm_motor_.getVelocity() ;
         arm_current_sig_ = arm_motor_.getSupplyCurrent() ;
-        arm_voltage_sig_ = arm_motor_.getSupplyVoltage() ;
+        arm_output_sig_ = arm_motor_.getClosedLoopOutput() ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Climber motor initialization
@@ -132,7 +132,7 @@ public class TrampIOHardware implements TrampIO {
                                                                    TrampConstants.Climber.kCurrentLimit);
         climber_pos_sig_ = climber_motor_.getPosition() ;
         climber_current_sig_ = climber_motor_.getSupplyCurrent() ;
-        climber_voltage_sig_ = climber_motor_.getSupplyVoltage() ;
+        climber_output_sig_ = climber_motor_.getClosedLoopOutput();
         climber_velocity_sig_ = climber_motor_.getVelocity() ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,14 +150,14 @@ public class TrampIOHardware implements TrampIO {
                                 elevator_pos_sig_,
                                 elevator_vel_sig_,
                                 elevator_current_sig_,
-                                elevator_voltage_sig_,
+                                elevator_output_sig_,
                                 arm_pos_sig_,
                                 arm_vel_sig_,
                                 arm_current_sig_,
-                                arm_voltage_sig_,
+                                arm_output_sig_,
                                 climber_current_sig_,
                                 climber_pos_sig_,
-                                climber_voltage_sig_,
+                                climber_output_sig_,
                                 climber_velocity_sig_) ;
 
         checkError("elevator-bus-optimization", () -> elevator_motor_.optimizeBusUtilization()) ;
@@ -181,20 +181,20 @@ public class TrampIOHardware implements TrampIO {
         inputs.elevatorPosition = enc * TrampConstants.Elevator.kMetersPerRev ;
         inputs.elevatorVelocity = elevator_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;
         inputs.elevatorCurrent = elevator_current_sig_.refresh().getValueAsDouble() ;
-        inputs.elevatorVoltage = elevator_voltage_sig_.refresh().getValueAsDouble() ;
+        inputs.elevatorOutput = elevator_output_sig_.refresh().getValueAsDouble() ;
         inputs.elevatorEncoder = enc ;
 
         enc = arm_pos_sig_.refresh().getValueAsDouble() ;
         inputs.armPosition = armRevsToDegrees(enc) ;
         inputs.armVelocity = arm_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Arm.kDegreesPerRev ;
         inputs.armCurrent = arm_current_sig_.refresh().getValueAsDouble() ;
-        inputs.armVoltage = arm_voltage_sig_.refresh().getValueAsDouble() ;
+        inputs.armOutput = arm_output_sig_.refresh().getValueAsDouble() ;
         inputs.armEncoder = enc ;
 
         enc = climber_pos_sig_.refresh().getValueAsDouble() ;
         inputs.climberPositon = enc ;        
         inputs.climberCurrent = climber_current_sig_.refresh().getValueAsDouble() ;
-        inputs.climberVoltage = climber_voltage_sig_.refresh().getValueAsDouble() ;
+        inputs.climberOutput = climber_output_sig_.refresh().getValueAsDouble() ;
         inputs.climberVelocity = climber_velocity_sig_.refresh().getValueAsDouble() ;
         inputs.climberEncoder = enc ;
 

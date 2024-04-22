@@ -12,6 +12,7 @@ import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
@@ -70,10 +71,10 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
 
-    private TrampEjectCommand eject_command_ ;
-    private TrampTurtleCommand turtle_command_ ;
-    private TrampShootCommand shoot_command_ ;
-    private TrampTrapCommand trap_command_ ;
+    private Command eject_command_ ;
+    private Command turtle_command_ ;
+    private Command shoot_command_ ;
+    private Command trap_command_ ;
 
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
@@ -96,11 +97,30 @@ public class TrampSubsystem extends XeroSubsystem {
         shoot_timer_ = new XeroTimer(robot, "tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer(robot, "tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
 
-        eject_command_ = new TrampEjectCommand(this) ;
-        turtle_command_ = new TrampTurtleCommand(this) ;
-        shoot_command_ = new TrampShootCommand(this) ;
-        trap_command_ = new TrampTrapCommand(this) ;
+        eject_command_ = new FunctionalCommand(
+                                    () -> eject(),
+                                    null,
+                                    null,
+                                    () -> isIdle()) ;
 
+        turtle_command_ = new FunctionalCommand(
+                                    () -> turtle(),
+                                    null,
+                                    null,
+                                    () -> isIdle()) ;
+
+        shoot_command_ = new FunctionalCommand(
+                                    () -> shoot(),
+                                    null,
+                                    null,
+                                    () -> isIdle()) ;
+
+        trap_command_ = new FunctionalCommand(
+                                    () -> trap(),
+                                    null,
+                                    null,
+                                    () -> isIdle()) ;
+                                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ;        
         
