@@ -1,12 +1,12 @@
 TODO
 ----
-- SysID
-  o Characterize the elevator using SysID
-
-- Play with performance of the tilt/updown using Tuner X
-
-- Mirroring auto modes
-
-- Testing all of the code
-
+- Tune UpDown
+- Test collect
+- Tune Shooter
+- Shooter speedup/accuracy improvement
+- Test manual podidum
+- Test manual subwoofer
+- Test auto shooting
+- Tune/Test amp sequence
+- Tune/Test trap sequence
 - Enable replay support
