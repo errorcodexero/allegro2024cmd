@@ -4,11 +4,7 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.MessageLogger;
 import org.xero1425.MessageType;
 import org.xero1425.XeroRobot;
@@ -42,8 +38,18 @@ public class AllegroRobot extends XeroRobot {
     }  
 
     @Override
-    public boolean isCharacterizing() {
-        return RobotConstants.kCharacterize;
+    public boolean isCharMode() {
+        return RobotConstants.kCharMode;
+    }
+
+    @Override
+    public boolean isReplayMode() {
+        return RobotConstants.kReplayMode ;
+    }
+
+    @Override
+    public boolean isTestMode() {
+        return RobotConstants.kTestMode ;
     }
 
     @Override
@@ -63,6 +69,21 @@ public class AllegroRobot extends XeroRobot {
     }
 
     @Override
+    public void createCompetitionAutoModes() {
+        addAutoMode(new FourNoteDynamicCommand(this, container_));
+        addAutoMode(new ThreeNoteDynamicCommand(this, container_));
+        addAutoMode(new JustShootCommand(null, container_, StartLocation.AmpSide));
+        addAutoMode(new JustShootCommand(null, container_, StartLocation.SourceSide));
+        addAutoMode(new JustShootCommand(null, container_, StartLocation.Center));
+        addAutoMode(new NothingCommand(this));
+    }
+
+    @Override
+    public void createTestAutoModes() {
+        addAutoMode(new TeeTestModeCommand(this, container_)) ;
+    }    
+
+    @Override
     public void enableMessages() {
         getMessageLogger().enableSubsystem(container_.getIntakeShooter().getName()) ;
         getMessageLogger().enableSubsystem(container_.getDriveTrain().getName()) ;
@@ -77,20 +98,6 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void robotInit() {
         super.robotInit() ;
-
-        if (XeroRobot.isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter());
-            Logger.addDataReceiver(new NT4Publisher());            
-        }
-        else if (RobotConstants.kReplay) {
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog();
-            Logger.setReplaySource(new WPILOGReader(logPath));
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));                
-        }
-        else {
-            Logger.addDataReceiver(new NT4Publisher());            
-        }
 
         Logger.start() ;
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -196,25 +203,5 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void simulationPeriodic() {
         super.simulationPeriodic();
-    }
-
-    @Override
-    public boolean needTestModes() {
-        return RobotConstants.kTestModeEnabled;
-    }
-    
-    @Override
-    public void createCompetitionAutoModes() {
-        addAutoMode(new FourNoteDynamicCommand(this, container_));
-        addAutoMode(new ThreeNoteDynamicCommand(this, container_));
-        addAutoMode(new JustShootCommand(null, container_, StartLocation.AmpSide));
-        addAutoMode(new JustShootCommand(null, container_, StartLocation.SourceSide));
-        addAutoMode(new JustShootCommand(null, container_, StartLocation.Center));
-        addAutoMode(new NothingCommand(this));
-    }
-
-    @Override
-    public void createTestAutoModes() {
-        addAutoMode(new TeeTestModeCommand(this, container_)) ;
     }
 }

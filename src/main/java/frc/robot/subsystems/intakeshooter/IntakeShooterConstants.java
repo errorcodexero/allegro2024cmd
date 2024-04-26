@@ -21,7 +21,7 @@ public class IntakeShooterConstants {
 
     public class UpDown {
         public static final int kMotorId = 2 ;
-        public static final boolean kInvert = false ;            
+        public static final boolean kInvert = true ;            
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 0.5 ;
         public static final double kTargetVelTolerance = 1.0 ;
@@ -79,9 +79,9 @@ public class IntakeShooterConstants {
             public static final double kEject = -50.0 ;
         }             
         public class TrackingPIDSlot0 {
-            public static final double kP = 3.5 ;
+            public static final double kP = 5.0 ;
             public static final double kI = 0.0 ;
-            public static final double kD = 0.3 ;
+            public static final double kD = 0.35 ;
             public static final double kV = 0.0 ;
             public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
@@ -91,8 +91,8 @@ public class IntakeShooterConstants {
         public class MovementPIDSlot1 {
             public static final double kP = 3.5 ;
             public static final double kI = 0.0 ;
-            public static final double kD = 0.3 ;
-            public static final double kV = 0.0 ;
+            public static final double kD = 0.35 ;
+            public static final double kV = 0.1 ;
             public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
@@ -100,8 +100,8 @@ public class IntakeShooterConstants {
 
         public class MotionMagic {
             public static final double kV = 15 ;
-            public static final double kA = 40 ;
-            public static final double kJ = 50 ;
+            public static final double kA = 80 ;
+            public static final double kJ = 500 ;
         }
 
         public class AbsoluteEncoder {
@@ -111,10 +111,10 @@ public class IntakeShooterConstants {
             public static final double kRobotCalibrationValue = -72.0 ;
             public static final double kEncoderMax = 5.0 ;
             public static final double kEncoderMin = 0.0 ;
-            public static final double kEncoderCalibrationValue() {
-                if (XeroRobot.isPractice())
+            public static final double kEncoderCalibrationValue(XeroRobot robot) {
+                if (robot.isPracticeBot())
                     return Practice.kEncoderCalibrationValue ;
-                else if (XeroRobot.isCompetition())
+                else if (robot.isCompetitionBot())
                     return Competition.kEncoderCalibrationValue ;
 
                 return Simulation.kEncoderCalibrationValue ;

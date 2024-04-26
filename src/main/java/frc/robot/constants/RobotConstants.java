@@ -1,21 +1,23 @@
 package frc.robot.constants;
 
-public class RobotConstants {
-    public final static boolean kTestModeEnabled = false ;
+import org.xero1425.XeroRobot.RobotType;
 
-    public static final boolean kCharacterize = true ;
+public class RobotConstants {
+    public final RobotType robotType = RobotType.COMPETITION_REAL ;
+
+    public static final boolean kTestMode = false ;
+    public static final boolean kReplayMode = false ;
+    public static final boolean kCharMode = true ;
     public static final class WhichSubsystem {
         public static final boolean kCharDBSubsystem = false ;
         public static final boolean kCharTiltSubsystem = false ;    
-        public static final boolean kCharUpDownSubsystem = false ;        
+        public static final boolean kCharUpDownSubsystem = true ;        
         public static final boolean kCharShooter1Subsystem = false ;
         public static final boolean kCharShooter2Subsystem = false ;
         public static final boolean kCharElevatorSubsystem = false ;
-        public static final boolean kCharArmSubsystem = true ;
+        public static final boolean kCharArmSubsystem = false ;
         public static final boolean kCharClimberSubsystem = false ;    
     }
-
-    public static final boolean kReplay = false ;
 
     public static enum Mode
     {

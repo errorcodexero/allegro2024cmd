@@ -3,6 +3,7 @@ package org.xero1425;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.function.Function;
 
 import org.littletonrobotics.junction.LoggedRobot;
 import org.xero1425.simsupport.SimArgs;
@@ -23,6 +24,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public abstract class XeroRobot extends LoggedRobot {
 
+    public enum RobotType {
+        COMPETITION_REAL,
+        PRACTICE_REAL,
+        COMPETITION_REPLAY,
+        PRACTICE_REPLAY,
+        SIMULATION
+    } ;
+
     private static XeroRobot robot_ = null ;
 
     private MessageLogger logger_ ;
@@ -38,6 +47,9 @@ public abstract class XeroRobot extends LoggedRobot {
     private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
 
+    private boolean connected_callback_processed_ ;
+    private List<Function<Boolean,Void>> connected_callbacks_ ;
+
     public XeroRobot(int gp, int oi) {
         if (robot_ != null) {
             throw new RuntimeException("XeroRobot is a singleton class") ;
@@ -47,10 +59,25 @@ public abstract class XeroRobot extends LoggedRobot {
         oi_port_ = oi ;
 
         robot_ = this ;
-        automodes_ = new ArrayList<>() ;        
-        robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());       
+        automodes_ = new ArrayList<>() ;
+        robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());
         enableMessageLogger();
         auto_mode_ = null;
+        connected_callback_processed_ = false ;
+        connected_callbacks_ = new ArrayList<>() ;
+    }
+
+    public abstract boolean isCharMode() ;
+    public abstract boolean isReplayMode() ;
+    public abstract boolean isTestMode() ;
+    protected abstract String getRobotSimFileName() ;
+    protected abstract String getName() ;    
+    protected abstract String getPracticeSerialNumber() ;    
+    protected abstract void createCompetitionAutoModes() ;
+    protected abstract void createTestAutoModes() ;
+
+    public void addConnectedCallback(Function<Boolean,Void> cb) {
+        connected_callbacks_.add(cb) ;
     }
 
     private void commandInitialized(Command cmd) {
@@ -69,7 +96,7 @@ public abstract class XeroRobot extends LoggedRobot {
         logger_.startMessage(MessageType.Info) ;
         logger_.add("interrupted command '" + cmd.getName() + "'") ;
         logger_.endMessage();
-    }    
+    }
 
     public void robotInit() {
         super.robotInit() ;
@@ -87,9 +114,7 @@ public abstract class XeroRobot extends LoggedRobot {
         layout_ = layout ;
     }
 
-    protected abstract void createCompetitionAutoModes() ;
-    protected abstract void createTestAutoModes() ;
-    protected abstract boolean needTestModes() ;
+
 
     protected void createAutoModes() {
 
@@ -101,16 +126,16 @@ public abstract class XeroRobot extends LoggedRobot {
             // to the the rboto WIFI AP yet, so we wait until we see a connection so we know what to do.
             //
             return ;
-        }        
+        }
 
-        if (shouldBeCompetition() || !needTestModes()) {
+        if (shouldBeCompetition() || !isTestMode()) {
             createCompetitionAutoModes() ;
         }
         else {
             createTestAutoModes() ;
         }
 
-        autoModeChooser();        
+        autoModeChooser();
     }
 
     protected boolean shouldBeCompetition() {
@@ -124,21 +149,9 @@ public abstract class XeroRobot extends LoggedRobot {
         return false ;
     }
 
-    public abstract boolean isCharacterizing() ;
-
-    public static boolean isChar() {
-        return robot_.isCharacterizing() ;
+    public RobotType getRobotType() {
+        return RobotType.COMPETITION_REAL ;
     }
-
-    public static boolean isPractice() {
-        return RobotBase.isReal() && robot_.isPracticeBot() ;
-    }
-
-    public static boolean isCompetition() {
-        return RobotBase.isReal() && !robot_.isPracticeBot() ;
-    }
-
-    public abstract String getRobotSimFileName() ;
 
     public String getSimFileName() {
         if (SimArgs.InputFileName != null)
@@ -155,7 +168,7 @@ public abstract class XeroRobot extends LoggedRobot {
         return container_ ;
     }
 
-    public abstract String getName() ;
+
 
 
     protected void addAutoMode(XeroAutoCommand mode) {
@@ -163,7 +176,7 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     // \brief return the Serial number for the practice bot roborio
-    protected abstract String getPracticeSerialNumber() ;
+
 
     private void enableMessageLogger() {
         String logfile = SimArgs.LogFileName ;
@@ -178,7 +191,7 @@ public abstract class XeroRobot extends LoggedRobot {
         else {
             dest = new MessageDestinationThumbFile(robot_paths_.logFileDirectory(), 250, RobotBase.isSimulation());
         }
-        logger_.addDestination(dest);   
+        logger_.addDestination(dest);
     }
 
     @Override
@@ -187,6 +200,19 @@ public abstract class XeroRobot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
+        if (DriverStation.isDSAttached() && !connected_callback_processed_) {
+            connected_callback_processed_ = true ;
+            for (Function<Boolean,Void> cb : connected_callbacks_) {
+                cb.apply(true) ;
+            }
+        }
+        else if (!DriverStation.isDSAttached() && connected_callback_processed_) {
+            connected_callback_processed_ = false ;
+            for (Function<Boolean,Void> cb : connected_callbacks_) {
+                cb.apply(false) ;
+            }
+        }
+
         if (simmgr_ != null) {
             simmgr_.processEvents(getTime()) ;
         }
@@ -216,7 +242,7 @@ public abstract class XeroRobot extends LoggedRobot {
         if (filename != null) {
             simmgr_ = new SimEventsManager(getMessageLogger()) ;
             simmgr_.readEventsFile(filename) ;
-            simmgr_.initialize() ;            
+            simmgr_.initialize() ;
         }
     }
 
@@ -229,6 +255,10 @@ public abstract class XeroRobot extends LoggedRobot {
 
     public boolean isPracticeBot() {
         return RobotController.getSerialNumber().equals(getPracticeSerialNumber()) ;
+    }
+
+    public boolean isCompetitionBot() {
+        return RobotBase.isReal() && !isPracticeBot() ;
     }
 
     public double getTime() {

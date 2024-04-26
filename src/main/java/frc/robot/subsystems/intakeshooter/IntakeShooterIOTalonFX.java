@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.xero1425.EncoderMapper;
 import org.xero1425.TalonFXFactory;
+import org.xero1425.XeroRobot;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -82,7 +83,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private StatusSignal<Double> shooter2_position_signal_ ;
     private StatusSignal<Double> shooter2_voltage_signal_ ;
 
-    public IntakeShooterIOTalonFX() throws Exception {
+    public IntakeShooterIOTalonFX(XeroRobot robot) throws Exception {
 
         is_sim_ = RobotBase.isSimulation() ;
     
@@ -218,7 +219,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                                             IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderMin) ;
 
         encoder_mapper_.calibrate(IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotCalibrationValue,
-                                  IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderCalibrationValue()) ;
+                                  IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderCalibrationValue(robot)) ;
         
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization

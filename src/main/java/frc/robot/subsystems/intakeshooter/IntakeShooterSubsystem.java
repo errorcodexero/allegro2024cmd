@@ -18,6 +18,7 @@ import edu.wpi.first.units.Units ;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
@@ -102,7 +103,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
         super(robot, "intake-shooter") ;
 
-        io_ = new IntakeShooterIOTalonFX() ;
+        io_ = new IntakeShooterIOTalonFX(robot) ;
         inputs_ = new IntakeShooterIOInputsAutoLogged() ;
 
         destsupplier_ = destsupplier ;
@@ -152,6 +153,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         turtle_command_.setName("turtle") ;
 
         need_stop_manipulator_ = false ;
+    }
+
+    public void setTiltToAngle(double t, double tiltpostol, double tiltveltol) {
+        setTracking(false) ;
+        setTiltTarget(t) ;
+
+        target_tilt_tol_ = tiltpostol ;
+        target_tilt_vel_ = tiltveltol ;
     }
 
     public Trigger readyForShoot() {
@@ -510,10 +519,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
-    private boolean isTiltReady() {
-        return 
+    public boolean isTiltReady() {
+        boolean b =  
             Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
             Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
+        return b ;
     }
 
     private boolean isUpDownReady() {
@@ -870,7 +880,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     private SysIdRoutine upDownSysIdRoutine() {
-        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Voltage> step = Units.Volts.of(6) ;
         Measure<Time> to = Units.Seconds.of(10) ;
         SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
 
@@ -909,11 +919,17 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public Command upDownSysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return upDownSysIdRoutine().quasistatic(dir) ;
+        Command tunecmd = upDownSysIdRoutine().quasistatic(dir) ;
+        return new SequentialCommandGroup(
+            new IntakeTiltGotoAngleCommand(this, -20, 5.0, 5.0),
+            tunecmd) ;
     }
 
     public Command upDownSysIdDynamic(SysIdRoutine.Direction dir) {
-        return upDownSysIdRoutine().dynamic(dir) ;
+        Command tunecmd = upDownSysIdRoutine().dynamic(dir) ;
+        return new SequentialCommandGroup(
+            new IntakeTiltGotoAngleCommand(this, -20, 5.0, 5.0),
+            tunecmd) ;
     }
 
     public Command tiltSysIdQuasistatic(SysIdRoutine.Direction dir) {

@@ -20,6 +20,8 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import java.util.function.Supplier;
 
 import org.xero1425.HolonomicPathFollower;
+import org.xero1425.MessageLogger;
+import org.xero1425.MessageType;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
 
@@ -28,6 +30,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -88,34 +91,49 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create subsystems
         //
-        if (XeroRobot.isCompetition())
-            db_ = TunerConstantsCompetition.DriveTrain ;
-        else if (XeroRobot.isPractice())
+        if (robot.isPracticeBot()) {
             db_ = TunerConstantsPractice.DriveTrain ;
-        else
+        }
+        else if (robot.isCompetitionBot()) {
+            db_ = TunerConstantsCompetition.DriveTrain ;
+        }
+        else if (RobotBase.isSimulation()) {
             db_ = TunerConstantsSimulation.DriveTrain ;
+        }
+        else {
+            //
+            // This should never happen, through an exception if it does
+            //
+            MessageLogger logger = robot.getMessageLogger() ;
+            logger.startMessage(MessageType.Error) ;
+            logger.add("the robot is not valid, it is neither a practice bot, a competition bot, or a simulation") ;
+            logger.endMessage();
+
+            throw new Exception("invalid robot") ;
+        }
 
         db_.createHolonimicPathFollower(getHolonomicConfig());
 
-        tracker_ = new Tracker(robot, db_, limelight_name_) ;
-        vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
-
         Supplier<NoteDestination> notesupply = null ;
 
-        if (!robot.isCharacterizing()) {
+        if (!robot.isCharMode()) {
             //
-            // Characterization is triggered all by the game pad.
+            // We are not characterizing.  Create the OI subsystem,
             //
             oi_ = new OISubsystem(robot, OIConstants.kOIControllerPort) ;
             notesupply = () -> oi_.getNoteDestination() ;
         }
         else {
             //
-            // No OI when we are characterizing
+            // Characterization is triggered all by the game pad.
+            // Assign the currently active mechanisms within a subsystem that is to be characterized
+            // to the gamepad.
             //
             oi_ = null ;
         }
 
+        tracker_ = new Tracker(robot, db_, limelight_name_) ;
+        vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
 
@@ -133,7 +151,7 @@ public class AllegroContainer extends XeroContainer {
         //
         driver_controller_ = new CommandXboxController(OIConstants.kDriverControllerPort);
 
-        configureBindings();
+        configureBindings(robot);
     }
 
     public HolonomicPathFollower.Config getHolonomicConfig() {
@@ -307,8 +325,8 @@ public class AllegroContainer extends XeroContainer {
         intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
     }
 
-    private void configureBindings() throws Exception {
-        if (RobotConstants.kCharacterize) {
+    private void configureBindings(XeroRobot robot) throws Exception {
+        if (robot.isCharMode()) {
             charBindings() ;
         }
         else {

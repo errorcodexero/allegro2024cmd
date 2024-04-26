@@ -1,12 +1,13 @@
 TODO
 ----
 - Tune UpDown
-- Test collect
-- Tune Shooter
+- Test/Tune collect
+- Test/Tune Shooter
 - Shooter speedup/accuracy improvement
-- Test manual podidum
-- Test manual subwoofer
+- Test manual shoot podidum
+- Test manual shoot subwoofer
 - Test auto shooting
 - Tune/Test amp sequence
 - Tune/Test trap sequence
-- Enable replay support
+- Enable replay support - what about swerve?
+- Auto trap
