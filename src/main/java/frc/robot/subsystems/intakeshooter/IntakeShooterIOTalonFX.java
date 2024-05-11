@@ -19,6 +19,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -101,7 +102,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
         /////////////////////////////////////////////////////////////////////////////////////////////////                    
         updown_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.UpDown.kMotorId,
-                    false,
+                    IntakeShooterConstants.UpDown.kInvert,
                     IntakeShooterConstants.UpDown.kCurrentLimit);
         updown_motor_.getPosition().setUpdateFrequency(100) ;
         updown_motor_.getVelocity().setUpdateFrequency(100) ;
@@ -111,8 +112,16 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                                 .withKV(IntakeShooterConstants.UpDown.PID.kV)
                                 .withKA(IntakeShooterConstants.UpDown.PID.kA)
                                 .withKG(IntakeShooterConstants.UpDown.PID.kG)
-                                .withKS(IntakeShooterConstants.UpDown.PID.kS) ;
+                                .withKS(IntakeShooterConstants.UpDown.PID.kS)
+                                .withGravityType(GravityTypeValue.Arm_Cosine) ;
         checkError("updown-set-PID-values", () -> updown_motor_.getConfigurator().apply(updownslot0cfg)) ;
+
+        final MotionMagicConfigs updownmagiccfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(IntakeShooterConstants.Tilt.MotionMagic.kV)
+                                .withMotionMagicAcceleration(IntakeShooterConstants.UpDown.MotionMagic.kA)
+                                .withMotionMagicJerk(IntakeShooterConstants.UpDown.MotionMagic.kJ) ;
+        checkError("updown-set-magic-motion", () -> updown_motor_.getConfigurator().apply(updownmagiccfg)) ;
+
         final SoftwareLimitSwitchConfigs updownlimitcfg = new SoftwareLimitSwitchConfigs()
                             .withForwardSoftLimitEnable(true)
                             .withForwardSoftLimitThreshold(IntakeShooterConstants.UpDown.kMaxPosition / IntakeShooterConstants.UpDown.kDegreesPerRev)
@@ -266,6 +275,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }    
 
     public void updateInputs(IntakeShooterIOInputs inputs) {
+        inputs.updownEncoder = updown_position_signal_.refresh().getValueAsDouble() ;
         inputs.updownPosition = updown_position_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
         inputs.updownVelocity = updown_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
         inputs.updownCurrent = updown_current_signal_.refresh().getValueAsDouble() ;

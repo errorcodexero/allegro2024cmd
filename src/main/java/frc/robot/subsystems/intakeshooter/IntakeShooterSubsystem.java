@@ -7,6 +7,8 @@ import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -92,6 +94,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Command eject_command_ ;
     private Command collect_command_ ;
     private Command turtle_command_ ;
+    private Map<Integer, Command> tilt_to_test_command_ ;
 
     private Supplier<NoteDestination> destsupplier_ ;
 
@@ -152,6 +155,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->isIdle()) ;
         turtle_command_.setName("turtle") ;
 
+        tilt_to_test_command_ = new HashMap<>() ;
+
+
+
         need_stop_manipulator_ = false ;
     }
 
@@ -208,6 +215,22 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public Command shootCommand() {
         return runOnce(this::finishShot) ;
+    }
+
+    public Command tiltToTestPosCmd(int angle) {
+
+        if (tilt_to_test_command_.containsKey(angle)) {
+            return tilt_to_test_command_.get(angle) ;
+        }
+
+        FunctionalCommand cmd = new FunctionalCommand(
+                                ()->tiltToTest(angle),
+                                () -> {},
+                                (Boolean b) -> {},
+                                ()->isIdle());
+        cmd.setName("tiltToTest - " + angle) ;
+        tilt_to_test_command_.put(angle, cmd) ;
+        return cmd ;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,6 +355,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             next_state_ = State.Idle ;
         }
+    }
+
+    public void tiltToTest(int angle) {
+        setTiltTarget(angle);
     }
 
     //
@@ -880,7 +907,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     private SysIdRoutine upDownSysIdRoutine() {
-        Measure<Voltage> step = Units.Volts.of(6) ;
+        Measure<Voltage> step = Units.Volts.of(2) ;
         Measure<Time> to = Units.Seconds.of(10) ;
         SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
 

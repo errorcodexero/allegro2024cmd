@@ -205,7 +205,6 @@ public class AllegroContainer extends XeroContainer {
 
         int total = 0 ;
 
-
         if (RobotConstants.WhichSubsystem.kCharDBSubsystem) {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(db_.sysIdQuasistatic(Direction.kForward));
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(db_.sysIdQuasistatic(Direction.kReverse));
@@ -275,6 +274,11 @@ public class AllegroContainer extends XeroContainer {
         }
     }
 
+    private void testUpDownBindings() {
+        driver_controller_.x().onTrue(intake_shooter_.tiltToTestPosCmd(-40)) ;
+        driver_controller_.y().onTrue(intake_shooter_.tiltToTestPosCmd(0)) ;        
+    }
+
     private void driveTrainBindings() {
         db_.setDefaultCommand(
             db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
@@ -327,7 +331,8 @@ public class AllegroContainer extends XeroContainer {
 
     private void configureBindings(XeroRobot robot) throws Exception {
         if (robot.isCharMode()) {
-            charBindings() ;
+            // charBindings() ;
+            testUpDownBindings() ;            
         }
         else {
             driveTrainBindings();

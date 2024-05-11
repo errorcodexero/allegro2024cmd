@@ -21,7 +21,8 @@ public class IntakeShooterConstants {
 
     public class UpDown {
         public static final int kMotorId = 2 ;
-        public static final boolean kInvert = true ;            
+        public static final boolean kInvert = true ;
+
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 0.5 ;
         public static final double kTargetVelTolerance = 1.0 ;
@@ -41,14 +42,21 @@ public class IntakeShooterConstants {
         }            
 
         public class PID {
-            public static final double kP = 50.0 ;
+            public static final double kP = 10.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
-            public static final double kV = 0.0 ;
-            public static final double kA = 5000.0 ;
+            public static final double kV = 0.18 ;
+            public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;
         } ;
+
+        public class MotionMagic {
+            public static final double kV = 32 ;
+            public static final double kA = 600 ;
+            public static final double kJ = 1000 ;
+        }
+
         public static final double[] kPwlValues = new double[] {
             0.0, 100.0, 
             2.119, 100.0, 

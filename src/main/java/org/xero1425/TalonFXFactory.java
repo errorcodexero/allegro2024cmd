@@ -21,8 +21,8 @@ public class TalonFXFactory {
     //
     public TalonFX createTalonFX(int id, String bus, boolean invert, double limit) throws Exception {
         TalonFX fx = new TalonFX(id, bus) ;
-        checkError("TalonFXMotorController - setPosition", () -> fx.setPosition(0.0)) ;
-        fx.setPosition(0.0) ;
+        checkError("TalonFXMotorController - setPosition", () -> fx.setPosition(0.0), 20) ;
+
         TalonFXConfiguration config = new TalonFXConfiguration() ;       
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake ;
 
@@ -33,7 +33,7 @@ public class TalonFXFactory {
 
         config.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive ;
 
-        checkError("TalonFXMotorController - apply configuration", () -> fx.getConfigurator().apply(config));        
+        checkError("TalonFXMotorController - apply configuration", () -> fx.getConfigurator().apply(config), -1);        
         return fx ;
     }       
 
@@ -49,9 +49,9 @@ public class TalonFXFactory {
         return createTalonFX(id, "", invert, limit) ;
     }     
 
-    private static void checkError(String msg, Supplier<StatusCode> toApply) throws Exception {
+    private static void checkError(String msg, Supplier<StatusCode> toApply, int reps) throws Exception {
         StatusCode code = StatusCode.StatusCodeNotInitialized ;
-        int tries = kApplyTries ;
+        int tries = (reps == -1 ? kApplyTries : reps) ;
         do {
             code = toApply.get() ;
         } while (!code.isOK() && --tries > 0)  ;

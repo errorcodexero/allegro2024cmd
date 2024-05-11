@@ -86,7 +86,6 @@ public class TrampConstants {
             public static final double kMaxAcceleration = 180.0 ;
             public static final double kJerk = 10000 ;
         }
-
     }
 
     public class Manipulator {

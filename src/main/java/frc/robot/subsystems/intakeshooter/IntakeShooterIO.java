@@ -11,6 +11,7 @@ public interface IntakeShooterIO {
         public double updownVelocity = 0.0;
         public double updownCurrent = 0.0;
         public double updownVoltage = 0.0 ;
+        public double updownEncoder = 0.0 ;
         public double tiltPosition = 0.0;
         public double tiltVelocity = 0.0;
         public double tiltCurrent = 0.0;
@@ -33,7 +34,6 @@ public interface IntakeShooterIO {
 
     public default void updateInputs(IntakeShooterIOInputs inputs) {
     }
-
 
     public default void setUpDownTargetPos(double pos) {
     }

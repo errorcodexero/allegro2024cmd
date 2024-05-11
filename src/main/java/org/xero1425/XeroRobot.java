@@ -6,6 +6,9 @@ import java.util.OptionalInt;
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.rlog.RLOGServer;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.simsupport.SimArgs;
 import org.xero1425.simsupport.SimEventsManager;
 
@@ -65,6 +68,7 @@ public abstract class XeroRobot extends LoggedRobot {
         auto_mode_ = null;
         connected_callback_processed_ = false ;
         connected_callbacks_ = new ArrayList<>() ;
+       
     }
 
     public abstract boolean isCharMode() ;
@@ -104,6 +108,7 @@ public abstract class XeroRobot extends LoggedRobot {
         CommandScheduler.getInstance().onCommandInitialize((cmd) -> commandInitialized(cmd)) ;
         CommandScheduler.getInstance().onCommandFinish((cmd) -> commandFinished(cmd)) ;
         CommandScheduler.getInstance().onCommandInterrupt((cmd) -> commandInterrupted(cmd)) ;
+
     }
 
     public AprilTagFieldLayout getFieldLayout() {
@@ -113,8 +118,6 @@ public abstract class XeroRobot extends LoggedRobot {
     protected void setFieldLayout(AprilTagFieldLayout layout) {
         layout_ = layout ;
     }
-
-
 
     protected void createAutoModes() {
 
@@ -168,15 +171,9 @@ public abstract class XeroRobot extends LoggedRobot {
         return container_ ;
     }
 
-
-
-
     protected void addAutoMode(XeroAutoCommand mode) {
         automodes_.add(mode) ;
     }
-
-    // \brief return the Serial number for the practice bot roborio
-
 
     private void enableMessageLogger() {
         String logfile = SimArgs.LogFileName ;
