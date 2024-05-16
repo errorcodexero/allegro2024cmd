@@ -6,8 +6,6 @@ package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.rlog.RLOGServer;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.MessageLogger;
 import org.xero1425.MessageType;
 import org.xero1425.XeroRobot;
@@ -105,11 +103,11 @@ public class AllegroRobot extends XeroRobot {
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables         
         Logger.start() ;
 
-        // Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        // Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        // Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        // Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our

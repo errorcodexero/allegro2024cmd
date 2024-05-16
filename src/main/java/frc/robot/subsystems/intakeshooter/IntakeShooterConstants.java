@@ -3,6 +3,10 @@ package frc.robot.subsystems.intakeshooter;
 import org.xero1425.XeroRobot;
 
 public class IntakeShooterConstants {
+    public static final double kvfactor = 60.0 ;
+    public static final double kafactor = 80.0 ;
+    public static final double kjfactor = 500.0;
+
     public static final double kCollectDelayTime = 0.1 ;
     public static final double kReverseDelayTime = 0.3 ;
     public static final double kTransferFeederToShooterDelay = 0.4 ;
@@ -10,7 +14,7 @@ public class IntakeShooterConstants {
 
     public class Feeder {
         public static final int kMotorId = 1 ;
-        public static final boolean kInvert = false ;
+        public static final boolean kInvert = true ;
         public static final double kCurrentLimit = 60.0 ;
         public static final double kCollectVoltage = 6.0 ;
         public static final double kTransferVoltage = 4.0 ;
@@ -52,9 +56,9 @@ public class IntakeShooterConstants {
         } ;
 
         public class MotionMagic {
-            public static final double kV = 32 ;
-            public static final double kA = 600 ;
-            public static final double kJ = 1000 ;
+            public static final double kV = kvfactor ;
+            public static final double kA = kafactor ;
+            public static final double kJ = kjfactor ;
         }
 
         public static final double[] kPwlValues = new double[] {
@@ -69,24 +73,25 @@ public class IntakeShooterConstants {
         public static final int kMotorId = 5 ;
         public static final boolean kInvert = true ;            
         public static final double kCurrentLimit = 60.0 ;
-        public static final double kTargetPosTolerance = 0.5 ;
+        public static final double kTargetPosTolerance = 2.0 ;
         public static final double kTargetVelTolerance = 1.0 ;
-        public static final double kAllowedDeviationFromTrack = 2.0 ;
+        public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
-        public static final double kMaxPosition = 50.0 ;
+        public static final double kMaxPosition = 45.0 ;
         public static final double kSimGearRatio = 18.0 ;        
         public static final double kSimMotorLoad = 0.1;
 
         public class Positions {
             public static final double kStowed = -72.0 ;
             public static final double kStartTracking = -50.0 ;
-            public static final double kCollect = 50.0 ;
+            public static final double kCollect = 45.0 ;
             public static final double kTransfer = 0.0 ;
+
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;
         }             
-        public class TrackingPIDSlot0 {
+        public class TrackingPIDSlot1 {
             public static final double kP = 5.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.35 ;
@@ -96,8 +101,8 @@ public class IntakeShooterConstants {
             public static final double kS = 0.0 ;
         };
 
-        public class MovementPIDSlot1 {
-            public static final double kP = 3.5 ;
+        public class MovementPIDSlot0 {
+            public static final double kP = 5.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.35 ;
             public static final double kV = 0.1 ;
@@ -107,9 +112,10 @@ public class IntakeShooterConstants {
         };        
 
         public class MotionMagic {
-            public static final double kV = 15 ;
-            public static final double kA = 80 ;
-            public static final double kJ = 500 ;
+            // public static final double kV = 15 ;
+            public static final double kV = kvfactor * 7.2727273 / 20.0 * 0.78 ;
+            public static final double kA = kafactor * 7.2727273 / 20.0 * 0.78 ;
+            public static final double kJ = kjfactor * 7.2727273 / 20.0 * 0.78 ;
         }
 
         public class AbsoluteEncoder {

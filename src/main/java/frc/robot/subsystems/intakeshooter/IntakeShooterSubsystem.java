@@ -141,12 +141,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->isIdle()) ;
         eject_command_.setName("eject") ;
 
-        collect_command_ = new FunctionalCommand(
-                                ()->collect(),
-                                () -> {},
-                                (Boolean b) -> { if (b) stopCollect(); },
-                                ()->isIdle() || hasNote()) ;
-        collect_command_.setName("collect") ;
+
 
         turtle_command_ = new FunctionalCommand(
                                 ()->turtle(),
@@ -202,7 +197,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
     public Command collectCommand() {
-        return collect_command_ ;
+        Command cmd = new FunctionalCommand(
+                                ()->collect(),
+                                () -> {},
+                                (Boolean b) -> { if (b) stopCollect(); },
+                                ()->isIdle() || hasNote()) ;
+        cmd.setName("collect") ;        
+        return cmd ;
     }
 
     public Command ejectCommand() {
@@ -299,7 +300,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             io_.setFeederMotorVoltage(0.0) ;
             io_.setTiltTargetPos(false, inputs_.tiltPosition);
-            io_.setUpDownMotorPosition(inputs_.updownPosition);
+            io_.setUpDownTargetPos(inputs_.updownPosition);
             reverse_timer_.start() ;
 
             state_ = State.WaitForReverse ;
@@ -798,6 +799,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         Logger.recordOutput("has-note", has_note_);
         Logger.recordOutput("tracking", tracking_);
         Logger.recordOutput("destination", getNoteDestination()) ;
+        Logger.recordOutput("updown-neg", -inputs_.updownVelocity) ;        
     }
 
     private void setTracking(boolean b) {
