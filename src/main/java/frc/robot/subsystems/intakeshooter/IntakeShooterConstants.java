@@ -171,7 +171,7 @@ public class IntakeShooterConstants {
 
         public static final double kTransferVelocity = 58.0 ;
         public static final double kTransferVelocityTol = 5.0 ;        
-        public static final double kTransferTransferLength = 0.6 ;
+        public static final double kTransferTransferLength = 0.2 ;
         public static final double kTransferContLength = 12.0 ;     
 
         public static final double kSimGearRatio = 0.6 ;      
