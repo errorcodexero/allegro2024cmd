@@ -389,8 +389,13 @@ public class TrampSubsystem extends XeroSubsystem {
                 next_state_ = State.Idle ;
                 break ;
         }
+
+        String aux = "" ;
+        if (state_ == State.GotoDirectToTarget) {
+            aux = ":" + target_arm_ + ":" + target_elev_ ;
+        }
         
-        Logger.recordOutput("tramp-state", state_);
+        Logger.recordOutput("tramp-state", state_ + aux);
         Logger.recordOutput("elev-target", target_elev_);
         Logger.recordOutput("arm-target", target_arm_);
         Logger.recordOutput("manipulator-voltage", io_.getManipulatorVoltage());

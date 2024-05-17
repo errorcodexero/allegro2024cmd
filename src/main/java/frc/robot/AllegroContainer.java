@@ -102,7 +102,7 @@ public class AllegroContainer extends XeroContainer {
         }
         else {
             //
-            // This should never happen, through an exception if it does
+            // This should never happen, throw an exception if it does
             //
             MessageLogger logger = robot.getMessageLogger() ;
             logger.startMessage(MessageType.Error) ;

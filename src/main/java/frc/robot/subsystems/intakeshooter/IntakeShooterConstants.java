@@ -7,7 +7,7 @@ public class IntakeShooterConstants {
     public static final double kafactor = 80.0 ;
     public static final double kjfactor = 500.0;
 
-    public static final double kCollectDelayTime = 0.1 ;
+    public static final double kCollectDelayTime = 0.02 ;
     public static final double kReverseDelayTime = 0.3 ;
     public static final double kTransferFeederToShooterDelay = 0.4 ;
 
@@ -177,10 +177,10 @@ public class IntakeShooterConstants {
         public static final double kSimGearRatio = 0.6 ;      
         public static final double kSimMotorLoad = 0.001 ;
 
-        public static final double kP = 32.0;
+        public static final double kP = 0.7;
         public static final double kI = 0.0 ;
         public static final double kD = 0.0 ;
-        public static final double kV = 0.008 ;
+        public static final double kV = 0.133 ;
         public static final double kA = 0.0 ;
         public static final double kG = 0.0 ;
         public static final double kS = 0.0 ;   
@@ -202,13 +202,13 @@ public class IntakeShooterConstants {
 
     public class Shooter1 {
         public static final int kMotorId = 3 ;
-        public static final boolean kInvert = false ;             
+        public static final boolean kInvert = true ;             
         public static final double kCurrentLimit = 80.0 ;
     }
 
     public class Shooter2 {
         public static final int kMotorId = 4 ;
-        public static final boolean kInvert = false ;             
+        public static final boolean kInvert = true ;             
         public static final double kCurrentLimit = 80.0 ;    
     }
 

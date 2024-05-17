@@ -198,6 +198,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter1.kInvert,
                     IntakeShooterConstants.Shooter1.kCurrentLimit);
         shooter1_motor_.getVelocity().setUpdateFrequency(100) ;
+        shooter1_motor_.getPosition().setUpdateFrequency(100) ;        
         final Slot0Configs shooter1slot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Shooter.kP)
                                 .withKI(IntakeShooterConstants.Shooter.kI)
                                 .withKD(IntakeShooterConstants.Shooter.kD)
@@ -218,7 +219,8 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter2.kMotorId,
                     IntakeShooterConstants.Shooter2.kInvert,
                     IntakeShooterConstants.Shooter2.kCurrentLimit);
-        shooter2_motor_.getVelocity().setUpdateFrequency(100) ;                    
+        shooter2_motor_.getVelocity().setUpdateFrequency(100) ;
+        shooter2_motor_.getPosition().setUpdateFrequency(100) ;                   
         final Slot0Configs shooter2slot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Shooter.kP)
                                 .withKI(IntakeShooterConstants.Shooter.kI)
                                 .withKD(IntakeShooterConstants.Shooter.kD)

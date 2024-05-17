@@ -10,7 +10,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -112,11 +112,17 @@ public class TrampIOHardware implements TrampIO {
                                 .withGravityType(GravityTypeValue.Arm_Cosine) ;
         checkError("set-arm-PID-value", () -> arm_motor_.getConfigurator().apply(armcfg)) ;
 
+        final MotionMagicConfigs armmmcfg = new MotionMagicConfigs()
+                            .withMotionMagicCruiseVelocity(TrampConstants.Arm.MotionMagic.kMaxVelocity)
+                            .withMotionMagicAcceleration(TrampConstants.Arm.MotionMagic.kMaxAcceleration)
+                            .withMotionMagicJerk(TrampConstants.Arm.MotionMagic.kJerk) ;
+        checkError("set-elevator-motion-magic", () -> arm_motor_.getConfigurator().apply(armmmcfg)) ;
+
         final SoftwareLimitSwitchConfigs armlimitcfg = new SoftwareLimitSwitchConfigs()
                             .withForwardSoftLimitEnable(true)
-                            .withForwardSoftLimitThreshold(armDegreesToRevs(TrampConstants.Arm.kMaxPosition))
+                            .withForwardSoftLimitThreshold(TrampConstants.Arm.kMaxPosition)
                             .withReverseSoftLimitEnable(true)
-                            .withReverseSoftLimitThreshold(armDegreesToRevs(TrampConstants.Arm.kMinPosition)) ;
+                            .withReverseSoftLimitThreshold(TrampConstants.Arm.kMinPosition) ;
         checkError("set-elevator-soft-limit-value", () -> arm_motor_.getConfigurator().apply(armlimitcfg)) ;
 
         arm_pos_sig_ = arm_motor_.getPosition() ;
@@ -139,6 +145,7 @@ public class TrampIOHardware implements TrampIO {
         // Manipulator motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////           
         manipulator_motor_ = new CANSparkFlex(TrampConstants.Manipulator.kMotorId, CANSparkFlex.MotorType.kBrushless);
+        manipulator_motor_.setInverted(TrampConstants.Manipulator.kInverted);
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
         encoder_ = manipulator_motor_.getEncoder() ;
@@ -185,7 +192,7 @@ public class TrampIOHardware implements TrampIO {
         inputs.elevatorEncoder = enc ;
 
         enc = arm_pos_sig_.refresh().getValueAsDouble() ;
-        inputs.armPosition = armRevsToDegrees(enc) ;
+        inputs.armPosition = enc * TrampConstants.Arm.kDegreesPerRev ;
         inputs.armVelocity = arm_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Arm.kDegreesPerRev ;
         inputs.armCurrent = arm_current_sig_.refresh().getValueAsDouble() ;
         inputs.armOutput = arm_output_sig_.refresh().getValueAsDouble() ;
@@ -203,7 +210,9 @@ public class TrampIOHardware implements TrampIO {
     }
 
     public void setElevatorTargetPos(double pos) {
-        elevator_motor_.setControl(new PositionTorqueCurrentFOC(pos / TrampConstants.Elevator.kMetersPerRev)) ;
+        elevator_motor_.setControl(new MotionMagicVoltage(pos / TrampConstants.Elevator.kMetersPerRev)
+                                    .withSlot(0)
+                                    .withEnableFOC(true)) ;
     }
 
     public void setElevatorMotorVoltage(double volts) {
@@ -226,11 +235,13 @@ public class TrampIOHardware implements TrampIO {
     }
 
     public void setArmTargetPos(double pos) {
-        arm_motor_.setControl(new PositionTorqueCurrentFOC(pos / TrampConstants.Arm.kDegreesPerRev)) ;
+        arm_motor_.setControl(new MotionMagicVoltage(pos / TrampConstants.Arm.kDegreesPerRev)
+                                    .withSlot(0)
+                                    .withEnableFOC(true)) ;
     }
 
     public void setArmPosition(double pos) {
-        arm_motor_.setPosition(armDegreesToRevs(pos));
+        arm_motor_.setPosition(pos / TrampConstants.Arm.kDegreesPerRev) ;
     }
 
     public void setArmMotorVoltage(double volts) {
@@ -251,7 +262,7 @@ public class TrampIOHardware implements TrampIO {
 
     public void setManipulatorVoltage(double volts) {
         manipulator_voltage_ = volts ;
-        manipulator_motor_.set(manipulator_voltage_) ;
+        manipulator_motor_.setVoltage(volts);
     }
 
     public double getManipulatorVoltage() {
@@ -296,14 +307,6 @@ public class TrampIOHardware implements TrampIO {
             double pos = encoder_.getPosition() + 0.04 ;
             encoder_.setPosition(pos) ;
         }
-    }
-
-    private double armDegreesToRevs(double degs) {
-        return degs / TrampConstants.Arm.kDegreesPerRev - TrampConstants.Arm.kEncoderOffset ;
-    }
-
-    private double armRevsToDegrees(double revs) {
-        return (revs + TrampConstants.Arm.kEncoderOffset) * TrampConstants.Arm.kDegreesPerRev;
     }
 
     private static void checkError(String msg, Supplier<StatusCode> toApply) throws Exception {

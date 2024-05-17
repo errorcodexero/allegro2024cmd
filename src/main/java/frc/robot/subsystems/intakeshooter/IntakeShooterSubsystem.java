@@ -92,7 +92,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private State initial_transfer_state_ ;
 
     private Command eject_command_ ;
-    private Command collect_command_ ;
     private Command turtle_command_ ;
     private Map<Integer, Command> tilt_to_test_command_ ;
 

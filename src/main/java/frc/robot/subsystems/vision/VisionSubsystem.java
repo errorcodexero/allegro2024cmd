@@ -18,6 +18,7 @@ public class VisionSubsystem extends XeroSubsystem {
 
         io_ = new VisionIOLimelight(name) ;
         inputs_ = new VisionInputsAutoLogged() ;
+        db_ = db ;
     }
 
     public void enable(boolean b) {
