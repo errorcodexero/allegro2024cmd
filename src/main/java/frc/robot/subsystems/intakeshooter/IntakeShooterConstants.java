@@ -11,13 +11,12 @@ public class IntakeShooterConstants {
     public static final double kReverseDelayTime = 0.3 ;
     public static final double kTransferFeederToShooterDelay = 0.4 ;
 
-
     public class Feeder {
         public static final int kMotorId = 1 ;
         public static final boolean kInvert = true ;
         public static final double kCurrentLimit = 60.0 ;
         public static final double kCollectVoltage = 6.0 ;
-        public static final double kTransferVoltage = 4.0 ;
+        public static final double kTransferVoltage = 3.0 ;
         public static final double kShootVoltage = 12.0 ;
         public static final double kShootTime = 0.4 ;
         public static final double kEjectVoltage = 1.0 ;
@@ -28,7 +27,7 @@ public class IntakeShooterConstants {
         public static final boolean kInvert = true ;
 
         public static final double kCurrentLimit = 60.0 ;
-        public static final double kTargetPosTolerance = 0.5 ;
+        public static final double kTargetPosTolerance = 2.0 ;
         public static final double kTargetVelTolerance = 1.0 ;
         public static final double kDegreesPerRev = 7.2727273 ;
         public static final double kSimGearRatio = 2.0 ;
@@ -113,9 +112,9 @@ public class IntakeShooterConstants {
 
         public class MotionMagic {
             // public static final double kV = 15 ;
-            public static final double kV = kvfactor * 7.2727273 / 20.0 * 0.78 ;
-            public static final double kA = kafactor * 7.2727273 / 20.0 * 0.78 ;
-            public static final double kJ = kjfactor * 7.2727273 / 20.0 * 0.78 ;
+            public static final double kV = kvfactor * 7.2727273 / 20.0  ;
+            public static final double kA = kafactor * 7.2727273 / 20.0  ;
+            public static final double kJ = kjfactor * 7.2727273 / 20.0  ;
         }
 
         public class AbsoluteEncoder {
@@ -165,13 +164,13 @@ public class IntakeShooterConstants {
         public static final double kEjectForwardTime = 1.0 ;
         public static final double kEjectPauseTime = 0.5 ;
         public static final double kEjectReverseTime = 1.0 ;
-        public static final double kEjectVoltage = 8.0 ;
+        public static final double kEjectVoltage = 4.0 ;
 
         public static final double kAutoShootVelocityTol = 5.0 ;            
 
-        public static final double kTransferVelocity = 58.0 ;
-        public static final double kTransferVelocityTol = 5.0 ;        
-        public static final double kTransferTransferLength = 0.2 ;
+        public static final double kTransferVelocity = 20.0 ;
+        public static final double kTransferVelocityTol = 5.0 ;
+        public static final double kTransferTransferLength = 0.15 ;
         public static final double kTransferContLength = 12.0 ;     
 
         public static final double kSimGearRatio = 0.6 ;      
@@ -180,7 +179,7 @@ public class IntakeShooterConstants {
         public static final double kP = 0.7;
         public static final double kI = 0.0 ;
         public static final double kD = 0.0 ;
-        public static final double kV = 0.133 ;
+        public static final double kV = 0.135 ;
         public static final double kA = 0.0 ;
         public static final double kG = 0.0 ;
         public static final double kS = 0.0 ;   

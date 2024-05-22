@@ -18,6 +18,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -394,7 +395,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }
  
     public void setShooter1Velocity(double vel) {
-        shooter1_motor_.setControl(new VelocityTorqueCurrentFOC(vel)) ;
+        shooter1_motor_.setControl(new VelocityVoltage(vel)) ;
     }
 
     public void setShooter1MotorVoltage(double vol) {
@@ -410,7 +411,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     }    
 
     public void setShooter2Velocity(double vel) {
-        shooter2_motor_.setControl(new VelocityTorqueCurrentFOC(vel)) ;
+        shooter2_motor_.setControl(new VelocityVoltage(vel)) ;
     }
 
     public void setShooter2MotorVoltage(double vol) {

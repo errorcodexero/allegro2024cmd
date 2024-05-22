@@ -561,6 +561,19 @@ public class TrampSubsystem extends XeroSubsystem {
         return  new SysIdRoutine(cfg, mfg) ;
     }
 
+    private SysIdRoutine manipulatorSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setManipulatorVoltage(volts.magnitude()),
+                                        (log) -> io_.logManipulatorMotor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }    
+
     public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction dir) {
         return elevatorSysIdRoutine().quasistatic(dir) ;
     }

@@ -85,7 +85,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private XeroTimer eject_forward_timer_ ;
     private XeroTimer eject_reverse_timer_ ;
     private XeroTimer eject_pause_timer_ ;
-    private XeroTimer transfer_shooter_to_feeder_timer_ ;
 
     private State state_ ;
     private State next_state_ ;
@@ -116,7 +115,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         eject_forward_timer_ = new XeroTimer(getRobot(), "eject-forward", IntakeShooterConstants.Shooter.kEjectForwardTime) ;
         eject_reverse_timer_ = new XeroTimer(getRobot(), "eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
         eject_pause_timer_ = new XeroTimer(getRobot(), "eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
-        transfer_shooter_to_feeder_timer_ = new XeroTimer(getRobot(), "transfer-shooter-to-feeder", IntakeShooterConstants.kTransferFeederToShooterDelay) ;
 
         io_.setTiltMotorPosition(io_.getTiltAbsoluteEncoderPosition());
         io_.setUpDownMotorPosition(IntakeShooterConstants.UpDown.Positions.kStowed);
@@ -334,7 +332,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Start the shooter wheels so they are moving when the note hits the shooter.
             //
             setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
-            transfer_shooter_to_feeder_timer_.start() ;
             state_ = State.TransferStartingShooter ;            
         }
     }
@@ -401,8 +398,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public void eject() {
         setTracking(false);
-        gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, Double.NaN, Double.NaN, 
-                     IntakeShooterConstants.Tilt.Positions.kEject, Double.NaN, Double.NaN) ;
+        gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, 5.0, 100.0, 
+                     IntakeShooterConstants.Tilt.Positions.kEject, 8.0, 100.0) ;
         state_ = State.GoToEjectPosition ;
     }
 
@@ -472,6 +469,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (isTiltReady() && isUpDownReady()) {
             state_ = next_state_ ;
             next_state_ = State.Invalid ;
+        }
+        else if (next_state_ == State.WaitForNote && inputs_.fallingEdge) {
+            has_note_ = true ;
+            capture_timer_.start() ;
+            state_ = State.WaitForCapture ;            
         }
     }
 
@@ -612,7 +614,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void ejectForwardState() {
         if (eject_forward_timer_.isExpired()) {
             setShooterVoltage(0.0);
-            io_.setFeederMotorVoltage(0.0);
+            io_.setFeederMotorVoltage(0.0) ;
             eject_pause_timer_.start() ;
             state_ = State.EjectPause ;
         }
@@ -635,8 +637,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
-    private void transferStartedShooterState() {
-        if (transfer_shooter_to_feeder_timer_.isExpired()) {
+    private void transferStartingShooterState() {
+        if (isShooterReady()) {
             io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kTransferVoltage);
             state_ = initial_transfer_state_ ;
         }
@@ -713,7 +715,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferStartingShooter:
-                transferStartedShooterState() ;
+                transferStartingShooterState() ;
                 break ;
 
             case TransferWaitForSensor:
@@ -763,6 +765,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             case GoToEjectPosition:
                 if (isTiltReady() && isUpDownReady()) {
                     setShooterVoltage(IntakeShooterConstants.Shooter.kEjectVoltage);
+                    io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
                     eject_forward_timer_.start() ;
                     has_note_ = false ;     
                     state_ = State.EjectForward ;

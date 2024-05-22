@@ -149,6 +149,8 @@ public class TrampIOHardware implements TrampIO {
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
         encoder_ = manipulator_motor_.getEncoder() ;
+        encoder_.setPositionConversionFactor(1.0 / (double)encoder_.getCountsPerRevolution()) ;
+        encoder_.setVelocityConversionFactor(1.0 / (double)encoder_.getCountsPerRevolution()) ;        
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
@@ -206,6 +208,7 @@ public class TrampIOHardware implements TrampIO {
         inputs.climberEncoder = enc ;
 
         inputs.manipulatorPosition = encoder_.getPosition() ;
+        inputs.manipulatorVelocity = encoder_.getVelocity() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;        
     }
 
@@ -283,7 +286,14 @@ public class TrampIOHardware implements TrampIO {
             .voltage(Units.Volts.of(climber_voltage_))
             .angularPosition(Units.Revolutions.of(climber_pos_sig_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(climber_velocity_sig_.refresh().getValueAsDouble())) ;
-    }        
+    }    
+    
+    public void logManipulatorMotor(SysIdRoutineLog log) {
+        log.motor("climber")
+            .voltage(Units.Volts.of(manipulator_voltage_))
+            .angularPosition(Units.Revolutions.of(encoder_.getPosition()))
+            .angularVelocity(Units.RevolutionsPerSecond.of(encoder_.getVelocity())) ;
+    }      
 
     public void doSim(TalonFX motor, DCMotorSim sim, double period){
         TalonFXSimState state = motor.getSimState() ;

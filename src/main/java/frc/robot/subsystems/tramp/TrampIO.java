@@ -19,6 +19,7 @@ public interface TrampIO {
         public double armOutput = 0.0 ;
         public double armEncoder = 0.0 ;
         public double manipulatorPosition = 0.0 ;
+        public double manipulatorVelocity = 0.0 ;
         public double manipulatorCurrent = 0.0 ;
         public double climberPositon = 0.0 ;
         public double climberCurrent = 0.0 ;
@@ -65,6 +66,9 @@ public interface TrampIO {
     public default double getManipulatorVoltage() {
         return 0.0 ;
     }
+
+    public default void logManipulatorMotor(SysIdRoutineLog log) {
+    }   
 
     public default void setClimberMotorVoltage(double volts) {
     }
