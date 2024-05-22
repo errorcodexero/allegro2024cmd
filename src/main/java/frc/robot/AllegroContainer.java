@@ -269,6 +269,14 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
+        if (RobotConstants.WhichSubsystem.kCharManipulatorSubsystem) {
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.x()).whileTrue(tramp_.manipulatorSysIdQuasistatic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.y()).whileTrue(tramp_.manipulatorSysIdQuasistatic(Direction.kReverse));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.a()).whileTrue(tramp_.manipulatorSysIdDynamic(Direction.kForward));
+            driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(tramp_.manipulatorSysIdDynamic(Direction.kReverse));
+            total++ ;
+        }        
+
         if (total > 1) {
             throw new Exception("Only one subsystem can be characterized at a time") ;
         }
@@ -328,9 +336,8 @@ public class AllegroContainer extends XeroContainer {
         //
         intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
 
-        //
-        // TODO: climb without trap
-        //
+        oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
+        oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
     }
 
     private void configureBindings(XeroRobot robot) throws Exception {

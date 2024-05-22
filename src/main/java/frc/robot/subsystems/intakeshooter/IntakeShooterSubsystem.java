@@ -98,7 +98,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private Trigger transfer_note_trigger_ ;
     private Trigger ready_for_shoot_trigger_ ;
-
     private boolean collect_after_manual_ ;
 
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {

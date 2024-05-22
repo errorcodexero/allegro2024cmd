@@ -45,6 +45,10 @@ public class TrampSubsystem extends XeroSubsystem {
         Trap3,
         Transferring,
         Shooting,
+        BasicClimbMovingElevatorArm,
+        BasicClimbMovingClimber,        
+        BasicClimbReady,        
+        BasicClimbDown
     }
 
     private TrampIO io_ ;
@@ -71,13 +75,10 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
 
-    private Command eject_command_ ;
-    private Command turtle_command_ ;
-    private Command shoot_command_ ;
-    private Command trap_command_ ;
-
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
+    private Trigger climber_down_trigger_ ;
+    private Trigger basic_climb_ready_trigger_ ;
 
     private ClimberDir climber_dir_ ;
     private double climber_target_ ;
@@ -96,37 +97,11 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
         shoot_timer_ = new XeroTimer(robot, "tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer(robot, "tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
-
-        eject_command_ = new FunctionalCommand(
-                                    () -> eject(),
-                                    () -> {},
-                                    (Boolean b) -> {},
-                                    () -> isIdle()) ;
-        eject_command_.setName("eject") ;
-
-        turtle_command_ = new FunctionalCommand(
-                                    () -> turtle(),
-                                    () -> {},
-                                    (Boolean b) -> {},
-                                    () -> isIdle()) ;
-        turtle_command_.setName("turtle") ;
-
-        shoot_command_ = new FunctionalCommand(
-                                    () -> shoot(),
-                                    () -> {},
-                                    (Boolean b) -> {},
-                                    () -> isIdle()) ;
-        shoot_command_.setName("shoot") ;
-
-        trap_command_ = new FunctionalCommand(
-                                    () -> trap(),
-                                    () -> {},
-                                    (Boolean b) -> {},
-                                    () -> isIdle()) ;
-        trap_command_.setName("trap") ;
-                                    
+                   
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
-        ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ;        
+        ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
+        climber_down_trigger_ = new Trigger(()-> inputs_.climberPosition < 0.1) ;
+        basic_climb_ready_trigger_ = new Trigger(()-> state_ == State.BasicClimbReady) ;
         
         state_ = State.Idle ;
         climber_dir_ = ClimberDir.None ;
@@ -140,6 +115,14 @@ public class TrampSubsystem extends XeroSubsystem {
     public Trigger readyForTrap() {
         return ready_for_trap_trigger_;
     }    
+
+    public Trigger isClimberDown() {
+        return climber_down_trigger_ ;
+    }
+
+    public Trigger isBasicClimbReady() {
+        return basic_climb_ready_trigger_ ;
+    }
 
     public boolean isIdle() {
         return state_ == State.Idle ;
@@ -157,20 +140,76 @@ public class TrampSubsystem extends XeroSubsystem {
         return state_ == State.HoldingAmpPosition ;
     }
 
+    public Command climberUpCmd() {
+        Command cmd = new FunctionalCommand(
+                                    () -> basicClimbPrep(),
+                                    () -> {},
+                                    (Boolean b) -> {},
+                                    () -> isIdle()) ;
+        cmd.setName("climberUp") ;        
+        return cmd ;
+    }
+
+    public Command basicClimbCmd() {
+        Command cmd = new FunctionalCommand(
+                                    () -> basicClimbExec(),
+                                    () -> {},
+                                    (Boolean b) -> {},
+                                    () -> isIdle()) ;
+        cmd.setName("basicClimb") ;        
+        return cmd ;
+    }    
+
     public Command ejectCommand() {
-        return eject_command_ ;
+        Command cmd = new FunctionalCommand(
+                                    () -> eject(),
+                                    () -> {},
+                                    (Boolean b) -> {},
+                                    () -> isIdle()) ;
+        cmd.setName("eject") ;        
+        return cmd ;
     }
 
     public Command turtleCommand() {
-        return turtle_command_ ;
+        Command cmd = new FunctionalCommand(
+                                    () -> turtle(),
+                                    () -> {},
+                                    (Boolean b) -> {},
+                                    () -> isIdle()) ;
+        cmd.setName("turtle") ;
+        return cmd ;
     }
 
     public Command shootCommand() {
-        return shoot_command_ ;
+        Command cmd = new FunctionalCommand(
+                                    () -> shoot(),
+                                    () -> {},
+                                    (Boolean b) -> {},
+                                    () -> isIdle()) ;
+        cmd.setName("shoot") ;        
+        return cmd ;
     }
 
     public Command trapCommand() {
-        return trap_command_ ;
+        Command cmd = new FunctionalCommand(
+                                    () -> trap(),
+                                    () -> {},
+                                    (Boolean b) -> {},
+                                    () -> isIdle()) ;
+        cmd.setName("trap") ;
+        return cmd ;
+    }
+
+    private void basicClimbPrep() {
+        gotoPosition(TrampConstants.Elevator.Positions.kBasicClimb, Double.NaN, Double.NaN, 
+                     TrampConstants.Arm.Positions.kBasicClimb, Double.NaN, Double.NaN);
+
+        next_state_ = State.BasicClimbMovingElevatorArm ;
+    }
+
+    private void basicClimbExec() {
+        climberDown() ;
+        state_ = State.BasicClimbDown ;
     }
 
     public void shoot() {
@@ -199,7 +238,6 @@ public class TrampSubsystem extends XeroSubsystem {
             gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kTrap, Double.NaN, Double.NaN);
             climberUp() ;
-
             next_state_ = State.MoveNote ;
         }
         else if (dest == NoteDestination.Amp) {
@@ -395,11 +433,35 @@ public class TrampSubsystem extends XeroSubsystem {
                              TrampConstants.Arm.Positions.kTrap4, Double.NaN, Double.NaN) ;
                 next_state_ = State.Idle ;
                 break ;
+
+            case BasicClimbMovingElevatorArm:
+                climberUp() ;
+                state_ = State.BasicClimbMovingClimber ;
+                break ;
+
+            case BasicClimbMovingClimber:
+                if (climber_dir_ == ClimberDir.None) {
+                    state_ = State.BasicClimbReady ;
+                }
+                break ;
+
+            case BasicClimbReady:
+                break ;
+
+            case BasicClimbDown:
+                if (climber_dir_ == ClimberDir.None) {
+                    state_ = State.Idle ;
+                }
+                break ;
         }
 
         String aux = "" ;
         if (state_ == State.GotoDirectToTarget) {
             aux = ":" + target_arm_ + ":" + target_elev_ ;
+        }
+        
+        if (climber_dir_ != ClimberDir.None) {
+            aux += ":" + climber_dir_.toString() ;
         }
         
         Logger.recordOutput("tramp-state", state_ + aux);
@@ -568,6 +630,19 @@ public class TrampSubsystem extends XeroSubsystem {
         return  new SysIdRoutine(cfg, mfg) ;
     } 
 
+    private SysIdRoutine manipulatorSysIdRoutine() {
+        Measure<Voltage> step = Units.Volts.of(3) ;
+        Measure<Time> to = Units.Seconds.of(10) ;
+        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
+
+        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
+                                        (volts) -> io_.setManipulatorVoltage(volts.magnitude()),
+                                        (log) -> io_.logManipulatorMotor(log),
+                                        this) ;
+
+        return  new SysIdRoutine(cfg, mfg) ;
+    }     
+
     public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction dir) {
         return elevatorSysIdRoutine().quasistatic(dir) ;
     }
@@ -575,6 +650,14 @@ public class TrampSubsystem extends XeroSubsystem {
     public Command elevatorSysIdDynamic(SysIdRoutine.Direction dir) {
         return elevatorSysIdRoutine().dynamic(dir) ;
     }   
+
+    public Command manipulatorSysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return manipulatorSysIdRoutine().quasistatic(dir) ;
+    }
+
+    public Command manipulatorSysIdDynamic(SysIdRoutine.Direction dir) {
+        return manipulatorSysIdRoutine().dynamic(dir) ;
+    }       
     
     public Command armSysIdQuasistatic(SysIdRoutine.Direction dir) {
         return armSysIdRoutine().quasistatic(dir) ;

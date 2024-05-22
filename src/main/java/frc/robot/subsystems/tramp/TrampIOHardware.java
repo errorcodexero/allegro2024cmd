@@ -299,7 +299,14 @@ public class TrampIOHardware implements TrampIO {
 
     public double getManipulatorVoltage() {
         return manipulator_voltage_ ;
-    }
+    } 
+
+    public void logManipulatorMotor(SysIdRoutineLog log) {
+        log.motor("climber")
+            .voltage(Units.Volts.of(manipulator_voltage_))
+            .angularPosition(Units.Revolutions.of(manipulator_encoder_.getPosition()))
+            .angularVelocity(Units.RevolutionsPerSecond.of(manipulator_encoder_.getVelocity())) ;
+    }     
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -322,13 +329,7 @@ public class TrampIOHardware implements TrampIO {
             .angularPosition(Units.Revolutions.of(climber_pos_sig_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(climber_velocity_sig_.refresh().getValueAsDouble())) ;
     }    
-    
-    public void logManipulatorMotor(SysIdRoutineLog log) {
-        log.motor("climber")
-            .voltage(Units.Volts.of(manipulator_voltage_))
-            .angularPosition(Units.Revolutions.of(manipulator_encoder_.getPosition()))
-            .angularVelocity(Units.RevolutionsPerSecond.of(manipulator_encoder_.getVelocity())) ;
-    }      
+     
 
     ////////////////////////////////////////////////////////////////////////////
     //
