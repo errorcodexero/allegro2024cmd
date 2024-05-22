@@ -231,7 +231,12 @@ public class TrampSubsystem extends XeroSubsystem {
     public void stopTransfer() {
         if (state_ == State.Transferring) {
             has_note_ = true ;
-            io_.setManipulatorVoltage(0.0);
+
+            //
+            // Switch to a holding PID
+            //
+            io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+
             state_ = State.Idle ;
         }
     }
@@ -247,13 +252,13 @@ public class TrampSubsystem extends XeroSubsystem {
         Logger.processInputs("tramp", inputs_);
 
         if (climber_dir_ == ClimberDir.Up) {
-            if (inputs_.climberPositon >= climber_target_) {
+            if (inputs_.climberPosition >= climber_target_) {
                 io_.setClimberMotorVoltage(0.0);
                 climber_dir_ = ClimberDir.None ;
             }
         }
         else if (climber_dir_ == ClimberDir.Down) {
-            if (inputs_.climberPositon <= climber_target_) {
+            if (inputs_.climberPosition <= climber_target_) {
                 io_.setClimberMotorVoltage(0.0);
                 climber_dir_ = ClimberDir.None ;
             }
@@ -266,6 +271,7 @@ public class TrampSubsystem extends XeroSubsystem {
             case Eject:
                 if (eject_timer_.isExpired()) {
                     io_.setManipulatorVoltage(0.0);
+                    has_note_ = false ;
                     state_ = State.Idle ;
                 }
                 break;
@@ -346,6 +352,7 @@ public class TrampSubsystem extends XeroSubsystem {
             case Shooting:
                 if (shoot_timer_.isExpired()) {
                     io_.setManipulatorVoltage(0.0);
+                    has_note_ = false ;
                     gotoPosition(TrampConstants.Elevator.Positions.kStowed, Double.NaN, Double.NaN,
                                  TrampConstants.Arm.Positions.kStowed, Double.NaN, Double.NaN) ;
                     next_state_ = State.Idle ;
@@ -559,20 +566,7 @@ public class TrampSubsystem extends XeroSubsystem {
                                         this) ;
 
         return  new SysIdRoutine(cfg, mfg) ;
-    }
-
-    private SysIdRoutine manipulatorSysIdRoutine() {
-        Measure<Voltage> step = Units.Volts.of(3) ;
-        Measure<Time> to = Units.Seconds.of(10) ;
-        SysIdRoutine.Config cfg = new SysIdRoutine.Config(null, step, to, null) ;
-
-        SysIdRoutine.Mechanism mfg = new SysIdRoutine.Mechanism(
-                                        (volts) -> io_.setManipulatorVoltage(volts.magnitude()),
-                                        (log) -> io_.logManipulatorMotor(log),
-                                        this) ;
-
-        return  new SysIdRoutine(cfg, mfg) ;
-    }    
+    } 
 
     public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction dir) {
         return elevatorSysIdRoutine().quasistatic(dir) ;

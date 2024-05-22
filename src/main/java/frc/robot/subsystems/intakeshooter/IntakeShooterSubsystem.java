@@ -138,8 +138,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->isIdle()) ;
         eject_command_.setName("eject") ;
 
-
-
         turtle_command_ = new FunctionalCommand(
                                 ()->turtle(),
                                 () -> {},
@@ -148,8 +146,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         turtle_command_.setName("turtle") ;
 
         tilt_to_test_command_ = new HashMap<>() ;
-
-
 
         need_stop_manipulator_ = false ;
     }
@@ -530,6 +526,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                     break ;
             }
             gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
+
+            //
+            // Start the shooter wheels so that the shooter is up to speed when the updown/tilt reach the
+            // transfer position
+            //
+            if (dest == NoteDestination.Amp) {
+                setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
+            }
         }
     }
 
@@ -767,7 +771,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                     setShooterVoltage(IntakeShooterConstants.Shooter.kEjectVoltage);
                     io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
                     eject_forward_timer_.start() ;
-                    has_note_ = false ;     
+                    has_note_ = false ;
                     state_ = State.EjectForward ;
                 }
                 break ;

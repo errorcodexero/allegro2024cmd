@@ -286,7 +286,7 @@ public class AllegroContainer extends XeroContainer {
                                          .withRotationalRate(-driver_controller_.getRightX() * SwerveConstants.kMaxRotationalSpeed)
                             ).ignoringDisable(true));
 
-        driver_controller_.a().onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
+        driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
 
         db_.registerTelemetry(logger_::telemeterize) ;
     }
@@ -327,6 +327,10 @@ public class AllegroContainer extends XeroContainer {
         // the transfer action.  The transfer action moves the note from the intake to the manipulator.
         //
         intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
+
+        //
+        // TODO: climb without trap
+        //
     }
 
     private void configureBindings(XeroRobot robot) throws Exception {

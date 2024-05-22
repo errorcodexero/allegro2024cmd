@@ -100,6 +100,16 @@ public class TrampConstants {
         public static final double kTrapMoveNotePower = 0.05 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositPower = -1.0 ;
+
+        public class PID {
+            public static final double kP = 3280 ;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.0 ;
+            public static final double kA = 0.0;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.0 ;
+        };         
     }
 
     public class Climber {

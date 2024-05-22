@@ -19,7 +19,7 @@ public class IntakeShooterConstants {
         public static final double kTransferVoltage = 3.0 ;
         public static final double kShootVoltage = 12.0 ;
         public static final double kShootTime = 0.4 ;
-        public static final double kEjectVoltage = 1.0 ;
+        public static final double kEjectVoltage = 6.0 ;
     }
 
     public class UpDown {
@@ -164,7 +164,7 @@ public class IntakeShooterConstants {
         public static final double kEjectForwardTime = 1.0 ;
         public static final double kEjectPauseTime = 0.5 ;
         public static final double kEjectReverseTime = 1.0 ;
-        public static final double kEjectVoltage = 4.0 ;
+        public static final double kEjectVoltage = 8.0 ;
 
         public static final double kAutoShootVelocityTol = 5.0 ;            
 

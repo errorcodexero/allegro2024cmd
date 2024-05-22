@@ -15,8 +15,10 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units ;
@@ -34,7 +36,8 @@ public class TrampIOHardware implements TrampIO {
     private TalonFX arm_motor_ ;
     private TalonFX climber_motor_ ;
     private CANSparkFlex manipulator_motor_ ;
-    private RelativeEncoder encoder_ ;    
+    private RelativeEncoder manipulator_encoder_ ;
+    private SparkPIDController manipulator_pid_ ;
     private DCMotorSim arm_sim_ ;
     private DCMotorSim elevator_sim_ ;
     private DCMotorSim climber_sim_ ;
@@ -140,6 +143,7 @@ public class TrampIOHardware implements TrampIO {
         climber_current_sig_ = climber_motor_.getSupplyCurrent() ;
         climber_output_sig_ = climber_motor_.getClosedLoopOutput();
         climber_velocity_sig_ = climber_motor_.getVelocity() ;
+        climber_voltage_ = 0.0 ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Manipulator motor initialization
@@ -148,9 +152,15 @@ public class TrampIOHardware implements TrampIO {
         manipulator_motor_.setInverted(TrampConstants.Manipulator.kInverted);
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
-        encoder_ = manipulator_motor_.getEncoder() ;
-        encoder_.setPositionConversionFactor(1.0 / (double)encoder_.getCountsPerRevolution()) ;
-        encoder_.setVelocityConversionFactor(1.0 / (double)encoder_.getCountsPerRevolution()) ;        
+        manipulator_encoder_ = manipulator_motor_.getEncoder() ;
+        manipulator_encoder_.setPositionConversionFactor(1.0 / (double)manipulator_encoder_.getCountsPerRevolution()) ;
+        manipulator_encoder_.setVelocityConversionFactor(1.0 / (double)manipulator_encoder_.getCountsPerRevolution()) ;        
+        manipulator_voltage_ = 0.0 ;
+        manipulator_pid_ = manipulator_motor_.getPIDController() ;
+        manipulator_pid_.setP(TrampConstants.Manipulator.PID.kP, 0) ;
+        manipulator_pid_.setI(TrampConstants.Manipulator.PID.kI, 0) ;
+        manipulator_pid_.setD(TrampConstants.Manipulator.PID.kD, 0) ;
+        manipulator_pid_.setFF(TrampConstants.Manipulator.PID.kV, 0) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
@@ -172,9 +182,6 @@ public class TrampIOHardware implements TrampIO {
         checkError("elevator-bus-optimization", () -> elevator_motor_.optimizeBusUtilization()) ;
         checkError("arm-bus-optimization", () -> arm_motor_.optimizeBusUtilization()) ;
         checkError("climber-bus-optimization", () -> climber_motor_.optimizeBusUtilization()) ;
-
-        manipulator_voltage_ = 0.0 ;
-        climber_voltage_ = 0.0 ;
 
         if (RobotBase.isSimulation()) {
             arm_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Arm.kSimGearRatio, TrampConstants.Arm.kSimMotorLoad) ;
@@ -201,16 +208,22 @@ public class TrampIOHardware implements TrampIO {
         inputs.armEncoder = enc ;
 
         enc = climber_pos_sig_.refresh().getValueAsDouble() ;
-        inputs.climberPositon = enc ;        
+        inputs.climberPosition = enc ;        
         inputs.climberCurrent = climber_current_sig_.refresh().getValueAsDouble() ;
         inputs.climberOutput = climber_output_sig_.refresh().getValueAsDouble() ;
         inputs.climberVelocity = climber_velocity_sig_.refresh().getValueAsDouble() ;
         inputs.climberEncoder = enc ;
 
-        inputs.manipulatorPosition = encoder_.getPosition() ;
-        inputs.manipulatorVelocity = encoder_.getVelocity() ;
-        inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;        
+        inputs.manipulatorPosition = manipulator_encoder_.getPosition() ;
+        inputs.manipulatorVelocity = manipulator_encoder_.getVelocity() ;
+        inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Elevator
+    //
+    ////////////////////////////////////////////////////////////////////////////
 
     public void setElevatorTargetPos(double pos) {
         elevator_motor_.setControl(new MotionMagicVoltage(pos / TrampConstants.Elevator.kMetersPerRev)
@@ -236,6 +249,12 @@ public class TrampIOHardware implements TrampIO {
             .linearPosition(Units.Meters.of(pos))
             .linearVelocity(Units.MetersPerSecond.of(vel)) ;
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Arm
+    //
+    ////////////////////////////////////////////////////////////////////////////    
 
     public void setArmTargetPos(double pos) {
         arm_motor_.setControl(new MotionMagicVoltage(pos / TrampConstants.Arm.kDegreesPerRev)
@@ -263,6 +282,16 @@ public class TrampIOHardware implements TrampIO {
             .angularVelocity(Units.RevolutionsPerSecond.of(arm_vel_sig_.refresh().getValueAsDouble())) ;
     }    
 
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Manipulator
+    //
+    ////////////////////////////////////////////////////////////////////////////    
+
+    public void setManipulatorTargetPosition(double pos) {
+        manipulator_pid_.setReference(pos, CANSparkBase.ControlType.kPosition, 0) ;
+    }
+
     public void setManipulatorVoltage(double volts) {
         manipulator_voltage_ = volts ;
         manipulator_motor_.setVoltage(volts);
@@ -271,6 +300,12 @@ public class TrampIOHardware implements TrampIO {
     public double getManipulatorVoltage() {
         return manipulator_voltage_ ;
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Climber
+    //
+    ////////////////////////////////////////////////////////////////////////////    
 
     public void setClimberMotorVoltage(double volts) {
         climber_voltage_ = volts ;
@@ -291,9 +326,15 @@ public class TrampIOHardware implements TrampIO {
     public void logManipulatorMotor(SysIdRoutineLog log) {
         log.motor("climber")
             .voltage(Units.Volts.of(manipulator_voltage_))
-            .angularPosition(Units.Revolutions.of(encoder_.getPosition()))
-            .angularVelocity(Units.RevolutionsPerSecond.of(encoder_.getVelocity())) ;
+            .angularPosition(Units.Revolutions.of(manipulator_encoder_.getPosition()))
+            .angularVelocity(Units.RevolutionsPerSecond.of(manipulator_encoder_.getVelocity())) ;
     }      
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Simulation
+    //
+    ////////////////////////////////////////////////////////////////////////////    
 
     public void doSim(TalonFX motor, DCMotorSim sim, double period){
         TalonFXSimState state = motor.getSimState() ;
@@ -314,11 +355,16 @@ public class TrampIOHardware implements TrampIO {
         // here "manually".  This simulation is specific to the use case here
         //
         if (Math.abs(manipulator_voltage_) > 0.01) {
-            double pos = encoder_.getPosition() + 0.04 ;
-            encoder_.setPosition(pos) ;
+            double pos = manipulator_encoder_.getPosition() + 0.04 ;
+            manipulator_encoder_.setPosition(pos) ;
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Utility methods
+    //
+    ////////////////////////////////////////////////////////////////////////////
     private static void checkError(String msg, Supplier<StatusCode> toApply) throws Exception {
         StatusCode code = StatusCode.StatusCodeNotInitialized ;
         int tries = kApplyTries ;
