@@ -7,7 +7,11 @@ import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.CANSparkBase;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -103,7 +107,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
         super(robot, "intake-shooter") ;
 
-        io_ = new IntakeShooterIOTalonFX(robot) ;
+        io_ = new IntakeShooterIOHardware(robot) ;
         inputs_ = new IntakeShooterIOInputsAutoLogged() ;
 
         destsupplier_ = destsupplier ;
@@ -130,6 +134,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         transfer_note_trigger_ = new Trigger(()-> transferNote()) ;
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
+        // TODO: make these dynamic
         eject_command_ = new FunctionalCommand(
                                 ()->eject(),
                                 () -> {},
@@ -745,7 +750,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferFinishTransfer:
-                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferTransferLength) {
+                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferTransferLength) {                
                     need_stop_manipulator_ = true ;
                     has_note_ = false ;                    
                     state_ = State.TransferContinueShooter ;
@@ -988,5 +993,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public Command shooter2SysIdDynamic(SysIdRoutine.Direction dir) {
         return shooter2SysIdRoutine().dynamic(dir) ;
+    }
+
+    public List<TalonFX> getCTREMotors() {
+        return io_.getCTREMotors() ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return io_.getRevRoboticsMotors() ;
     }
 }

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intakeshooter;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -20,6 +22,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.revrobotics.CANSparkBase;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -32,7 +35,7 @@ import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.units.Units ;
 
-public class IntakeShooterIOTalonFX implements IntakeShooterIO {
+public class IntakeShooterIOHardware implements IntakeShooterIO {
 
     private final static int kApplyTries = 5 ;  
 
@@ -83,7 +86,7 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
     private StatusSignal<Double> shooter2_position_signal_ ;
     private StatusSignal<Double> shooter2_voltage_signal_ ;
 
-    public IntakeShooterIOTalonFX(XeroRobot robot) throws Exception {
+    public IntakeShooterIOHardware(XeroRobot robot) throws Exception {
 
         is_sim_ = RobotBase.isSimulation() ;
     
@@ -480,4 +483,12 @@ public class IntakeShooterIOTalonFX implements IntakeShooterIO {
             throw new Exception(msg) ;
         }
     }      
+
+    public List<TalonFX> getCTREMotors() {
+        return Arrays.asList(feeder_motor_, updown_motor_, shooter1_motor_, shooter2_motor_, tilt_motor_ ) ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return null ;
+    }     
 }

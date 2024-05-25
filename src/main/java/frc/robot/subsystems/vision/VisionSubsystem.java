@@ -1,10 +1,14 @@
 package frc.robot.subsystems.vision;
 
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
+import com.revrobotics.CANSparkBase;
 
 public class VisionSubsystem extends XeroSubsystem {
     private SwerveDrivetrain db_ ;
@@ -42,4 +46,12 @@ public class VisionSubsystem extends XeroSubsystem {
             Logger.recordOutput("vision-enabled", false) ;
         }
     }
+
+    public List<TalonFX> getCTREMotors() {
+        return null ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return null ;
+    }    
 }

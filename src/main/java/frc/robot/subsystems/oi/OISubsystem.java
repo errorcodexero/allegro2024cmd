@@ -1,15 +1,18 @@
 package frc.robot.subsystems.oi;
 
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.CANSparkBase;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.NoteDestination;
 import frc.robot.ShootType;
-
-
 
 public class OISubsystem extends XeroSubsystem {
     private NoteDestination note_dest_;
@@ -134,5 +137,13 @@ public class OISubsystem extends XeroSubsystem {
         }
 
         return dest ;
+    }    
+
+    public List<TalonFX> getCTREMotors() {
+        return null ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return null ;
     }    
 }

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.tramp;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.xero1425.TalonFXFactory;
@@ -378,4 +380,12 @@ public class TrampIOHardware implements TrampIO {
             throw new Exception(msg) ;
         }
     }     
+
+    public List<TalonFX> getCTREMotors() {
+        return Arrays.asList(elevator_motor_, arm_motor_, climber_motor_) ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return Arrays.asList(manipulator_motor_) ;
+    }       
 }

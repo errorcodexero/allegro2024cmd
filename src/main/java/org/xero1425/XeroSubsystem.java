@@ -1,8 +1,13 @@
 package org.xero1425;
 
+import java.util.List;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.CANSparkBase;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class XeroSubsystem extends SubsystemBase {
+public abstract class XeroSubsystem extends SubsystemBase {
     private XeroRobot robot_ ;
     private int logger_id_ ;
 
@@ -24,4 +29,7 @@ public class XeroSubsystem extends SubsystemBase {
     public int getMessageLoggerID() {
         return logger_id_ ;
     }
+
+    public abstract List<TalonFX> getCTREMotors() ;
+    public abstract List<CANSparkBase> getRevRoboticsMotors() ;
 }

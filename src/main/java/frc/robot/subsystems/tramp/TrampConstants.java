@@ -104,7 +104,7 @@ public class TrampConstants {
         public static final double kDepositPower = -1.0 ;
 
         public class PID {
-            public static final double kP = 3280 ;
+            public static final double kP = 300 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
             public static final double kV = 0.0 ;

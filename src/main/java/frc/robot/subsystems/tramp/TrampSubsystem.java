@@ -1,11 +1,15 @@
 package frc.robot.subsystems.tramp;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroTimer;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.CANSparkBase;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
@@ -674,4 +678,12 @@ public class TrampSubsystem extends XeroSubsystem {
     public Command climberSysIdDynamic(SysIdRoutine.Direction dir) {
         return climberSysIdRoutine().dynamic(dir) ;
     }     
+
+    public List<TalonFX> getCTREMotors() {
+        return io_.getCTREMotors() ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return io_.getRevRoboticsMotors() ;
+    }    
 }

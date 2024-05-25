@@ -1,5 +1,6 @@
 package frc.robot.subsystems.tracker;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -7,7 +8,10 @@ import org.xero1425.XeroRobot;
 import org.xero1425.XeroSubsystem;
 import org.xero1425.XeroMath;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
+import com.revrobotics.CANSparkBase;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -221,5 +225,13 @@ public class Tracker extends XeroSubsystem {
         io_.setTarget(target_number_) ;
 
         return true ;
+    }
+
+    public List<TalonFX> getCTREMotors() {
+        return null ;
+    }
+
+    public List<CANSparkBase> getRevRoboticsMotors() {
+        return null ;
     }
 }

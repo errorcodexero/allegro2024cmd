@@ -1,6 +1,11 @@
 package frc.robot.subsystems.intakeshooter;
 
+import java.util.List;
+
 import org.littletonrobotics.junction.AutoLog;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.CANSparkBase;
 
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
@@ -92,4 +97,12 @@ public interface IntakeShooterIO {
 
     public default void simulate(double period) {
     }    
+
+    public default List<TalonFX> getCTREMotors() {
+        return null ;
+    }
+
+    public default List<CANSparkBase> getRevRoboticsMotors() {
+        return null ;
+    } 
 }
