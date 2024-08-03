@@ -1,7 +1,7 @@
 package frc.robot.subsystems.vision;
 
-import frc.robot.subsystems.tracker.LimelightHelpers;
-import frc.robot.subsystems.tracker.LimelightHelpers.PoseEstimate;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.PoseEstimate;
 
 public class VisionIOLimelight implements VisionIO {
     private String limelight_name_ ;
