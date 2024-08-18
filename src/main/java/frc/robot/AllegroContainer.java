@@ -3,8 +3,6 @@ package frc.robot;
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
-import frc.robot.generated.TunerConstantsPractice;
-import frc.robot.generated.TunerConstantsSimulation;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -20,8 +18,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import java.util.function.Supplier;
 
 import org.xero1425.HolonomicPathFollower;
-import org.xero1425.MessageLogger;
-import org.xero1425.MessageType;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
 
@@ -30,7 +26,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -91,27 +86,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create subsystems
         //
-        if (robot.isPracticeBot()) {
-            db_ = TunerConstantsPractice.DriveTrain ;
-        }
-        else if (robot.isCompetitionBot()) {
-            db_ = TunerConstantsCompetition.DriveTrain ;
-        }
-        else if (RobotBase.isSimulation()) {
-            db_ = TunerConstantsSimulation.DriveTrain ;
-        }
-        else {
-            //
-            // This should never happen, throw an exception if it does
-            //
-            MessageLogger logger = robot.getMessageLogger() ;
-            logger.startMessage(MessageType.Error) ;
-            logger.add("the robot is not valid, it is neither a practice bot, a competition bot, or a simulation") ;
-            logger.endMessage();
-
-            throw new Exception("invalid robot") ;
-        }
-
+        db_ = TunerConstantsCompetition.DriveTrain ;
         db_.createHolonimicPathFollower(getHolonomicConfig());
 
         Supplier<NoteDestination> notesupply = null ;

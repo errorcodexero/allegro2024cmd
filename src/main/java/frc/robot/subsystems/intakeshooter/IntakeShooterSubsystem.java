@@ -10,9 +10,7 @@ import org.xero1425.XeroTimer;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -94,10 +92,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private State next_state_ ;
     private State initial_transfer_state_ ;
 
-    private Command eject_command_ ;
-    private Command turtle_command_ ;
-    private Map<Integer, Command> tilt_to_test_command_ ;
-
     private Supplier<NoteDestination> destsupplier_ ;
 
     private Trigger transfer_note_trigger_ ;
@@ -133,23 +127,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         transfer_note_trigger_ = new Trigger(()-> transferNote()) ;
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
-
-        // TODO: make these dynamic
-        eject_command_ = new FunctionalCommand(
-                                ()->eject(),
-                                () -> {},
-                                (Boolean b) -> {},
-                                ()->isIdle()) ;
-        eject_command_.setName("eject") ;
-
-        turtle_command_ = new FunctionalCommand(
-                                ()->turtle(),
-                                () -> {},
-                                (Boolean b) -> {},
-                                ()->isIdle()) ;
-        turtle_command_.setName("turtle") ;
-
-        tilt_to_test_command_ = new HashMap<>() ;
 
         need_stop_manipulator_ = false ;
     }
@@ -204,31 +181,27 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public Command ejectCommand() {
-        return eject_command_ ;
+        Command ret = new FunctionalCommand(
+                                ()->eject(),
+                                () -> {},
+                                (Boolean b) -> {},
+                                ()->isIdle()) ;
+        ret.setName("eject") ;        
+        return ret ;
     }
 
     public Command turtleCommand() {
-        return turtle_command_ ;
+        Command ret = new FunctionalCommand(
+                                ()->turtle(),
+                                () -> {},
+                                (Boolean b) -> {},
+                                ()->isIdle()) ;
+        ret.setName("turtle") ;
+        return ret ;
     }
 
     public Command shootCommand() {
         return runOnce(this::finishShot) ;
-    }
-
-    public Command tiltToTestPosCmd(int angle) {
-
-        if (tilt_to_test_command_.containsKey(angle)) {
-            return tilt_to_test_command_.get(angle) ;
-        }
-
-        FunctionalCommand cmd = new FunctionalCommand(
-                                ()->tiltToTest(angle),
-                                () -> {},
-                                (Boolean b) -> {},
-                                ()->isIdle());
-        cmd.setName("tiltToTest - " + angle) ;
-        tilt_to_test_command_.put(angle, cmd) ;
-        return cmd ;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
