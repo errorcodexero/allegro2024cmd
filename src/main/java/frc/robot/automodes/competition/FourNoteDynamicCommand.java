@@ -1,7 +1,6 @@
 package frc.robot.automodes.competition;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.HolonomicPathFollower;
 import org.xero1425.Pose2dWithRotation;
 import org.xero1425.XeroAutoCommand;
 import org.xero1425.XeroRobot;
@@ -105,32 +104,32 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                     //
                     // Drive to the second note to collect it (the first note we collect)
                     //
-                    getFollower().driveTo("Shoot-C2", null, collect1pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                    container_.getDriveTrain().driveTo("Shoot-C2", null, collect1pose_, 3.0, 2.5, 0, 0, 0.2) ;
                     state_ = State.MovingToSecondNote ;
                 }
                 break ;
 
             case MovingToSecondNote:
-                if (!getFollower().isDriving()) {
+                if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
                         //
                         // We have the second note in the robot, drive to the subwoofer to shoot it.
                         //           
-                        getFollower().driveTo("C2-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C2-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
                         state_ = State.ShootSecond ;
                     }
                     else {
                         //
                         // We missed the second note, skip stright to the third node
                         //
-                        getFollower().driveTo("C2-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C2-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
                         state_ = State.MovingToThirdNote ;
                     }
                 }
                 break ;
 
             case ShootSecond:
-                if (getFollower().getDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
+                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
@@ -140,25 +139,25 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case FinishSecond:
-                if (!getFollower().isDriving() && !container_.getIntakeShooter().hasNote()) {
+                if (!container_.getDriveTrain().isFollowingPath() && !container_.getIntakeShooter().hasNote()) {
                     //
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
                     container_.getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     container_.getIntakeShooter().setManualShootParameters(FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualTilt) ;
                     container_.getIntakeShooter().collect() ;  
-                    getFollower().driveTo("Shoot-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                    container_.getDriveTrain().driveTo("Shoot-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
                     state_ = State.MovingToThirdNote ;
                 }
                 break ;
 
             case MovingToThirdNote:
-                if (!getFollower().isDriving()) {
+                if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
                         //
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
-                        getFollower().driveTo("C3-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C3-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
@@ -170,14 +169,14 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         //
                         // Missed the third note, skip to the fourth note
                         //
-                        getFollower().driveTo("C3-C4", null, collect3pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C3-C4", null, collect3pose_, 3.0, 2.5, 0, 0, 0.2) ;
                         state_ = State.MovingToFourthNote ;
                     }
                 }
                 break ;
 
             case ShootThird:
-                if (getFollower().getDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
+                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
                     container_.getIntakeShooter().manualShoot(
                             FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                             FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
@@ -187,25 +186,25 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case FinishThird:
-                if (!getFollower().isDriving() && !container_.getIntakeShooter().hasNote()) {
+                if (!container_.getDriveTrain().isFollowingPath() && !container_.getIntakeShooter().hasNote()) {
                     //
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
                     container_.getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     container_.getIntakeShooter().setManualShootParameters(FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualTilt) ;
                     container_.getIntakeShooter().collect() ;                    
-                    getFollower().driveTo("Shoot-C4", null, collect3pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                    container_.getDriveTrain().driveTo("Shoot-C4", null, collect3pose_, 3.0, 2.5, 0, 0, 0.2) ;
                     state_ = State.MovingToFourthNote ;
                 }
                 break ;
                 
             case MovingToFourthNote:
-                if (!getFollower().isDriving()) {
+                if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
                         //
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
-                        getFollower().driveTo("C4-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C4-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
@@ -220,7 +219,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case ShootFourth:
-                if (getFollower().getDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
+                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
@@ -231,7 +230,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case FinishFourth:
-                if (!getFollower().isDriving() && !container_.getIntakeShooter().hasNote()) {
+                if (!container_.getDriveTrain().isFollowingPath() && !container_.getIntakeShooter().hasNote()) {
                     state_ = State.Done;
                 }
                 break ;
@@ -241,10 +240,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
         }
 
         Logger.recordOutput("four-note-state", state_) ;
-    }
-
-    private HolonomicPathFollower getFollower() {
-        return container_.getDriveTrain().getHolonimicPathFollower() ;
     }
 
     @Override

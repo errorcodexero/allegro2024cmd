@@ -13,10 +13,6 @@ import org.xero1425.XeroRobot;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
-import frc.robot.automodes.competition.JustShootCommand;
-import frc.robot.automodes.competition.NothingCommand;
-import frc.robot.automodes.competition.ThreeNoteDynamicCommand;
-import frc.robot.automodes.competition.JustShootCommand.StartLocation;
 import frc.robot.automodes.testmodes.TeeTestModeCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
@@ -72,11 +68,6 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void createCompetitionAutoModes() {
         addAutoMode(new FourNoteDynamicCommand(this, container_));
-        addAutoMode(new ThreeNoteDynamicCommand(this, container_));
-        addAutoMode(new JustShootCommand(null, container_, StartLocation.AmpSide));
-        addAutoMode(new JustShootCommand(null, container_, StartLocation.SourceSide));
-        addAutoMode(new JustShootCommand(null, container_, StartLocation.Center));
-        addAutoMode(new NothingCommand(this));
     }
 
     @Override

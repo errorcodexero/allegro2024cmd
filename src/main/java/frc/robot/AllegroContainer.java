@@ -17,15 +17,10 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import java.util.function.Supplier;
 
-import org.xero1425.HolonomicPathFollower;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -87,7 +82,6 @@ public class AllegroContainer extends XeroContainer {
         // Create subsystems
         //
         db_ = TunerConstantsCompetition.DriveTrain ;
-        db_.createHolonimicPathFollower(getHolonomicConfig());
 
         Supplier<NoteDestination> notesupply = null ;
 
@@ -108,10 +102,12 @@ public class AllegroContainer extends XeroContainer {
         }
 
         tracker_ = new Tracker(robot, db_, limelight_name_) ;
+        db_.setLimelightName(limelight_name_);
+
         vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
-
+        
         vision_.enable(true);
 
         //
@@ -127,37 +123,6 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_ = new CommandXboxController(OIConstants.kDriverControllerPort);
 
         configureBindings(robot);
-    }
-
-    public HolonomicPathFollower.Config getHolonomicConfig() {
-        HolonomicPathFollower.Config cfg = new HolonomicPathFollower.Config() ;
-
-        cfg.max_rot_velocity = SwerveConstants.kMaxRotationalSpeed ;
-        cfg.max_rot_acceleration = SwerveConstants.kMaxRotationalAccel ;
-
-        cfg.rot_p = RobotConstants.PathFollowing.RotCtrl.kP ;
-        cfg.rot_i = RobotConstants.PathFollowing.RotCtrl.kI ;
-        cfg.rot_d = RobotConstants.PathFollowing.RotCtrl.kD ;
-
-        cfg.x_d = RobotConstants.PathFollowing.XCtrl.kD ;
-        cfg.x_i = RobotConstants.PathFollowing.XCtrl.kI ;
-        cfg.x_p = RobotConstants.PathFollowing.XCtrl.kP ;
-
-        cfg.y_d = RobotConstants.PathFollowing.YCtrl.kD ;
-        cfg.y_i = RobotConstants.PathFollowing.YCtrl.kI ;
-        cfg.y_p = RobotConstants.PathFollowing.YCtrl.kP ;
-
-        cfg.xytolerance = RobotConstants.PathFollowing.kXYTolerance ;
-        cfg.rot_tolerance = Rotation2d.fromDegrees(RobotConstants.PathFollowing.kAngleTolerance) ;
-
-        cfg.pose_supplier = () -> getDriveTrain().getState().Pose ;
-        cfg.output_consumer = (ChassisSpeeds spd) -> setDriveTrainChassisSpeeds(spd) ;
-
-        return cfg ;
-    }
-
-    private void setDriveTrainChassisSpeeds(ChassisSpeeds spd) {
-        getDriveTrain().setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ;
     }
 
     public OISubsystem getOI() {
