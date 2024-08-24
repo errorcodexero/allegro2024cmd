@@ -2,7 +2,7 @@ package frc.robot;
 
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
-import frc.robot.generated.TunerConstantsCompetitionOld;
+import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -61,13 +61,13 @@ public class AllegroContainer extends XeroContainer {
     //
     // Telemetry related
     //
-    private final Telemetry logger_ = new Telemetry(TunerConstantsCompetitionOld.kSpeedAt12VoltsMps);
+    private final Telemetry logger_ = new Telemetry(TunerConstantsCompetition.kSpeedAt12VoltsMps);
 
     //
     // Commands
     //
     private final SwerveRequest.FieldCentric drive_ = new SwerveRequest.FieldCentric()
-                                                            .withDeadband(TunerConstantsCompetitionOld.kSpeedAt12VoltsMps * 0.1)
+                                                            .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
                                                             .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
                                                             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -85,7 +85,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create subsystems
         //
-        db_ = TunerConstantsCompetitionOld.DriveTrain ;
+        db_ = TunerConstantsCompetition.DriveTrain ;
 
         Supplier<NoteDestination> notesupply = null ;
 
@@ -227,13 +227,16 @@ public class AllegroContainer extends XeroContainer {
 
     private void driveTrainBindings() {
         db_.setDefaultCommand(
-            db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstantsCompetitionOld.kSpeedAt12VoltsMps)
-                                         .withVelocityY(-driver_controller_.getLeftX() * TunerConstantsCompetitionOld.kSpeedAt12VoltsMps)
+            db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
+                                         .withVelocityY(-driver_controller_.getLeftX() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
                                          .withRotationalRate(-driver_controller_.getRightX() * SwerveConstants.kMaxRotationalSpeed)
                             ).ignoringDisable(true));
 
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
-            driver_controller_.b().whileTrue(db_.applyRequest(() -> point.withModuleDirection(new Rotation2d(-driver_controller_.getLeftY(), -driver_controller_.getLeftX()))));
+
+        double x = -driver_controller_.getLeftY() ;
+        double y = -driver_controller_.getLeftX() ;
+        driver_controller_.a().whileTrue(db_.applyRequest(() -> point.withModuleDirection(new Rotation2d(y, x))));
 
         db_.registerTelemetry(logger_::telemeterize) ;
     }
