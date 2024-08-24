@@ -124,4 +124,9 @@ public class TrampConstants {
         public static final double kClimberUpPosition = 0.5746 ;
         public static final double kClimberDownPosition = 0.0 ;
     }
+
+    public class NoteSensor {
+        public static final int kChannel = 2 ;
+        public static final boolean kInverted = true ;
+    }
 }

@@ -128,6 +128,10 @@ public class TrampSubsystem extends XeroSubsystem {
         return basic_climb_ready_trigger_ ;
     }
 
+    public boolean isNoteDetected() {
+        return inputs_.noteSensor ^ TrampConstants.NoteSensor.kInverted ;
+    }
+    
     public boolean isIdle() {
         return state_ == State.Idle ;
     }
