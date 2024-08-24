@@ -7,10 +7,10 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.HolonomicPathFollower;
 import org.xero1425.Pose2dWithRotation;
+import org.xero1425.XeroMath;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
@@ -25,18 +25,25 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightResults;
+import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.constants.RobotConstants;
-import frc.robot.subsystems.tracker.Tracker;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
 public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
+
+    private static int FL = 0 ;
+    private static int FR = 1 ;
+    private static int BL = 2 ;
+    private static int BR = 3 ;
+
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -61,7 +68,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private SysIdRoutine SysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null,
-                    Volts.of(4),
+                    Volts.of(0),
                     null,
                     (state) -> SignalLogger.writeString("state", state.toString())),
             new SysIdRoutine.Mechanism(
@@ -74,6 +81,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
+        CommandScheduler.getInstance().registerSubsystem(this);
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -82,7 +90,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
-
+        CommandScheduler.getInstance().registerSubsystem(this);
+        
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -112,9 +121,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return m_kinematics.toChassisSpeeds(getState().ModuleStates);
     }
 
-
     @Override
     public void periodic() {
+
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
         /* This allows us to correct the perspective in case the robot code restarts mid-match */
@@ -129,11 +138,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
 
-        Pigeon2 p = getPigeon2() ;
-        LimelightHelpers.SetRobotOrientation(limelight_name_, p.getYaw().getValueAsDouble(), p.getRate(), p.getPitch().getValueAsDouble(), 0.0, p.getRoll().getValueAsDouble(), 0.0) ;
-
-
-        // addVisionMeasurement(tracker_.getVisionPose(), tracker_.getVisionTimeStamp()) ;
+        Rotation2d robotHeading = getState().Pose.getRotation();
+        LimelightHelpers.SetRobotOrientation(limelight_name_, robotHeading.getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0) ;
+        PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
+        if (estimate.tagCount > 0) {
+            addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
+        }
 
         if (follower_ != null) {
             follower_.execute() ;
@@ -143,6 +153,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         Logger.recordOutput("SwerveState", getState().ModuleStates) ;
+
+        Logger.recordOutput("flang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[FL].angle.getDegrees())) ;
+        Logger.recordOutput("flvel", getState().ModuleStates[FL].speedMetersPerSecond) ;
+
+        Logger.recordOutput("frang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[FR].angle.getDegrees())) ;
+        Logger.recordOutput("frvel", getState().ModuleStates[FR].speedMetersPerSecond) ;
+
+        Logger.recordOutput("blang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[BL].angle.getDegrees())) ;
+        Logger.recordOutput("blvel", getState().ModuleStates[BL].speedMetersPerSecond) ;
+
+        Logger.recordOutput("brang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[BR].angle.getDegrees())) ;
+        Logger.recordOutput("brvel", getState().ModuleStates[BR].speedMetersPerSecond) ;
     }
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {

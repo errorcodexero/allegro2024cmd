@@ -51,12 +51,18 @@ public class TalonFXFactory {
     private static void checkError(String msg, Supplier<StatusCode> toApply, int reps) throws Exception {
         StatusCode code = StatusCode.StatusCodeNotInitialized ;
         int tries = (reps == -1 ? kApplyTries : reps) ;
+        boolean first = true ;
         do {
+            if (!first) {
+                Thread.sleep(250);
+            }
+            
             code = toApply.get() ;
             MessageLogger logger = MessageLogger.getTheMessageLogger() ;
             logger.startMessage(MessageType.Warning) ;
             logger.add("motor request failed -" + code.toString()) ;
             logger.endMessage();
+            first = !first ;
         } while (!code.isOK() && --tries > 0)  ;
 
         if (!code.isOK()) {
