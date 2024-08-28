@@ -454,6 +454,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private void noteInterruptHandler(boolean rising, boolean falling) {
         if (rising) {
             if (is_sim_) {
+                // falling/rising swapped in simulation.
+                // Bug report: https://github.com/wpilibsuite/allwpilib/issues/6515
                 falling_seen_.set(true) ;
             }
             else {
