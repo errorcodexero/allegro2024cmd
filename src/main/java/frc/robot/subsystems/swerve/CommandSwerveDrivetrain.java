@@ -13,17 +13,23 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -83,19 +89,67 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
         CommandScheduler.getInstance().registerSubsystem(this);
 
+        tareEverything();
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
+   
+        // experiment() ;
     }
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         CommandScheduler.getInstance().registerSubsystem(this);
+
+        tareEverything();
         
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
+        // experiment(modules) ;
     }
+
+    // private void experiment(SwerveModuleConstants... modules) {
+    //     int iteration = 0;
+    //     Translation2d[] locs = new Translation2d[modules.length];
+    //     SwerveModulePosition[] pos = new SwerveModulePosition[modules.length];
+    //     for (SwerveModuleConstants module : modules) {
+    //         locs[iteration] = new Translation2d(module.LocationX, module.LocationY);
+    //         pos[iteration] = new SwerveModulePosition(0.0, new Rotation2d()) ;
+    //         iteration++;
+    //     }
+    //     SwerveDriveKinematics kinematics = new SwerveDriveKinematics(locs);
+    //     SwerveDrivePoseEstimator estimator = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), pos, new Pose2d()) ;
+    //     double [] offset = new double[] { 0.0, 0.0, 1.0, 0.0 } ;
+
+    //     for(int i = 0 ; i < 250 ; i++) {
+    //         for(int j = 0 ; j < modules.length ; j++) {
+    //             pos[j] = new SwerveModulePosition(pos[j].distanceMeters + 0.02, Rotation2d.fromDegrees(offset[j])) ;
+    //         }
+    //         estimator.update(new Rotation2d(), pos) ;
+    //     }
+
+    //     Pose2d pose = estimator.getEstimatedPosition() ;
+    //     double x = pose.getX() ;
+    //     double y = pose.getY() ;
+    //     double a = pose.getRotation().getDegrees() ;
+    //     System.out.print("pose: " + x + " " + y + " " + a + " ") ;
+
+    //     for(int i = 0 ; i < 250 ; i++) {
+    //         for(int j = 0 ; j < modules.length ; j++) {
+    //             pos[j] = new SwerveModulePosition(pos[j].distanceMeters - 0.02, Rotation2d.fromDegrees(-offset[j])) ;
+    //         }
+    //         estimator.update(new Rotation2d(), pos) ;
+    //     }
+
+    //     pose = estimator.getEstimatedPosition() ;
+    //     x = pose.getX() ;
+    //     y = pose.getY() ;
+    //     a = pose.getRotation().getDegrees() ;
+    //     System.out.print("pose: " + x + " " + y + " " + a + " ") ;   
+    // }
 
     public void setLimelightName(String name) {
         limelight_name_ = name ;
@@ -154,17 +208,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
         Logger.recordOutput("SwerveState", getState().ModuleStates) ;
 
-        Logger.recordOutput("flang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[FL].angle.getDegrees())) ;
-        Logger.recordOutput("flvel", getState().ModuleStates[FL].speedMetersPerSecond) ;
-
-        Logger.recordOutput("frang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[FR].angle.getDegrees())) ;
-        Logger.recordOutput("frvel", getState().ModuleStates[FR].speedMetersPerSecond) ;
-
-        Logger.recordOutput("blang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[BL].angle.getDegrees())) ;
-        Logger.recordOutput("blvel", getState().ModuleStates[BL].speedMetersPerSecond) ;
-
-        Logger.recordOutput("brang", XeroMath.normalizeAngleDegrees(getState().ModuleStates[BR].angle.getDegrees())) ;
-        Logger.recordOutput("brvel", getState().ModuleStates[BR].speedMetersPerSecond) ;
+        SmartDashboard.putNumber("db-x", getState().Pose.getX()) ;
+        SmartDashboard.putNumber("db-y", getState().Pose.getY()) ;
+        SmartDashboard.putNumber("db-a", getState().Pose.getRotation().getDegrees()) ;        
     }
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
