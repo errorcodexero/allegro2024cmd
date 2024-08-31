@@ -17,6 +17,8 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+import org.opencv.features2d.FlannBasedMatcher;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
 
@@ -69,7 +71,12 @@ public class AllegroContainer extends XeroContainer {
     private final SwerveRequest.FieldCentric drive_ = new SwerveRequest.FieldCentric()
                                                             .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
                                                             .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
-                                                            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+                                                            .withDriveRequestType(DriveRequestType.Velocity);
+
+    private final SwerveRequest.RobotCentric robot_centric_ = new SwerveRequest.RobotCentric()
+                                                            .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
+                                                            .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
+                                                            .withDriveRequestType(DriveRequestType.OpenLoopVoltage) ;                                                   
 
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();                                                            
 
@@ -225,18 +232,55 @@ public class AllegroContainer extends XeroContainer {
         }
     }
 
+    static boolean special = false ;
+
+    private double getLeftX() {
+        double y = -driver_controller_.getLeftX() ;
+        if (special) {
+            y = 0.0 ;
+        }
+        return y ;
+    }
+
+    private double getLeftY() {
+        double x = -driver_controller_.getLeftY() ;
+        String mode = "none" ;
+
+        if (special) {
+            if (x > 0.25) {
+                x = 1.0 / TunerConstantsCompetition.kSpeedAt12VoltsMps ;
+                mode = "forward" ;
+            }
+            else if (x < -0.25) {
+                x = -1.0 / TunerConstantsCompetition.kSpeedAt12VoltsMps;
+                mode = "reverse" ;
+            }
+            else { 
+                x = 0.0 ;
+            }
+        }
+
+        Logger.recordOutput("mode", mode) ;
+        return x ;
+    }
+
+    private double getRightX() {
+        double x = -driver_controller_.getRightX() ;
+
+        if (special) {
+            x = 0.0 ;
+        }
+        return x ;
+    }
+
     private void driveTrainBindings() {
         db_.setDefaultCommand(
-            db_.applyRequest(() -> drive_.withVelocityX(-driver_controller_.getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
-                                         .withVelocityY(-driver_controller_.getLeftX() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
-                                         .withRotationalRate(-driver_controller_.getRightX() * SwerveConstants.kMaxRotationalSpeed)
+            db_.applyRequest(() -> drive_.withVelocityX(getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
+                                         .withVelocityY(getLeftX() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
+                                         .withRotationalRate(getRightX() * SwerveConstants.kMaxRotationalSpeed)
                             ).ignoringDisable(true));
 
-        driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
-
-        double x = -driver_controller_.getLeftY() ;
-        double y = -driver_controller_.getLeftX() ;
-        driver_controller_.a().whileTrue(db_.applyRequest(() -> point.withModuleDirection(new Rotation2d(y, x))));
+        // driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
 
         db_.registerTelemetry(logger_::telemeterize) ;
     }

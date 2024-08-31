@@ -12,6 +12,7 @@ import org.xero1425.XeroRobot;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.testmodes.TeeTestModeCommand;
 import frc.robot.constants.RobotConstants;
@@ -68,6 +69,7 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void createCompetitionAutoModes() {
         addAutoMode(new FourNoteDynamicCommand(this, container_));
+        addAutoMode(new DriveStraight(this, container_));
     }
 
     @Override

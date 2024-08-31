@@ -206,7 +206,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-        Logger.recordOutput("SwerveState", getState().ModuleStates) ;
+        var states = getState().ModuleStates ;
+        Logger.recordOutput("fl-a", XeroMath.normalizeAngleDegrees(states[0].angle.getDegrees())) ;
+        Logger.recordOutput("fr-a", XeroMath.normalizeAngleDegrees(states[1].angle.getDegrees())) ;
+        Logger.recordOutput("bl-a", XeroMath.normalizeAngleDegrees(states[2].angle.getDegrees())) ;
+        Logger.recordOutput("br-a", XeroMath.normalizeAngleDegrees(states[3].angle.getDegrees())) ;
+        Logger.recordOutput("fl-v", states[0].speedMetersPerSecond) ;
+        Logger.recordOutput("fr-v", states[1].speedMetersPerSecond) ;
+        Logger.recordOutput("bl-v", states[2].speedMetersPerSecond) ;
+        Logger.recordOutput("br-v", states[3].speedMetersPerSecond) ;
+
+        Logger.recordOutput("yaw", XeroMath.normalizeAngleDegrees(getPigeon2().getYaw().getValueAsDouble())) ;
 
         SmartDashboard.putNumber("db-x", getState().Pose.getX()) ;
         SmartDashboard.putNumber("db-y", getState().Pose.getY()) ;

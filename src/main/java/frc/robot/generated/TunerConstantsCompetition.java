@@ -162,6 +162,7 @@ public class TunerConstantsCompetition {
             kBackRightSteerMotorId, kBackRightDriveMotorId, kBackRightEncoderId, kBackRightEncoderOffset, Units.inchesToMeters(kBackRightXPosInches), Units.inchesToMeters(kBackRightYPosInches), kInvertRightSide)
             .withSteerMotorInverted(kBackRightSteerInvert);
 
-    public static final CommandSwerveDrivetrain DriveTrain = new CommandSwerveDrivetrain(DrivetrainConstants, FrontLeft,
-            FrontRight, BackLeft, BackRight);
+    public static final CommandSwerveDrivetrain DriveTrain = 
+    new CommandSwerveDrivetrain(DrivetrainConstants, 50,
+                FrontLeft, FrontRight, BackLeft, BackRight);
 }
