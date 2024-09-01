@@ -34,12 +34,12 @@ public class RobotConstants {
         public static final double kMaxAccel = 60.0 ;
 
         public static final class XCtrl {
-            public static final double kP = 2.0 ;
+            public static final double kP = 6.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
         }
         public static final class YCtrl {
-            public static final double kP = 2.0 ;
+            public static final double kP = 6.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
         }        

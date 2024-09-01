@@ -23,8 +23,11 @@ public class DriveStraight extends XeroAutoCommand {
     private State state_ ;
     private AllegroContainer container_ ;
     private double timer_ ;
+    private double velocity_ = 1.0 ;
+    private double accel_ = 1.0 ;
+    private double dist_ = 2.00 ;
 
-    // 395 cm
+    // 394 cm
 
     private final static String desc = "This auto mode tests a drive straight" ;
     
@@ -39,10 +42,10 @@ public class DriveStraight extends XeroAutoCommand {
 
     @Override
     public void initialize() {
-        Pose2dWithRotation target = new Pose2dWithRotation(3.95, 0.0, new Rotation2d(), new Rotation2d()) ;
+        Pose2dWithRotation target = new Pose2dWithRotation(dist_, 0.0, new Rotation2d(), new Rotation2d()) ;
         container_.getDriveTrain().seedFieldRelative(new Pose2d()) ;
         container_.getDriveTrain().driveTo("Straight", null, target, 
-                    0.5, 1.0, 0, 0, 5.0) ;
+                    velocity_, accel_, 0, 0, 5.0) ;
 
         state_ = State.Driving1 ;
     }
@@ -68,7 +71,7 @@ public class DriveStraight extends XeroAutoCommand {
                 {
                     Pose2dWithRotation target = new Pose2dWithRotation(0.0, 0.0, new Rotation2d(), new Rotation2d()) ;
                     container_.getDriveTrain().driveTo("Straight", null, target, 
-                            1.0, 1.0, 0, 0, 5.0) ;                    
+                            velocity_, accel_, 0, 0, 5.0) ;                    
                             state_ = State.Driving2 ;
                 }
                 break ;

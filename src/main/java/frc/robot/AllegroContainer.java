@@ -82,6 +82,8 @@ public class AllegroContainer extends XeroContainer {
 
     private final SwerveRotateToAngle rotate_ ;
 
+    final private double SlowFactor = 0.25 ;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      * @throws Exception
@@ -95,6 +97,7 @@ public class AllegroContainer extends XeroContainer {
         db_ = TunerConstantsCompetition.DriveTrain ;
 
         Supplier<NoteDestination> notesupply = null ;
+
 
         if (!robot.isCharMode()) {
             //
@@ -232,44 +235,33 @@ public class AllegroContainer extends XeroContainer {
         }
     }
 
-    static boolean special = false ;
-
     private double getLeftX() {
         double y = -driver_controller_.getLeftX() ;
-        if (special) {
-            y = 0.0 ;
-        }
+
+        y = Math.signum(y) * y * y ;            
+        if (driver_controller_.a().getAsBoolean())
+            y *= SlowFactor ;
+        
         return y ;
     }
 
     private double getLeftY() {
         double x = -driver_controller_.getLeftY() ;
-        String mode = "none" ;
 
-        if (special) {
-            if (x > 0.25) {
-                x = 1.0 / TunerConstantsCompetition.kSpeedAt12VoltsMps ;
-                mode = "forward" ;
-            }
-            else if (x < -0.25) {
-                x = -1.0 / TunerConstantsCompetition.kSpeedAt12VoltsMps;
-                mode = "reverse" ;
-            }
-            else { 
-                x = 0.0 ;
-            }
-        }
+        x = Math.signum(x) * x * x;
+        if (driver_controller_.a().getAsBoolean())
+            x *= SlowFactor ;
 
-        Logger.recordOutput("mode", mode) ;
         return x ;
     }
 
     private double getRightX() {
         double x = -driver_controller_.getRightX() ;
 
-        if (special) {
-            x = 0.0 ;
-        }
+        x = Math.signum(x) * x * x  ;
+        if (driver_controller_.a().getAsBoolean())
+            x *= SlowFactor ;
+                    
         return x ;
     }
 
@@ -280,7 +272,7 @@ public class AllegroContainer extends XeroContainer {
                                          .withRotationalRate(getRightX() * SwerveConstants.kMaxRotationalSpeed)
                             ).ignoringDisable(true));
 
-        // driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
+        driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->db_.seedFieldRelative())) ;
 
         db_.registerTelemetry(logger_::telemeterize) ;
     }

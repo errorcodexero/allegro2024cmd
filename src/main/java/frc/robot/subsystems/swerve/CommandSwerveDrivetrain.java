@@ -94,8 +94,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (Utils.isSimulation()) {
             startSimThread();
         }
-   
-        // experiment() ;
     }
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
@@ -107,49 +105,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (Utils.isSimulation()) {
             startSimThread();
         }
-
-        // experiment(modules) ;
     }
-
-    // private void experiment(SwerveModuleConstants... modules) {
-    //     int iteration = 0;
-    //     Translation2d[] locs = new Translation2d[modules.length];
-    //     SwerveModulePosition[] pos = new SwerveModulePosition[modules.length];
-    //     for (SwerveModuleConstants module : modules) {
-    //         locs[iteration] = new Translation2d(module.LocationX, module.LocationY);
-    //         pos[iteration] = new SwerveModulePosition(0.0, new Rotation2d()) ;
-    //         iteration++;
-    //     }
-    //     SwerveDriveKinematics kinematics = new SwerveDriveKinematics(locs);
-    //     SwerveDrivePoseEstimator estimator = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), pos, new Pose2d()) ;
-    //     double [] offset = new double[] { 0.0, 0.0, 1.0, 0.0 } ;
-
-    //     for(int i = 0 ; i < 250 ; i++) {
-    //         for(int j = 0 ; j < modules.length ; j++) {
-    //             pos[j] = new SwerveModulePosition(pos[j].distanceMeters + 0.02, Rotation2d.fromDegrees(offset[j])) ;
-    //         }
-    //         estimator.update(new Rotation2d(), pos) ;
-    //     }
-
-    //     Pose2d pose = estimator.getEstimatedPosition() ;
-    //     double x = pose.getX() ;
-    //     double y = pose.getY() ;
-    //     double a = pose.getRotation().getDegrees() ;
-    //     System.out.print("pose: " + x + " " + y + " " + a + " ") ;
-
-    //     for(int i = 0 ; i < 250 ; i++) {
-    //         for(int j = 0 ; j < modules.length ; j++) {
-    //             pos[j] = new SwerveModulePosition(pos[j].distanceMeters - 0.02, Rotation2d.fromDegrees(-offset[j])) ;
-    //         }
-    //         estimator.update(new Rotation2d(), pos) ;
-    //     }
-
-    //     pose = estimator.getEstimatedPosition() ;
-    //     x = pose.getX() ;
-    //     y = pose.getY() ;
-    //     a = pose.getRotation().getDegrees() ;
-    //     System.out.print("pose: " + x + " " + y + " " + a + " ") ;   
-    // }
 
     public void setLimelightName(String name) {
         limelight_name_ = name ;
