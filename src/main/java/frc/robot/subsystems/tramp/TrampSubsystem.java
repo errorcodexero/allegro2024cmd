@@ -48,6 +48,7 @@ public class TrampSubsystem extends XeroSubsystem {
         DepositingNote,
         Trap3,
         Transferring,
+        TransferringTimer,
         Shooting,
         BasicClimbMovingElevatorArm,
         BasicClimbMovingClimber,        
@@ -78,6 +79,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer eject_timer_ ;
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
+    private XeroTimer transfer_timer_ ;
 
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
@@ -101,6 +103,7 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
         shoot_timer_ = new XeroTimer(robot, "tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer(robot, "tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
+        transfer_timer_ = new XeroTimer(robot, "tramp-transfer-timer", TrampConstants.Manipulator.kTransferTime) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
@@ -274,19 +277,6 @@ public class TrampSubsystem extends XeroSubsystem {
         next_state_ = State.Idle ;
     }
 
-    public void stopTransfer() {
-        if (state_ == State.Transferring) {
-            has_note_ = true ;
-
-            //
-            // Switch to a holding PID
-            //
-            io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
-
-            state_ = State.Idle ;
-        }
-    }
-
     @Override
     public void simulationPeriodic() {
         io_.simulate(getRobot().getPeriod()) ;
@@ -393,7 +383,19 @@ public class TrampSubsystem extends XeroSubsystem {
                 break ;
 
             case Transferring:
+                if (inputs_.noteSensor) {
+                    state_ = State.TransferringTimer ;
+                    transfer_timer_.start();
+                }
                 break ;
+
+            case TransferringTimer:
+                if (transfer_timer_.isExpired())
+                {
+                    has_note_ = true ;
+                    state_ = State.Idle ;
+                    io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+                }
 
             case Shooting:
                 if (shoot_timer_.isExpired()) {

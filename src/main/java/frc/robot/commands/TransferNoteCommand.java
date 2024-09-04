@@ -43,10 +43,6 @@ public class TransferNoteCommand extends Command {
             }
         }
         else if (state_ == State.InTransfer) {
-            if (intake_shooter_.needStopManipulator()) {
-                tramp_.stopTransfer() ;
-            }
-
             if (intake_shooter_.isIdle() && tramp_.isIdle()) {
                 tramp_.moveToDestinationPosition() ;
                 state_ = State.MoveTrampToDestination ;

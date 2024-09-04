@@ -102,6 +102,7 @@ public class TrampConstants {
         public static final double kTrapMoveNotePower = 0.05 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositPower = -1.0 ;
+        public static final double kTransferTime = 0.1 ;
 
         public class PID {
             public static final double kP = 300 ;
