@@ -98,6 +98,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
 
+    private boolean tuning_ = false ;
+
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
         super(robot, "intake-shooter") ;
 
@@ -131,12 +133,36 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         need_stop_manipulator_ = false ;
     }
 
+    public double getShooter1Velocity() {
+        return inputs_.shooter1Velocity;
+    }
+
+    public double getShooter2Velocity() {
+        return inputs_.shooter2Velocity;
+    }
+
+    public double getTilt() {
+        return inputs_.tiltPosition ;
+    }
+
+    public double getUpDown() {
+        return inputs_.updownPosition ;
+    }
+
     public void setTiltToAngle(double t, double tiltpostol, double tiltveltol) {
         setTracking(false) ;
         setTiltTarget(t) ;
 
         target_tilt_tol_ = tiltpostol ;
         target_tilt_vel_ = tiltveltol ;
+    }
+
+    public void setUpDownToAngle(double u, double updownpostol, double updownveltol) {
+        setTracking(false) ;
+        setUpDownTarget(u) ;
+
+        target_updown_tol_ = updownpostol ;
+        target_updown_vel_ = updownveltol ;
     }
 
     public Trigger readyForShoot() {
@@ -396,7 +422,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return NoteDestination.AutoSpeaker ;
     }
 
-    private void setUpDownTarget(double pos) {
+    public void setUpDownTarget(double pos) {
         io_.setUpDownTargetPos(pos);
         target_updown_ = pos ;
     }
@@ -406,7 +432,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         target_tilt_ = pos ;
     }
 
-    private void setShooterVelocity(double vel, double veltol) {
+    public void setShooterVelocity(double vel, double veltol) {
         io_.setShooter1Velocity(vel);
         io_.setShooter2Velocity(vel);
 
@@ -542,13 +568,18 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Math.abs(inputs_.updownVelocity) < target_updown_vel_ ;
     }
 
-    private boolean isShooterReady() { 
+    public boolean isShooterReady() { 
         return 
             Math.abs(inputs_.shooter1Velocity - target_velocity_) < target_velocity_tol_ &&
             Math.abs(inputs_.shooter2Velocity - target_velocity_) < target_velocity_tol_ ;
     }
 
-    private void waitingToShootState() {
+    public void shoot() {
+        tuning_ = true ;
+        state_ = State.WaitingToShoot ;
+    }
+
+    public void waitingToShootState() {
         if (isTiltReady() && isUpDownReady() && isShooterReady()) {
             io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
             shoot_timer_.start() ;
@@ -568,7 +599,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             io_.setFeederMotorVoltage(0.0);
 
-            if (!collect_after_manual_) {
+            if (tuning_) {
+                // Leave things where they are, we are going to shoot more
+                state_ = State.Idle ;
+            }
+            else if (!collect_after_manual_) {
                 //
                 // Move the updown and tilt to the stowed position
                 //
