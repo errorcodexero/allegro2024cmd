@@ -7,11 +7,9 @@ public class XeroContainer {
     protected XeroContainer(XeroRobot robot) {
         robot_ = robot ;
         robot_.setContainer(this) ;
-
     }
 
     protected XeroRobot getRobot() {
         return robot_ ;
     }
-
 }

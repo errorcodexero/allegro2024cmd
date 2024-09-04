@@ -64,7 +64,9 @@ public class TunerConstantsCompetition {
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5714285714285716;
 
-    private static final double kDriveGearRatio = 6.122448979591837 ;
+    // private static final double kDriveGearRatio = 6.122448979591837 ;
+    private static final double kDriveGearRatio = 6.33053221288515 ;
+
     private static final double kSteerGearRatio = 21.428571428571427;
     private static final double kWheelRadiusInches = 2;
 
@@ -161,7 +163,5 @@ public class TunerConstantsCompetition {
             kBackRightSteerMotorId, kBackRightDriveMotorId, kBackRightEncoderId, kBackRightEncoderOffset, Units.inchesToMeters(kBackRightXPosInches), Units.inchesToMeters(kBackRightYPosInches), kInvertRightSide)
             .withSteerMotorInverted(kBackRightSteerInvert);
 
-    public static final CommandSwerveDrivetrain DriveTrain = 
-    new CommandSwerveDrivetrain(DrivetrainConstants, 50,
-                FrontLeft, FrontRight, BackLeft, BackRight);
+    public static final CommandSwerveDrivetrain DriveTrain = new CommandSwerveDrivetrain(DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight);
 }

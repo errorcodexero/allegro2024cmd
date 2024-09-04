@@ -25,7 +25,7 @@ public class DriveStraight extends XeroAutoCommand {
     private double timer_ ;
     private double velocity_ = 1.0 ;
     private double accel_ = 1.0 ;
-    private double dist_ = 2.00 ;
+    private double dist_ = 3.94 ;
 
     // 394 cm
 
@@ -42,7 +42,7 @@ public class DriveStraight extends XeroAutoCommand {
 
     @Override
     public void initialize() {
-        Pose2dWithRotation target = new Pose2dWithRotation(dist_, 0.0, new Rotation2d(), new Rotation2d()) ;
+        Pose2dWithRotation target = new Pose2dWithRotation(dist_, 0.0, new Rotation2d(), Rotation2d.fromDegrees(180.0)) ;
         container_.getDriveTrain().seedFieldRelative(new Pose2d()) ;
         container_.getDriveTrain().driveTo("Straight", null, target, 
                     velocity_, accel_, 0, 0, 5.0) ;

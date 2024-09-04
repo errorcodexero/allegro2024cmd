@@ -44,7 +44,7 @@ public class RobotConstants {
             public static final double kD = 0.0 ;
         }        
         public static final class RotCtrl {
-            public static final double kP = 14.0 ;
+            public static final double kP = 8.0;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
         }        

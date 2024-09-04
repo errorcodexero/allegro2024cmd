@@ -12,19 +12,11 @@ import frc.robot.subsystems.swerve.SwerveRotateToAngle;
 import frc.robot.subsystems.tracker.Tracker;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-
 import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
-import org.opencv.features2d.FlannBasedMatcher;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
-
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -71,19 +63,13 @@ public class AllegroContainer extends XeroContainer {
     private final SwerveRequest.FieldCentric drive_ = new SwerveRequest.FieldCentric()
                                                             .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
                                                             .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
-                                                            .withDriveRequestType(DriveRequestType.Velocity);
-
-    private final SwerveRequest.RobotCentric robot_centric_ = new SwerveRequest.RobotCentric()
-                                                            .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
-                                                            .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
-                                                            .withDriveRequestType(DriveRequestType.OpenLoopVoltage) ;                                                   
-
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();                                                            
+                                                            .withDriveRequestType(DriveRequestType.Velocity);                                                  
 
     private final SwerveRotateToAngle rotate_ ;
 
-    final private double SlowFactor = 0.25 ;
+    final private double SlowFactor = 0.1 ;
 
+    // #region constructor - create subsystems, OI devices, and commands
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      * @throws Exception
@@ -95,6 +81,7 @@ public class AllegroContainer extends XeroContainer {
         // Create subsystems
         //
         db_ = TunerConstantsCompetition.DriveTrain ;
+        db_.setRobot(robot) ;
 
         Supplier<NoteDestination> notesupply = null ;
 
@@ -138,7 +125,9 @@ public class AllegroContainer extends XeroContainer {
 
         configureBindings(robot);
     }
+    // #endregion
 
+    // #region get subsytems
     public OISubsystem getOI() {
         return oi_ ;
     }
@@ -154,7 +143,10 @@ public class AllegroContainer extends XeroContainer {
     public CommandSwerveDrivetrain getDriveTrain() {
         return db_ ;
     }
+    // #endregion
 
+    // #region All Bindings
+    // #region Characterization Bindings
     private void charBindings() throws Exception {
         int total = 0 ;
 
@@ -234,13 +226,18 @@ public class AllegroContainer extends XeroContainer {
             throw new Exception("Only one subsystem can be characterized at a time") ;
         }
     }
+    // #endregion
 
+    // #region Drive Train Bindings
     private double getLeftX() {
         double y = -driver_controller_.getLeftX() ;
 
-        y = Math.signum(y) * y * y ;            
-        if (driver_controller_.a().getAsBoolean())
-            y *= SlowFactor ;
+        if (driver_controller_.a().getAsBoolean()) {
+            y = y * SlowFactor ;
+        }
+        else { 
+            y = Math.signum(y) * y * y ;
+        }
         
         return y ;
     }
@@ -248,9 +245,12 @@ public class AllegroContainer extends XeroContainer {
     private double getLeftY() {
         double x = -driver_controller_.getLeftY() ;
 
-        x = Math.signum(x) * x * x;
-        if (driver_controller_.a().getAsBoolean())
-            x *= SlowFactor ;
+        if (driver_controller_.a().getAsBoolean()) {
+            x = x * SlowFactor ;
+        }
+        else {
+            x = Math.signum(x) * x * x;
+        }
 
         return x ;
     }
@@ -259,9 +259,12 @@ public class AllegroContainer extends XeroContainer {
         double x = -driver_controller_.getRightX() ;
 
         x = Math.signum(x) * x * x  ;
-        if (driver_controller_.a().getAsBoolean())
-            x *= SlowFactor ;
-                    
+        if (driver_controller_.a().getAsBoolean()) {
+            x = x * SlowFactor ;
+        }
+        else {
+            x = Math.signum(x) * x * x  ;
+        }           
         return x ;
     }
 
@@ -276,7 +279,9 @@ public class AllegroContainer extends XeroContainer {
 
         db_.registerTelemetry(logger_::telemeterize) ;
     }
+    // #endregion
 
+    // #region superstructure bindings
     private void superStructureBindings() {
         //
         // Collect command, bound to OI and the gamepad
@@ -317,6 +322,7 @@ public class AllegroContainer extends XeroContainer {
         oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
         oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
     }
+    // #endregion
 
     private void configureBindings(XeroRobot robot) throws Exception {
         if (robot.isCharMode()) {
@@ -327,4 +333,5 @@ public class AllegroContainer extends XeroContainer {
             superStructureBindings() ;
         }
     }
+    // #endregion
 }

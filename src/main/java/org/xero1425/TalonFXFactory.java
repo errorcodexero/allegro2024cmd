@@ -12,6 +12,8 @@ public class TalonFXFactory {
     private final static int kApplyTries = 5 ;
     private static TalonFXFactory factory_ = new TalonFXFactory() ;
 
+    private int motor_created_ = 0 ;
+
     public static TalonFXFactory getFactory() {
         return factory_ ;
     }
@@ -32,7 +34,9 @@ public class TalonFXFactory {
 
         config.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive ;
 
-        checkError("TalonFXMotorController - apply configuration", () -> fx.getConfigurator().apply(config), -1);        
+        checkError(id, "TalonFXMotorController - apply configuration", () -> fx.getConfigurator().apply(config), -1);        
+
+        motor_created_++ ;
         return fx ;
     }       
 
@@ -48,25 +52,19 @@ public class TalonFXFactory {
         return createTalonFX(id, "", invert, limit) ;
     }     
 
-    private static void checkError(String msg, Supplier<StatusCode> toApply, int reps) throws Exception {
+    private void checkError(int id, String msg, Supplier<StatusCode> toApply, int reps) throws Exception {
         StatusCode code = StatusCode.StatusCodeNotInitialized ;
         int tries = (reps == -1 ? kApplyTries : reps) ;
-        boolean first = true ;
         do {
-            if (!first) {
-                Thread.sleep(250);
-            }
-            
             code = toApply.get() ;
             MessageLogger logger = MessageLogger.getTheMessageLogger() ;
             logger.startMessage(MessageType.Warning) ;
             logger.add("motor request failed -" + code.toString()) ;
             logger.endMessage();
-            first = !first ;
         } while (!code.isOK() && --tries > 0)  ;
 
         if (!code.isOK()) {
-            msg = msg + " - " + code.toString() ;
+            msg = msg + " - code " + code.toString()  + " - count " + motor_created_ + " - id " + id ;
             throw new Exception(msg) ;
         }
     }    
