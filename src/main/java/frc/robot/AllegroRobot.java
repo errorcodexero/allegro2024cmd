@@ -93,6 +93,8 @@ public class AllegroRobot extends XeroRobot {
     public void robotInit() {
         super.robotInit() ;
 
+        Logger.disableDeterministicTimestamps();
+
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables         
         Logger.start() ;
 

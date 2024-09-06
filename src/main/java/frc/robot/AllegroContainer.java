@@ -3,6 +3,7 @@ package frc.robot;
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
+import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -221,6 +222,13 @@ public class AllegroContainer extends XeroContainer {
             driver_controller_.leftBumper().and(driver_controller_.rightBumper()).and(driver_controller_.b()).whileTrue(tramp_.manipulatorSysIdDynamic(Direction.kReverse));
             total++ ;
         }        
+
+        if (RobotConstants.WhichSubsystem.kCharTuneShooter)
+        {
+            CmdTuneShooter cmd = new CmdTuneShooter(intake_shooter_) ;
+            driver_controller_.a().onTrue(cmd) ;
+            total++ ;
+        }
 
         if (total > 1) {
             throw new Exception("Only one subsystem can be characterized at a time") ;

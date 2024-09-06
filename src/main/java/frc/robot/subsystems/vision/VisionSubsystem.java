@@ -31,6 +31,8 @@ public class VisionSubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
+        periodicStart();
+
         io_.updateInputs(inputs_);
 
         // Logger.processInputs("vision", inputs_);
@@ -45,6 +47,8 @@ public class VisionSubsystem extends XeroSubsystem {
         } else {
             Logger.recordOutput("vision-enabled", false) ;
         }
+
+        periodicEnd();
     }
 
     public List<TalonFX> getCTREMotors() {

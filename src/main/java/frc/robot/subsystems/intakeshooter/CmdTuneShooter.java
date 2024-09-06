@@ -36,8 +36,8 @@ public class CmdTuneShooter extends Command {
             tab_.addDouble("updown", ()-> { return shooter_.getUpDown();}) ;
         }
 
-        updown_widget_ = tab_.add("UpDown Input", 0.0).withWidget(BuiltInWidgets.kTextView) ;
-        tilt_widget_ = tab_.add("Tilt Input", 0.0).withWidget(BuiltInWidgets.kTextView) ;
+        updown_widget_ = tab_.add("UpDown Input", IntakeShooterConstants.UpDown.Positions.kShootNominal).withWidget(BuiltInWidgets.kTextView) ;
+        tilt_widget_ = tab_.add("Tilt Input", -74.0).withWidget(BuiltInWidgets.kTextView) ;
         velocity_widget_ = tab_.add("Velocity Input", 0.0).withWidget(BuiltInWidgets.kTextView) ;
         apply_widget_ = tab_.add("Apply", false).withWidget(BuiltInWidgets.kToggleSwitch) ;
     }

@@ -6,7 +6,7 @@ public class OIIosHID implements OIIos {
     private GenericHID hid_ ;    
 
     public OIIosHID(int port) {
-        // hid_ = new GenericHID(port) ;
+        hid_ = new GenericHID(port) ;
     }
 
     @Override

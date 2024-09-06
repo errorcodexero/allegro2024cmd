@@ -176,7 +176,7 @@ public abstract class XeroRobot extends LoggedRobot {
         String logfile = SimArgs.LogFileName ;
         MessageDestination dest ;
 
-        logger_ = new MessageLogger();
+        logger_ = MessageLogger.getTheMessageLogger() ;
         logger_.setTimeSource(new RobotTimeSource());
 
         if (logfile != null) {

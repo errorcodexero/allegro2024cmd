@@ -51,6 +51,8 @@ public class Tracker extends XeroSubsystem {
 
     @Override
     public void periodic() {
+        periodicStart();
+
         if (!has_target_info_) {
             has_target_info_ = getTargetPose() ;
             if (!has_target_info_) {
@@ -103,6 +105,8 @@ public class Tracker extends XeroSubsystem {
         Logger.recordOutput("tracker-angle-offset", angle_offset_) ;
         Logger.recordOutput("tracker-source", source_) ;
         Logger.recordOutput("tracker-zone", zone_) ;
+
+        periodicEnd();
     }
 
     public double distance() {

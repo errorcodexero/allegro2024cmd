@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -248,7 +249,6 @@ public class TrampIOHardware implements TrampIO {
         inputs.manipulatorPosition = manipulator_encoder_.getPosition() ;
         inputs.manipulatorVelocity = manipulator_encoder_.getVelocity() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
-
         
         inputs.risingEdge = rising_seen_.get() ;
         inputs.fallingEdge = falling_seen_.get() ;
@@ -257,6 +257,9 @@ public class TrampIOHardware implements TrampIO {
 
         rising_seen_.set(false) ;
         falling_seen_.set(false) ;
+
+        
+        SmartDashboard.putBoolean("TSensor", inputs.noteSensor) ;
     }
 
     ////////////////////////////////////////////////////////////////////////////

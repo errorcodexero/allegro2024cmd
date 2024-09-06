@@ -284,6 +284,8 @@ public class TrampSubsystem extends XeroSubsystem {
     
     @Override
     public void periodic() {
+        periodicStart();
+
         io_.updateInputs(inputs_) ;
         Logger.processInputs("tramp", inputs_);
 
@@ -481,6 +483,8 @@ public class TrampSubsystem extends XeroSubsystem {
         Logger.recordOutput("climber-voltage", io_.getClimberMotorVoltage());
         Logger.recordOutput("is-elev-ready", isElevatorReady());
         Logger.recordOutput("is-arm-ready", isArmReady());
+
+        periodicEnd();
     }
 
     private void climberUp() {

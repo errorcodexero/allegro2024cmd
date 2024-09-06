@@ -679,6 +679,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
+        periodicStart();
+
         io_.updateInputs(inputs_);
         Logger.processInputs("intake-shooter", inputs_);
 
@@ -817,7 +819,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         Logger.recordOutput("has-note", has_note_);
         Logger.recordOutput("tracking", tracking_);
         Logger.recordOutput("destination", getNoteDestination()) ;
-        Logger.recordOutput("updown-neg", -inputs_.updownVelocity) ;        
+        Logger.recordOutput("updown-neg", -inputs_.updownVelocity) ;    
+        
+        periodicEnd();
     }
 
     private void setTracking(boolean b) {
