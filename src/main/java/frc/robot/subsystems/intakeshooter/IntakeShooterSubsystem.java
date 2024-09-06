@@ -562,7 +562,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return b ;
     }
 
-    private boolean isUpDownReady() {
+    public boolean isUpDownReady() {
         return 
             Math.abs(inputs_.updownPosition - target_updown_) < target_updown_tol_ &&
             Math.abs(inputs_.updownVelocity) < target_updown_vel_ ;

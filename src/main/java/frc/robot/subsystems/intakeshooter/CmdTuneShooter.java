@@ -34,6 +34,10 @@ public class CmdTuneShooter extends Command {
             tab_.addDouble("vel2", ()-> { return shooter_.getShooter2Velocity();}) ;
             tab_.addDouble("tilt", ()-> { return shooter_.getTilt();}) ;
             tab_.addDouble("updown", ()-> { return shooter_.getUpDown();}) ;
+
+            tab_.addBoolean("ud-ready", ()-> { return shooter_.isUpDownReady();}) ; 
+            tab_.addBoolean("tilt-ready", ()-> { return shooter_.isTiltReady();}) ;
+            tab_.addBoolean("shoot-ready", ()-> { return shooter_.isShooterReady();}) ;
         }
 
         updown_widget_ = tab_.add("UpDown Input", IntakeShooterConstants.UpDown.Positions.kShootNominal).withWidget(BuiltInWidgets.kTextView) ;
@@ -50,6 +54,27 @@ public class CmdTuneShooter extends Command {
             double updown = updown_widget_.getEntry().getDouble(0.0) ;
             double tilt = tilt_widget_.getEntry().getDouble(0.0) ;
             double velocity = velocity_widget_.getEntry().getDouble(0.0) ;
+
+            if (tilt < IntakeShooterConstants.Tilt.kMinPosition) {
+                tilt = IntakeShooterConstants.Tilt.kMinPosition ;
+            }
+            else if (tilt > IntakeShooterConstants.Tilt.kMaxPosition) {
+                tilt = IntakeShooterConstants.Tilt.kMaxPosition ;
+            }
+
+            if (updown < IntakeShooterConstants.UpDown.kMinPosition) {
+                updown = IntakeShooterConstants.UpDown.kMinPosition ;
+            }
+            else if (updown > IntakeShooterConstants.UpDown.kMaxPosition) {
+                updown = IntakeShooterConstants.UpDown.kMaxPosition ;
+            }
+            
+            if (velocity < IntakeShooterConstants.Shooter.kShootMinVelocity) {
+                velocity = IntakeShooterConstants.Shooter.kShootMinVelocity ;
+            }
+            else if (velocity > IntakeShooterConstants.Shooter.kShootMaxVelocity) {
+                velocity = IntakeShooterConstants.Shooter.kShootMaxVelocity ;
+            }
 
             shooter_.setUpDownToAngle(updown, kUpdownPositionTolerance, kUpdownVelocityTolerance) ;
             shooter_.setTiltToAngle(tilt, kTiltPositionTolerance, kTiltVelocityTolerance) ;
