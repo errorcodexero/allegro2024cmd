@@ -173,6 +173,7 @@ public class IntakeShooterConstants {
         public static final double kTransferTransferLength = 0.6 ;
         public static final double kTransferContLength = 8.0 ;     
 
+        public static final double kShooterRevsPerMotoRev = 1.0 / 0.6 ;
         public static final double kShootMinVelocity = 20 ;
         public static final double kShootMaxVelocity = 90 ;
 
