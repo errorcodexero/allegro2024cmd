@@ -320,8 +320,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
         inputs.feederCurrent = feeder_current_signal_.refresh().getValueAsDouble() ;
 
-        inputs.shooter1Velocity = shooter1_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Shooter.kRPSPerRev ;
-        inputs.shooter1Current = shooter1_current_signal_.refresh().getValueAsDouble()  * IntakeShooterConstants.Shooter.kRPSPerRev ;
+        inputs.shooter1Velocity = shooter1_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Shooter.kShooterRevsPerMotoRev ;
+        inputs.shooter1Current = shooter1_current_signal_.refresh().getValueAsDouble()  * IntakeShooterConstants.Shooter.kShooterRevsPerMotoRev ;
         inputs.shooter1Position = shooter1_position_signal_.refresh().getValueAsDouble() ;
         inputs.shooter1Voltage = shooter1_voltage_signal_.refresh().getValueAsDouble() ;
 
