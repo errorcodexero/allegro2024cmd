@@ -18,6 +18,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -97,6 +98,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         CommandScheduler.getInstance().registerSubsystem(this);
 
         tareEverything();
+        seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));        
+        setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -108,7 +111,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         CommandScheduler.getInstance().registerSubsystem(this);
 
         tareEverything();
-        
+        seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));
+        setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+                
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -163,10 +168,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         Rotation2d robotHeading = getState().Pose.getRotation();
+        robotHeading = Rotation2d.fromDegrees(180.0) ;
         LimelightHelpers.SetRobotOrientation(limelight_name_, robotHeading.getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0) ;
+
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
         if (estimate.tagCount > 0) {
-            addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
+            if (m_angularVelocity.getValueAsDouble() < 720) {
+                addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
+            }
         }
 
         if (follower_ != null) {

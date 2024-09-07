@@ -18,9 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.AprilTags;
-import frc.robot.LimelightHelpers.LimelightResults;
 
 public class Tracker extends XeroSubsystem {
     private SwerveDrivetrain db_ ;
@@ -53,6 +51,8 @@ public class Tracker extends XeroSubsystem {
     public void periodic() {
         periodicStart();
 
+        // setOffset();
+
         if (!has_target_info_) {
             has_target_info_ = getTargetPose() ;
             if (!has_target_info_) {
@@ -66,6 +66,7 @@ public class Tracker extends XeroSubsystem {
         io_.updateInputs(inputs_) ;
         Logger.processInputs("tracker", inputs_);
 
+        inputs_.tv = false ;
         if (inputs_.tv) {
             //
             // We see the april tag of interest, use the TX and TY values to
@@ -99,12 +100,8 @@ public class Tracker extends XeroSubsystem {
             source_ = "RobotPose" ;
         }
 
-        Logger.recordOutput("tracker-ok-to-shoot", ok_to_shoot_) ;
         Logger.recordOutput("tracker-angle-to-target", angle_to_target_) ;
         Logger.recordOutput("tracker-distance-to-target", distance_to_target_) ;
-        Logger.recordOutput("tracker-angle-offset", angle_offset_) ;
-        Logger.recordOutput("tracker-source", source_) ;
-        Logger.recordOutput("tracker-zone", zone_) ;
 
         periodicEnd();
     }
@@ -119,14 +116,6 @@ public class Tracker extends XeroSubsystem {
 
     public boolean okToShoot() {
         return ok_to_shoot_ ;
-    }
-
-    public Command setOffsetCommand() {
-        return runOnce(this::setOffset) ;
-    }
-
-    public Command clearOffsetCommand() {
-        return runOnce(() -> angle_offset_ = 0.0) ;
     }
 
     private double getTargetAngle() {

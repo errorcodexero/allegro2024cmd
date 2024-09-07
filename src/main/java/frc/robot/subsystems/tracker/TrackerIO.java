@@ -8,6 +8,7 @@ public interface TrackerIO {
         public boolean tv = false ;
         public double ty = 0.0 ;
         public double tx = 0.0 ;
+        public double llx = 0.0 ;
     }
 
     public default void updateInputs(TrackerInputs inputs) {
