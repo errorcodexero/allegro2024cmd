@@ -75,6 +75,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private boolean hasAppliedOperatorPerspective = false;
 
     private final SwerveRequest.SysIdSwerveTranslation TranslationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
+    // private final SwerveRequest.SysIdSwerveRotation RotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+    // private final SwerveRequest.SysIdSwerveSteerGains SteerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
 
     private XeroRobot robot_ ;
 
@@ -90,7 +92,30 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     null,
                     this));
 
+    // private final SysIdRoutine SysIdRoutineRotation = new SysIdRoutine(
+    //         new SysIdRoutine.Config(
+    //                 null,
+    //                 Volts.of(4),
+    //                 null,
+    //                 (state) -> SignalLogger.writeString("state", state.toString())),
+    //         new SysIdRoutine.Mechanism(
+    //                 (volts) -> setControl(RotationCharacterization.withVolts(volts)),
+    //                 null,
+    //                 this));
+    // private final SysIdRoutine SysIdRoutineSteer = new SysIdRoutine(
+    //         new SysIdRoutine.Config(
+    //                 null,
+    //                 Volts.of(7),
+    //                 null,
+    //                 (state) -> SignalLogger.writeString("state", state.toString())),
+    //         new SysIdRoutine.Mechanism(
+    //                 (volts) -> setControl(SteerCharacterization.withVolts(volts)),
+    //                 null,
+    //                 this));
+
+
     /* Change this to the sysid routine you want to test */
+    /* May be changed to SysIdRoutineRotation or SysIdRoutineSteer */
     private final SysIdRoutine RoutineToApply = SysIdRoutineTranslation;
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
@@ -147,6 +172,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return m_kinematics.toChassisSpeeds(getState().ModuleStates);
     }
 
+    private void startSimThread() {
+        m_lastSimTime = Utils.getCurrentTimeSeconds();
+
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        m_simNotifier = new Notifier(() -> {
+            final double currentTime = Utils.getCurrentTimeSeconds();
+            double deltaTime = currentTime - m_lastSimTime;
+            m_lastSimTime = currentTime;
+
+            /* use the measured time delta, get battery voltage from WPILib */
+            updateSimState(deltaTime, RobotController.getBatteryVoltage());
+        });
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }    
+
     @Override
     public void periodic() {
         if (robot_ == null) {
@@ -167,10 +207,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
 
+        //
+        // Feed the robot heading (e.g. gyro angle) to the limelight megatag2 algorithm
+        //
         Rotation2d robotHeading = getState().Pose.getRotation();
-        robotHeading = Rotation2d.fromDegrees(180.0) ;
         LimelightHelpers.SetRobotOrientation(limelight_name_, robotHeading.getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0) ;
 
+        //
+        // Now, feed the limelight pose to the pose estimator to update our pose accuracy
+        //
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
         if (estimate.tagCount > 0) {
             if (m_angularVelocity.getValueAsDouble() < 720) {
@@ -294,19 +339,5 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return cfg ;
 
     }    
-
-    private void startSimThread() {
-        m_lastSimTime = Utils.getCurrentTimeSeconds();
-
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - m_lastSimTime;
-            m_lastSimTime = currentTime;
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
-    }    
 }
+

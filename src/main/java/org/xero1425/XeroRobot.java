@@ -6,8 +6,6 @@ import java.util.OptionalInt;
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.LoggedRobot;
-import org.xero1425.simsupport.SimArgs;
-import org.xero1425.simsupport.SimEventsManager;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.networktables.GenericEntry;
@@ -37,7 +35,6 @@ public abstract class XeroRobot extends LoggedRobot {
     private MessageLogger logger_ ;
     private RobotPaths robot_paths_ ;
     private XeroContainer container_ ;
-    private SimEventsManager simmgr_ ;
     private XeroAutoCommand auto_mode_ ;
     private List<XeroAutoCommand> automodes_ ;
     private SendableChooser<XeroAutoCommand> chooser_ ;
@@ -153,13 +150,6 @@ public abstract class XeroRobot extends LoggedRobot {
         return RobotType.COMPETITION_REAL ;
     }
 
-    public String getSimFileName() {
-        if (SimArgs.InputFileName != null)
-            return SimArgs.InputFileName ;
-
-        return getRobotSimFileName() ;
-    }
-
     public void setContainer(XeroContainer container) {
         container_ = container ;
     }
@@ -173,18 +163,12 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     private void enableMessageLogger() {
-        String logfile = SimArgs.LogFileName ;
         MessageDestination dest ;
 
         logger_ = MessageLogger.getTheMessageLogger() ;
         logger_.setTimeSource(new RobotTimeSource());
 
-        if (logfile != null) {
-            dest = new MessageDestinationFile(logfile) ;
-        }
-        else {
-            dest = new MessageDestinationThumbFile(robot_paths_.logFileDirectory(), 250, RobotBase.isSimulation());
-        }
+        dest = new MessageDestinationThumbFile(robot_paths_.logFileDirectory(), 250, RobotBase.isSimulation());
         logger_.addDestination(dest);
     }
 
@@ -206,11 +190,6 @@ public abstract class XeroRobot extends LoggedRobot {
                 cb.apply(false) ;
             }
         }
-
-        if (simmgr_ != null) {
-            simmgr_.processEvents(getTime()) ;
-        }
-
         createAutoModes();
     }
 
@@ -232,12 +211,6 @@ public abstract class XeroRobot extends LoggedRobot {
 
     @Override
     public void simulationInit() {
-        String filename = getSimFileName() ;
-        if (filename != null) {
-            simmgr_ = new SimEventsManager(getMessageLogger()) ;
-            simmgr_.readEventsFile(filename) ;
-            simmgr_.initialize() ;
-        }
     }
 
     protected void enableMessages() {

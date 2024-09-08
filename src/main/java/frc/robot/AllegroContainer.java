@@ -14,6 +14,8 @@ import frc.robot.subsystems.tracker.Tracker;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.xero1425.XeroContainer;
 import org.xero1425.XeroRobot;
@@ -21,6 +23,8 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -280,8 +284,20 @@ public class AllegroContainer extends XeroContainer {
     }
 
     private void yandbPressed() {
-        Pose2d pose = new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)) ;
-        db_.seedFieldRelative(pose) ;
+        Optional<Alliance> alliance = DriverStation.getAlliance() ;
+        if (alliance.isPresent()) {
+            Pose2d pose  ;
+            if (alliance.get() == Alliance.Red) {
+                pose = new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)) ;
+            }
+            else {
+                pose = new Pose2d(0, 0, Rotation2d.fromDegrees(0.0)) ;                
+            }
+            db_.seedFieldRelative(pose) ;
+        }
+        else {
+            DriverStation.reportError("Gamepad Y & B pressed before alliance is known (should be impossible)", false) ;
+        }
     }
 
     private void driveTrainBindings() {

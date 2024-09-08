@@ -1,7 +1,6 @@
 package frc.robot.subsystems.tracker;
 
 import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.LimelightHelpers.PoseEstimate;
 
 public class TrackerIOLimelight implements TrackerIO {
