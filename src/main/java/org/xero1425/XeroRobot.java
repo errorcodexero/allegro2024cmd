@@ -1,6 +1,7 @@
 package org.xero1425;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -44,8 +45,16 @@ public abstract class XeroRobot extends LoggedRobot {
     private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
 
+
     private boolean connected_callback_processed_ ;
     private List<Function<Boolean,Void>> connected_callbacks_ ;
+
+    static private int log_subsystem_cycle_count_ = 250 ;    
+    private HashMap<String, Integer> periodic_count_ ;
+    private HashMap<String, Integer> periodic_count_total_ ;
+    private HashMap<String, Double> periodic_time_ ;
+    private HashMap<String, Double> periodic_time_total_ ;
+    private HashMap<String, Double> periodic_start_ ;
 
     public XeroRobot(int gp, int oi) {
         if (robot_ != null) {
@@ -62,7 +71,12 @@ public abstract class XeroRobot extends LoggedRobot {
         auto_mode_ = null;
         connected_callback_processed_ = false ;
         connected_callbacks_ = new ArrayList<>() ;
-       
+
+        periodic_count_ = new HashMap<>() ;
+        periodic_count_total_ = new HashMap<>() ;
+        periodic_time_ = new HashMap<>() ;
+        periodic_time_total_ = new HashMap<>() ;
+        periodic_start_ = new HashMap<>() ;
     }
 
     public abstract boolean isCharMode() ;
@@ -73,6 +87,10 @@ public abstract class XeroRobot extends LoggedRobot {
     protected abstract String getPracticeSerialNumber() ;    
     protected abstract void createCompetitionAutoModes() ;
     protected abstract void createTestAutoModes() ;
+
+    void logSubsystemCycles(int cycles) {
+        log_subsystem_cycle_count_ = cycles ;
+    }
 
     public void addConnectedCallback(Function<Boolean,Void> cb) {
         connected_callbacks_.add(cb) ;
@@ -261,4 +279,49 @@ public abstract class XeroRobot extends LoggedRobot {
             auto_mode_ = chooser_.getSelected() ;
         }
     }
+
+    private void initSubsystemTiming(String name) {
+        if (!periodic_count_.containsKey(name)) {
+            periodic_count_.put(name, 0) ;
+            periodic_count_total_.put(name, 0) ;
+            periodic_time_total_.put(name, 0.0) ;
+        }
+    }
+
+    public void periodicStart(String name) {
+        if (log_subsystem_cycle_count_ == 0)
+            return ;
+
+        initSubsystemTiming(name) ;
+        periodic_start_.put(name, Timer.getFPGATimestamp() * 1000.0) ;
+    }
+
+    public void periodicEnd(String name) {
+        if (log_subsystem_cycle_count_ == 0)
+            return ;
+
+        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+
+        periodic_count_.put(name, periodic_count_.get(name) + 1) ;
+        periodic_count_total_.put(name, periodic_count_total_.get(name) + 1) ;
+        
+        double elapsed = Timer.getFPGATimestamp() * 1000.0 - periodic_start_.get(name) ;
+        periodic_time_.put(name, periodic_time_.get(name) + elapsed) ;
+        periodic_time_total_.put(name, periodic_time_total_.get(name) + elapsed) ;
+
+        if (periodic_count_.get(name) == log_subsystem_cycle_count_) {
+            double curavg = periodic_time_.get(name) / periodic_count_.get(name)  ;
+            double totavg = periodic_time_total_.get(name) / periodic_count_total_.get(name) ;
+
+            logger.startMessage(MessageType.Info) ;
+            logger.add("Subsystem Timing ") ;
+            logger.add("name", getName()) ;
+            logger.add("currant", curavg, "%.6f") ;
+            logger.add("total", totavg, "%.6f") ;
+            logger.endMessage();
+
+            periodic_count_.put(name, 0) ;
+            periodic_time_.put(name, 0.0) ;
+        }
+    }    
 }

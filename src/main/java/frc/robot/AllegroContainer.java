@@ -88,7 +88,11 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create subsystems
         //
-        db_ = TunerConstantsCompetition.DriveTrain ;
+        db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
+                                                 TunerConstantsCompetition.FrontLeft, 
+                                                 TunerConstantsCompetition.FrontRight, 
+                                                 TunerConstantsCompetition.BackLeft, 
+                                                 TunerConstantsCompetition.BackRight);
         db_.setRobot(robot) ;
 
         Supplier<NoteDestination> notesupply = null ;

@@ -119,21 +119,25 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     /* May be changed to SysIdRoutineRotation or SysIdRoutineSteer */
     private final SysIdRoutine RoutineToApply = SysIdRoutineTranslation;
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, OdometryUpdateFrequency, modules);
-        CommandScheduler.getInstance().registerSubsystem(this);
+    // public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+    //     super(driveTrainConstants, OdometryUpdateFrequency, modules);
+    //     CommandScheduler.getInstance().registerSubsystem(this);
 
-        tareEverything();
-        seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));        
-        setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+    //     tareEverything();
+    //     seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));        
+    //     setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
 
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-    }
+    //     if (Utils.isSimulation()) {
+    //         startSimThread();
+    //     }
+    // }
 
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+    public CommandSwerveDrivetrain(XeroRobot robot, SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
+
+        //
+        // We ave
+        // 
         CommandScheduler.getInstance().registerSubsystem(this);
 
         tareEverything();
@@ -146,7 +150,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void setRobot(XeroRobot robot) {
-        robot_ = robot ;
     }
 
     public void setLimelightName(String name) {
@@ -190,6 +193,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
+        robot_.periodicStart(getName());
+
         if (robot_ == null) {
             DriverStation.reportError("Robot object not set in swerve drivetrain", false) ;
         }
@@ -230,6 +235,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         dumpOutput() ;
+
+        robot_.periodicEnd(getName());
     }
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
