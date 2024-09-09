@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
@@ -217,10 +218,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // Now, feed the limelight pose to the pose estimator to update our pose accuracy
         //
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
-        if (estimate.tagCount > 0) {
-            if (m_angularVelocity.getValueAsDouble() < 720) {
-                addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
-            }
+        if (estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
+            addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
         }
 
         if (follower_ != null) {

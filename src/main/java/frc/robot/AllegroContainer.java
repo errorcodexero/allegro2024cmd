@@ -307,7 +307,7 @@ public class AllegroContainer extends XeroContainer {
                                          .withRotationalRate(getRightX() * SwerveConstants.kMaxRotationalSpeed)
                             ).ignoringDisable(true));
 
-        driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed())) ;
+        driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
         db_.registerTelemetry(logger_::telemeterize) ;
     }
     // #endregion
