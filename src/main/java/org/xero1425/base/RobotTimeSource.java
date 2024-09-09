@@ -1,4 +1,6 @@
-package org.xero1425 ;
+package org.xero1425.base ;
+
+import org.xero1425.misc.MessageTimeSource;
 
 import edu.wpi.first.wpilibj.Timer ;
 

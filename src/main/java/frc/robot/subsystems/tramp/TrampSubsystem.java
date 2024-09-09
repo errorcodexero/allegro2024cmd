@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.XeroRobot;
-import org.xero1425.XeroSubsystem;
-import org.xero1425.XeroTimer;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroSubsystem;
+import org.xero1425.base.XeroTimer;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
@@ -114,6 +115,10 @@ public class TrampSubsystem extends XeroSubsystem {
         climber_dir_ = ClimberDir.None ;
         climber_target_ = 0.0 ;
     }
+
+    public SettingsValue getProperty(String name) {
+        return null ;
+    }    
 
     public Trigger readyForAmp() {
         return ready_for_amp_trigger_;

@@ -1,4 +1,7 @@
-package org.xero1425;
+package org.xero1425.base;
+
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 
 public class XeroTimer {
     private static int LoggerID = -1 ;

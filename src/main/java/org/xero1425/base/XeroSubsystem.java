@@ -1,13 +1,15 @@
-package org.xero1425;
+package org.xero1425.base;
 
 import java.util.List;
+
+import org.xero1425.misc.MessageLogger;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public abstract class XeroSubsystem extends SubsystemBase {
+public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemSim {
 
     private XeroRobot robot_ ;
     private int logger_id_ ;

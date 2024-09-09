@@ -1,9 +1,9 @@
 package frc.robot.automodes.competition;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.Pose2dWithRotation;
-import org.xero1425.XeroAutoCommand;
-import org.xero1425.XeroRobot;
+import org.xero1425.base.XeroAutoCommand;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.math.Pose2dWithRotation;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;

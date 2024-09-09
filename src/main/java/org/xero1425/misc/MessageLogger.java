@@ -1,5 +1,5 @@
 
-package org.xero1425;
+package org.xero1425.misc;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package org.xero1425;
+package org.xero1425.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,12 @@ import java.util.OptionalInt;
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.xero1425.misc.MessageDestination;
+import org.xero1425.misc.MessageDestinationThumbFile;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
+import org.xero1425.misc.SimArgs;
+import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.networktables.GenericEntry;
@@ -56,6 +62,8 @@ public abstract class XeroRobot extends LoggedRobot {
     private HashMap<String, Double> periodic_time_total_ ;
     private HashMap<String, Double> periodic_start_ ;
 
+    private HashMap<String, ISubsystemSim> subsystems_ ;
+
     public XeroRobot(int gp, int oi) {
         if (robot_ != null) {
             throw new RuntimeException("XeroRobot is a singleton class") ;
@@ -77,16 +85,40 @@ public abstract class XeroRobot extends LoggedRobot {
         periodic_time_ = new HashMap<>() ;
         periodic_time_total_ = new HashMap<>() ;
         periodic_start_ = new HashMap<>() ;
+
+        subsystems_ = new HashMap<>() ;
+
+        if (RobotBase.isSimulation()) {
+            String str = SimArgs.InputFileName;
+            if (str == null)
+                str = getSimulationFileName() ;
+
+            if (str == null) {
+                System.out.println("The code is setup to simulate, but the derived robot class did not provide a stimulus file") ;
+                System.out.println("Not initializing the Xero1425 Simulation engine - assuming Romi robot") ;
+            }
+            else {
+                SimulationEngine.initializeSimulator(this, logger_);
+                addRobotSimulationModels() ;
+                SimulationEngine.getInstance().initAll(str) ;
+            }
+        }        
+    }
+
+    public ISubsystemSim getSubsystemByName(String name) {
+        return subsystems_.get(name) ;
     }
 
     public abstract boolean isCharMode() ;
     public abstract boolean isReplayMode() ;
     public abstract boolean isTestMode() ;
+    public abstract String  getSimulationFileName() ; 
     protected abstract String getRobotSimFileName() ;
     protected abstract String getName() ;    
     protected abstract String getPracticeSerialNumber() ;    
     protected abstract void createCompetitionAutoModes() ;
     protected abstract void createTestAutoModes() ;
+    protected abstract void addRobotSimulationModels() ;
 
     void logSubsystemCycles(int cycles) {
         log_subsystem_cycle_count_ = cycles ;
@@ -116,6 +148,14 @@ public abstract class XeroRobot extends LoggedRobot {
 
     public void robotInit() {
         super.robotInit() ;
+
+        if (RobotBase.isSimulation() && SimulationEngine.getInstance() != null)
+        {
+            //
+            // If we are simulating, create the simulation modules required
+            //
+            SimulationEngine.getInstance().createModels() ;
+        }        
 
         CommandScheduler.getInstance().onCommandInitialize((cmd) -> commandInitialized(cmd)) ;
         CommandScheduler.getInstance().onCommandFinish((cmd) -> commandFinished(cmd)) ;
@@ -209,6 +249,13 @@ public abstract class XeroRobot extends LoggedRobot {
             }
         }
         createAutoModes();
+
+        if (isSimulation()) {
+            SimulationEngine engine = SimulationEngine.getInstance() ;
+            if (engine != null) {
+                engine.run(getPeriod());
+            }
+        }
     }
 
     @Override
@@ -284,8 +331,13 @@ public abstract class XeroRobot extends LoggedRobot {
         if (!periodic_count_.containsKey(name)) {
             periodic_count_.put(name, 0) ;
             periodic_count_total_.put(name, 0) ;
+            periodic_time_.put(name, 0.0) ;
             periodic_time_total_.put(name, 0.0) ;
         }
+    }
+
+    public void registerSubsystem(String name, ISubsystemSim sim) {
+
     }
 
     public void periodicStart(String name) {

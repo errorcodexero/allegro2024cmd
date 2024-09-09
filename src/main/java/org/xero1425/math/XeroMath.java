@@ -1,4 +1,4 @@
-package org.xero1425 ;
+package org.xero1425.math ;
 
 import java.lang.Math ;
 

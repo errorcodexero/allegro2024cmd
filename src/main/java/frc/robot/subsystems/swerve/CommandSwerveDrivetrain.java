@@ -6,10 +6,12 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.HolonomicPathFollower;
-import org.xero1425.Pose2dWithRotation;
-import org.xero1425.XeroMath;
-import org.xero1425.XeroRobot;
+import org.xero1425.base.HolonomicPathFollower;
+import org.xero1425.base.ISubsystemSim;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.math.Pose2dWithRotation;
+import org.xero1425.math.XeroMath;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -40,7 +42,7 @@ import frc.robot.constants.RobotConstants;
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
-public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
+public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem, ISubsystemSim  {
 
     private static final int kRecordModuleStates = (1  << 0) ;
     private static final int kDisplayAcquisition = (1 << 1) ;
@@ -135,6 +137,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(XeroRobot robot, SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
 
+        robot_ = robot ;
+
         //
         // We ave
         // 
@@ -149,7 +153,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public void setRobot(XeroRobot robot) {
+    public SettingsValue getProperty(String name) {
+        return null ;
     }
 
     public void setLimelightName(String name) {
@@ -195,10 +200,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void periodic() {
         robot_.periodicStart(getName());
 
-        if (robot_ == null) {
-            DriverStation.reportError("Robot object not set in swerve drivetrain", false) ;
-        }
-
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
         /* This allows us to correct the perspective in case the robot code restarts mid-match */
@@ -223,7 +224,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // Now, feed the limelight pose to the pose estimator to update our pose accuracy
         //
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
-        if (estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
+        if (estimate != null && estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
             addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
         }
 

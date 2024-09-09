@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.XeroRobot;
-import org.xero1425.XeroSubsystem;
-import org.xero1425.XeroMath;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroSubsystem;
+import org.xero1425.math.XeroMath;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
@@ -45,6 +46,10 @@ public class Tracker extends XeroSubsystem {
 
         io_ = new TrackerIOLimelight(name);
         inputs_ = new TrackerInputsAutoLogged() ;
+    }
+
+    public SettingsValue getProperty(String name) {
+        return null ;
     }
 
     @Override

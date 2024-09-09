@@ -1,11 +1,12 @@
 package frc.robot.subsystems.intakeshooter ;
 
-import org.xero1425.MessageLogger;
-import org.xero1425.MessageType;
-import org.xero1425.PieceWiseLinear;
-import org.xero1425.XeroRobot;
-import org.xero1425.XeroSubsystem;
-import org.xero1425.XeroTimer;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroSubsystem;
+import org.xero1425.base.XeroTimer;
+import org.xero1425.math.PieceWiseLinear;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
@@ -131,6 +132,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
         need_stop_manipulator_ = false ;
+    }
+
+    public SettingsValue getProperty(String name) {
+        return null ;
     }
 
     public double getShooter1Velocity() {

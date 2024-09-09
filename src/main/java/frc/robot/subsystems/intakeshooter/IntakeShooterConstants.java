@@ -1,6 +1,6 @@
 package frc.robot.subsystems.intakeshooter;
 
-import org.xero1425.XeroRobot;
+import org.xero1425.base.XeroRobot;
 
 public class IntakeShooterConstants {
     public static final double kvfactor = 60.0 ;

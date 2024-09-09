@@ -17,8 +17,10 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-import org.xero1425.XeroContainer;
-import org.xero1425.XeroRobot;
+
+import org.xero1425.base.XeroContainer;
+import org.xero1425.base.XeroRobot;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -93,10 +95,8 @@ public class AllegroContainer extends XeroContainer {
                                                  TunerConstantsCompetition.FrontRight, 
                                                  TunerConstantsCompetition.BackLeft, 
                                                  TunerConstantsCompetition.BackRight);
-        db_.setRobot(robot) ;
 
         Supplier<NoteDestination> notesupply = null ;
-
 
         if (!robot.isCharMode()) {
             //

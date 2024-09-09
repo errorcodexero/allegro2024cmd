@@ -12,8 +12,10 @@ public class VisionIOLimelight implements VisionIO {
 
     public void updateInputs(VisionInputs inputs) {
         PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
-        inputs.tagCount = pe.tagCount ;
-        inputs.pose = pe.pose ;
-        inputs.timestampSeconds = pe.timestampSeconds ;
+        if (pe != null) {
+            inputs.tagCount = pe.tagCount ;
+            inputs.pose = pe.pose ;
+            inputs.timestampSeconds = pe.timestampSeconds ;
+        }
     }
 }

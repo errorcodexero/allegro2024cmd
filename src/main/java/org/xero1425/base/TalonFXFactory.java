@@ -1,6 +1,9 @@
-package org.xero1425;
+package org.xero1425.base;
 
 import java.util.function.Supplier;
+
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;

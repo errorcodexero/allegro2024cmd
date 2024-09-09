@@ -3,8 +3,9 @@ package frc.robot.subsystems.oi;
 import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.XeroRobot;
-import org.xero1425.XeroSubsystem;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroSubsystem;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
@@ -50,6 +51,10 @@ public class OISubsystem extends XeroSubsystem {
         climb_up_exec_trigger_ = new Trigger(() -> inputs_.climbUpExec) ;
         auto_trap_trigger_ = new Trigger(() -> inputs_.autoTrap) ;
     }
+
+    public SettingsValue getProperty(String name) {
+        return null ;
+    }    
 
     public NoteDestination getNoteDestination() {
         return note_dest_ ;
