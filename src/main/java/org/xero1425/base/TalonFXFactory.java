@@ -60,10 +60,12 @@ public class TalonFXFactory {
         int tries = (reps == -1 ? kApplyTries : reps) ;
         do {
             code = toApply.get() ;
-            MessageLogger logger = MessageLogger.getTheMessageLogger() ;
-            logger.startMessage(MessageType.Warning) ;
-            logger.add("motor request failed -" + code.toString()) ;
-            logger.endMessage();
+            if (code.isError()) {
+                MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+                logger.startMessage(MessageType.Warning) ;
+                logger.add("motor request failed -" + code.toString()) ;
+                logger.endMessage();
+            }
         } while (!code.isOK() && --tries > 0)  ;
 
         if (!code.isOK()) {

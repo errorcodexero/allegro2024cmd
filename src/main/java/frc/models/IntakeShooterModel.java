@@ -1,4 +1,4 @@
-package frc.robot.models;
+package frc.models;
 
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;

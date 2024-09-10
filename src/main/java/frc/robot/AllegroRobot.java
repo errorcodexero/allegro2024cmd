@@ -50,7 +50,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "auto-four-note.jsonc";
+        return "auto";
     }    
 
     @Override
@@ -195,7 +195,6 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        super.teleopPeriodic();
     }
 
     @Override
@@ -218,6 +217,5 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
-        super.simulationPeriodic();
     }
 }

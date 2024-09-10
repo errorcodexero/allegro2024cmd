@@ -1,4 +1,4 @@
-package frc.robot.models;
+package frc.models;
 
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;

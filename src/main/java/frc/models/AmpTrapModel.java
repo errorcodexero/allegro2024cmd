@@ -1,4 +1,4 @@
-package frc.robot.models;
+package frc.models;
 
 import org.xero1425.misc.SettingsValue;
 import org.xero1425.simulator.engine.SimulationEngine;
