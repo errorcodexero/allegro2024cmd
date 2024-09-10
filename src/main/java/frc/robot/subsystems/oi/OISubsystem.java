@@ -1,6 +1,7 @@
 package frc.robot.subsystems.oi;
 
 import java.util.List;
+import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.XeroRobot;
@@ -148,7 +149,7 @@ public class OISubsystem extends XeroSubsystem {
         return dest ;
     }    
 
-    public List<TalonFX> getCTREMotors() {
+    public Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
 

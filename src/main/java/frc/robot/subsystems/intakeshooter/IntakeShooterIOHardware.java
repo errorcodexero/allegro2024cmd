@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intakeshooter;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -38,6 +39,8 @@ import edu.wpi.first.units.Units ;
 public class IntakeShooterIOHardware implements IntakeShooterIO {
 
     private final static int kApplyTries = 5 ;  
+
+    private HashMap<String, TalonFX> talon_motors_ ;
 
     private TalonFX feeder_motor_ ;
     private TalonFX updown_motor_ ;
@@ -88,6 +91,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
     public IntakeShooterIOHardware(XeroRobot robot) throws Exception {
 
+        talon_motors_ = new HashMap<>() ;
+
         is_sim_ = RobotBase.isSimulation() ;
     
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +102,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Feeder.kMotorId,
                     IntakeShooterConstants.Feeder.kInvert,
                     IntakeShooterConstants.Feeder.kCurrentLimit);
+        talon_motors_.put(IntakeShooterSubsystem.FEEDER_MOTOR_NAME, feeder_motor_) ; 
         feeder_current_signal_ = feeder_motor_.getSupplyCurrent() ;                    
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,6 +112,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.UpDown.kMotorId,
                     IntakeShooterConstants.UpDown.kInvert,
                     IntakeShooterConstants.UpDown.kCurrentLimit);
+        talon_motors_.put(IntakeShooterSubsystem.UPDOWN_MOTOR_NAME, updown_motor_) ;                     
         updown_motor_.getPosition().setUpdateFrequency(100) ;
         updown_motor_.getVelocity().setUpdateFrequency(100) ;
         final Slot0Configs updownslot0cfg = new Slot0Configs()
@@ -148,6 +155,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Tilt.kMotorId,
                     IntakeShooterConstants.Tilt.kInvert,
                     IntakeShooterConstants.Tilt.kCurrentLimit);    
+        talon_motors_.put(IntakeShooterSubsystem.TILT_MOTOR_NAME, tilt_motor_) ; 
 
         final Slot0Configs tiltslot0cfg = new Slot0Configs()
                                 .withKP(IntakeShooterConstants.Tilt.MovementPIDSlot0.kP)
@@ -198,6 +206,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter1.kMotorId,
                     IntakeShooterConstants.Shooter1.kInvert,
                     IntakeShooterConstants.Shooter1.kCurrentLimit);
+        talon_motors_.put(IntakeShooterSubsystem.SHOOTER1_MOTOR_NAME, shooter1_motor_) ;                    
         shooter1_motor_.getVelocity().setUpdateFrequency(100) ;
         shooter1_motor_.getPosition().setUpdateFrequency(100) ;        
         final Slot0Configs shooter1slot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Shooter.kP)
@@ -220,6 +229,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter2.kMotorId,
                     IntakeShooterConstants.Shooter2.kInvert,
                     IntakeShooterConstants.Shooter2.kCurrentLimit);
+        talon_motors_.put(IntakeShooterSubsystem.SHOOTER2_MOTOR_NAME, shooter2_motor_) ;                     
         shooter2_motor_.getVelocity().setUpdateFrequency(100) ;
         shooter2_motor_.getPosition().setUpdateFrequency(100) ;                   
         final Slot0Configs shooter2slot0cfg = new Slot0Configs().withKP(IntakeShooterConstants.Shooter.kP)
@@ -486,8 +496,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         }
     }      
 
-    public List<TalonFX> getCTREMotors() {
-        return Arrays.asList(feeder_motor_, updown_motor_, shooter1_motor_, shooter2_motor_, tilt_motor_ ) ;
+    public Map<String, TalonFX> getCTREMotors() {
+        return talon_motors_ ;
     }
 
     public List<CANSparkBase> getRevRoboticsMotors() {

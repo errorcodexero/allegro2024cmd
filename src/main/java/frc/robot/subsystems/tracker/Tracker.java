@@ -1,6 +1,7 @@
 package frc.robot.subsystems.tracker;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -226,7 +227,7 @@ public class Tracker extends XeroSubsystem {
         return true ;
     }
 
-    public List<TalonFX> getCTREMotors() {
+    public Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
 

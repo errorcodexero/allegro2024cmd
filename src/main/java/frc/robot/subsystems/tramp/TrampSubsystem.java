@@ -1,6 +1,6 @@
 package frc.robot.subsystems.tramp;
 
-import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -10,8 +10,6 @@ import org.xero1425.base.XeroTimer;
 import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkBase;
-
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
@@ -23,6 +21,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
 
 public class TrampSubsystem extends XeroSubsystem {
+
+    static final public String NAME = "TrampSubsystem" ;
+    static final public String ELEVATOR_MOTOR_NAME = "feeder" ;
+    static final public String CLIMBER_MOTOR_NAME = "shooter1" ;
+    static final public String ARM_MOTOR_NAME = "shooter2" ;
 
     private enum ClimberDir {
         Up,
@@ -92,7 +95,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private double manipulator_target_ ;
 
     public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
-        super(robot, "trap-arm") ;
+        super(robot, NAME) ;
 
         io_ = new TrampIOHardware() ;
         inputs_ = new TrampIOInputsAutoLogged() ;
@@ -694,11 +697,7 @@ public class TrampSubsystem extends XeroSubsystem {
         return climberSysIdRoutine().dynamic(dir) ;
     }     
 
-    public List<TalonFX> getCTREMotors() {
+    public Map<String, TalonFX> getCTREMotors() {
         return io_.getCTREMotors() ;
     }
-
-    public List<CANSparkBase> getRevRoboticsMotors() {
-        return io_.getRevRoboticsMotors() ;
-    }    
 }

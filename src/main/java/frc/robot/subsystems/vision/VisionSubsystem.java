@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import java.util.List;
+import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.XeroRobot;
@@ -56,7 +57,7 @@ public class VisionSubsystem extends XeroSubsystem {
         periodicEnd();
     }
 
-    public List<TalonFX> getCTREMotors() {
+    public Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
 

@@ -1,12 +1,8 @@
 package org.xero1425.base;
 
-import java.util.List;
-
+import java.util.Map;
 import org.xero1425.misc.MessageLogger;
-
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkBase;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemSim {
@@ -19,6 +15,8 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
 
         robot_ = robot ;
         logger_id_ = getMessageLogger().registerSubsystem(name) ;
+
+        robot_.registerSubsystem(name, this) ;
     }
 
     public XeroRobot getRobot() {
@@ -33,8 +31,7 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
         return logger_id_ ;
     }
 
-    public abstract List<TalonFX> getCTREMotors() ;
-    public abstract List<CANSparkBase> getRevRoboticsMotors() ;
+    public abstract Map<String, TalonFX> getCTREMotors() ;
 
     protected void periodicStart() {        
         robot_.periodicStart(getName()) ;
