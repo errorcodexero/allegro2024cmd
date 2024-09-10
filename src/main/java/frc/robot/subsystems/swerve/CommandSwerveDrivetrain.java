@@ -225,7 +225,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // Now, feed the limelight pose to the pose estimator to update our pose accuracy
         //
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
-        if (estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
+        if (estimate != null && estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
             addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
         }
 
