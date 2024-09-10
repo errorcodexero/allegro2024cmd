@@ -279,11 +279,11 @@ public abstract class XeroRobot extends LoggedRobot {
             auto_mode_ = chooser_.getSelected() ;
         }
     }
-
     private void initSubsystemTiming(String name) {
         if (!periodic_count_.containsKey(name)) {
             periodic_count_.put(name, 0) ;
             periodic_count_total_.put(name, 0) ;
+            periodic_time_.put(name, 0.0) ;
             periodic_time_total_.put(name, 0.0) ;
         }
     }
@@ -323,5 +323,5 @@ public abstract class XeroRobot extends LoggedRobot {
             periodic_count_.put(name, 0) ;
             periodic_time_.put(name, 0.0) ;
         }
-    }    
+    }      
 }
