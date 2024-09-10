@@ -327,6 +327,10 @@ public abstract class XeroRobot extends LoggedRobot {
         }
     }
 
+    public void registerSubsystem(String name, ISubsystemSim sim) {
+        subsystems_.put(name, sim) ;
+    }
+
     private void initSubsystemTiming(String name) {
         if (!periodic_count_.containsKey(name)) {
             periodic_count_.put(name, 0) ;
@@ -334,10 +338,6 @@ public abstract class XeroRobot extends LoggedRobot {
             periodic_time_.put(name, 0.0) ;
             periodic_time_total_.put(name, 0.0) ;
         }
-    }
-
-    public void registerSubsystem(String name, ISubsystemSim sim) {
-
     }
 
     public void periodicStart(String name) {
