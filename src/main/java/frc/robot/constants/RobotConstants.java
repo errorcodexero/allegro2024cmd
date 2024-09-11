@@ -1,6 +1,6 @@
 package frc.robot.constants;
 
-import org.xero1425.XeroRobot.RobotType;
+import org.xero1425.base.XeroRobot.RobotType;
 
 public class RobotConstants {
     public final RobotType robotType = RobotType.COMPETITION_REAL ;

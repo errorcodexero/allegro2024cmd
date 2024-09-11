@@ -1,11 +1,10 @@
 package frc.robot.subsystems.tramp;
 
-import java.util.List;
+import java.util.Map;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkBase;
 
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
@@ -94,11 +93,7 @@ public interface TrampIO {
     public default void simulate(double period) {
     }    
 
-    public default List<TalonFX> getCTREMotors() {
+    public default Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
-
-    public default List<CANSparkBase> getRevRoboticsMotors() {
-        return null ;
-    }     
 }

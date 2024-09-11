@@ -6,9 +6,12 @@ package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.xero1425.MessageLogger;
-import org.xero1425.MessageType;
-import org.xero1425.XeroRobot;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
+import org.xero1425.misc.SimArgs;
+import org.xero1425.simulator.engine.ModelFactory;
+import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -34,6 +37,21 @@ public class AllegroRobot extends XeroRobot {
         super(OIConstants.kDriverControllerPort, OIConstants.kOIControllerPort) ;
         setFieldLayout(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()) ;
     }  
+
+    protected void addRobotSimulationModels() {
+        ModelFactory factory = SimulationEngine.getInstance().getModelFactory();
+        factory.registerModel("intake-shooter", "frc.models.IntakeShooterModel");
+        factory.registerModel("amp-trap", "frc.models.AmpTrapModel");
+        factory.registerModel("allegro-oi", "frc.models.AllegroOIModel");    
+    }      
+
+    public String getSimulationFileName() {
+        String ret = SimArgs.InputFileName;
+        if (ret != null)
+            return ret;
+
+        return "auto";
+    }    
 
     @Override
     public boolean isCharMode() {
@@ -177,7 +195,6 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        super.teleopPeriodic();
     }
 
     @Override
@@ -200,6 +217,5 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
-        super.simulationPeriodic();
     }
 }

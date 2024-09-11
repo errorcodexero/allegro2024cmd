@@ -1,10 +1,12 @@
 package frc.robot.subsystems.vision;
 
 import java.util.List;
+import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.XeroRobot;
-import org.xero1425.XeroSubsystem;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroSubsystem;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
@@ -24,6 +26,10 @@ public class VisionSubsystem extends XeroSubsystem {
         inputs_ = new VisionInputsAutoLogged() ;
         db_ = db ;
     }
+
+    public SettingsValue getProperty(String name) {
+        return null ;
+    }    
 
     public void enable(boolean b) {
         enabled_ = b ;
@@ -51,7 +57,7 @@ public class VisionSubsystem extends XeroSubsystem {
         periodicEnd();
     }
 
-    public List<TalonFX> getCTREMotors() {
+    public Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
 

@@ -1,6 +1,6 @@
 package frc.robot.automodes.testmodes;
 
-import org.xero1425.XeroAutoCommand;
+import org.xero1425.base.XeroAutoCommand;
 
 import frc.robot.AllegroContainer;
 import frc.robot.AllegroRobot;

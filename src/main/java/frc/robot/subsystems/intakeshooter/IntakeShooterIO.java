@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intakeshooter;
 
+import java.util.Map;
 import java.util.List;
 
 import org.littletonrobotics.junction.AutoLog;
@@ -98,7 +99,7 @@ public interface IntakeShooterIO {
     public default void simulate(double period) {
     }    
 
-    public default List<TalonFX> getCTREMotors() {
+    public default Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
 

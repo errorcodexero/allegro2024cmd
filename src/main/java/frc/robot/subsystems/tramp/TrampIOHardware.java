@@ -1,11 +1,11 @@
 package frc.robot.subsystems.tramp;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import org.xero1425.TalonFXFactory;
+import org.xero1425.base.TalonFXFactory;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -38,6 +38,8 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 public class TrampIOHardware implements TrampIO {
     private final static int kApplyTries = 5 ;
+
+    private HashMap<String, TalonFX> motors_ ;
 
     private TalonFX elevator_motor_ ;
     private TalonFX arm_motor_ ;
@@ -445,11 +447,7 @@ public class TrampIOHardware implements TrampIO {
         }
     }     
 
-    public List<TalonFX> getCTREMotors() {
-        return Arrays.asList(elevator_motor_, arm_motor_, climber_motor_) ;
+    public Map<String, TalonFX> getCTREMotors() {
+        return motors_ ;
     }
-
-    public List<CANSparkBase> getRevRoboticsMotors() {
-        return Arrays.asList(manipulator_motor_) ;
-    }       
 }

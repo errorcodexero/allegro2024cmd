@@ -1,0 +1,58 @@
+{
+    "models" : 
+    [
+        {
+            "model" : "fms",
+            "instance" : "1",
+            "props" : {
+                "alliance" : "blue1",
+                "fms" : false,
+                "create_early" : true
+            }            
+        },
+        {
+            "model" : "limelight",
+            "instance" : "1",
+            "props" : {
+            }
+        },
+        {
+            "model": "drivergamepad",
+            "instance": "1",
+            "props": {
+                "index": 0,
+                "axes": 6,
+                "buttons": 10,
+                "povs": 1,
+                "create_early": true
+            }
+        },
+        {
+            "model" : "intake-shooter",
+            "instance" : "1",
+            "props" : {
+                "note-sensor" : 1                
+            }
+        },
+        {
+            "model" : "amp-trap",
+            "instance" : "1",
+            "props" : {
+            }
+        },        
+        {
+            "model" : "allegro-oi",
+            "instance" : "1",
+            "props" : {
+                "index" : 2,
+                "name" : "Allegro Custom OI",
+                "axes" : 0,
+                "buttons" : 16,
+                "povs" : 0,
+                "create_early" : true,
+                "name-speaker_amp_trap:1" : 1,
+                "name-speaker_amp_trap:2" : 2
+            }
+        } 
+    ]
+}

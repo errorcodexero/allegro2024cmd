@@ -1,8 +1,8 @@
 package frc.robot.automodes.competition;
 
 
-import org.xero1425.Pose2dWithRotation;
-import org.xero1425.XeroMath;
+import org.xero1425.math.Pose2dWithRotation;
+import org.xero1425.math.XeroMath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;

@@ -1,18 +1,21 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.HolonomicPathFollower;
-import org.xero1425.Pose2dWithRotation;
-import org.xero1425.XeroMath;
-import org.xero1425.XeroRobot;
+import org.xero1425.base.HolonomicPathFollower;
+import org.xero1425.base.ISubsystemSim;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.math.Pose2dWithRotation;
+import org.xero1425.math.XeroMath;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
@@ -40,7 +43,7 @@ import frc.robot.constants.RobotConstants;
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
-public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
+public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem, ISubsystemSim  {
 
     private static final int kRecordModuleStates = (1  << 0) ;
     private static final int kDisplayAcquisition = (1 << 1) ;
@@ -151,7 +154,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
     }
 
-    public void setRobot(XeroRobot robot) {
+    public SettingsValue getProperty(String name) {
+        return null ;
     }
 
     public void setLimelightName(String name) {
@@ -196,10 +200,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     @Override
     public void periodic() {
         robot_.periodicStart(getName());
-
-        if (robot_ == null) {
-            DriverStation.reportError("Robot object not set in swerve drivetrain", false) ;
-        }
 
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
@@ -345,7 +345,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         cfg.output_consumer = (ChassisSpeeds spd) -> setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ;
 
         return cfg ;
-
     }    
+
+    public Map<String, TalonFX> getCTREMotors() {
+        return null ;
+    }
 }
 

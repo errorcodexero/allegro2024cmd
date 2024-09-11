@@ -1,6 +1,6 @@
 package frc.robot.subsystems.intakeshooter;
 
-import org.xero1425.XeroRobot;
+import org.xero1425.base.XeroRobot;
 
 public class IntakeShooterConstants {
     public static final double kvfactor = 60.0 ;
@@ -45,6 +45,16 @@ public class IntakeShooterConstants {
         }            
 
         public class PID {
+            public static final double kP = 10.0 ;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.18 ;
+            public static final double kA = 0.0 ;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.0 ;
+        } ;
+
+        public class SimulationPID {
             public static final double kP = 10.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
@@ -173,20 +183,33 @@ public class IntakeShooterConstants {
         public static final double kTransferTransferLength = 0.6 ;
         public static final double kTransferContLength = 8.0 ;     
 
-        public static final double kShooterRevsPerMotoRev = 1.0 / 0.6 ;
+        public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;
         public static final double kShootMinVelocity = 20 ;
         public static final double kShootMaxVelocity = 90 ;
 
         public static final double kSimGearRatio = 0.6 ;      
         public static final double kSimMotorLoad = 0.001 ;
 
-        public static final double kP = 0.7;
-        public static final double kI = 0.0 ;
-        public static final double kD = 0.0 ;
-        public static final double kV = 0.135 ;
-        public static final double kA = 0.0 ;
-        public static final double kG = 0.0 ;
-        public static final double kS = 0.0 ;   
+        public static class Real {
+            public static final double kP = 0.7;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.135 ;
+            public static final double kA = 0.0 ;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.0 ;   
+        }
+
+        public static class Simulated {
+            public static final double kP = 0.7;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.09 ;
+            public static final double kA = 0.0 ;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.0 ;  
+        }
+
         public static final double[] kPwlValues = new double[] {
             1.24,  65, 
             1.52,  65,

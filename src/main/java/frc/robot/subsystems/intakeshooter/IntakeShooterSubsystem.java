@@ -1,16 +1,16 @@
 package frc.robot.subsystems.intakeshooter ;
 
-import org.xero1425.MessageLogger;
-import org.xero1425.MessageType;
-import org.xero1425.PieceWiseLinear;
-import org.xero1425.XeroRobot;
-import org.xero1425.XeroSubsystem;
-import org.xero1425.XeroTimer;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroSubsystem;
+import org.xero1425.base.XeroTimer;
+import org.xero1425.math.PieceWiseLinear;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
+import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkBase;
 
-import java.util.List;
+import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -28,6 +28,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
+    static final public String NAME = "IntakeShooterSubsystem" ;
+    static final public String FEEDER_MOTOR_NAME = "feeder" ;
+    static final public String SHOOTER1_MOTOR_NAME = "shooter1" ;
+    static final public String SHOOTER2_MOTOR_NAME = "shooter2" ;
+    static final public String UPDOWN_MOTOR_NAME = "updown" ;
+    static final public String TILT_MOTOR_NAME = "tilt" ;        
+    
    
     private enum State {
         Invalid,
@@ -101,7 +108,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private boolean tuning_ = false ;
 
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
-        super(robot, "intake-shooter") ;
+        super(robot, NAME) ;
 
         io_ = new IntakeShooterIOHardware(robot) ;
         inputs_ = new IntakeShooterIOInputsAutoLogged() ;
@@ -131,6 +138,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
         need_stop_manipulator_ = false ;
+    }
+
+    public Map<String, TalonFX> getCTREMotors() {
+        return io_.getCTREMotors() ;
+    }
+
+    public SettingsValue getProperty(String name) {
+        return null ;
     }
 
     public double getShooter1Velocity() {
@@ -1006,12 +1021,5 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public Command shooter2SysIdDynamic(SysIdRoutine.Direction dir) {
         return shooter2SysIdRoutine().dynamic(dir) ;
     }
-
-    public List<TalonFX> getCTREMotors() {
-        return io_.getCTREMotors() ;
-    }
-
-    public List<CANSparkBase> getRevRoboticsMotors() {
-        return io_.getRevRoboticsMotors() ;
-    }
 }
+
