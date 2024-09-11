@@ -172,10 +172,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         target_tilt_vel_ = tiltveltol ;
     }
 
-    public void setUpDownToAngle(double u, double updownpostol, double updownveltol) {
+    public void setUpDownToAngle(double pos, double updownpostol, double updownveltol) {
         setTracking(false) ;
-        setUpDownTarget(u) ;
+        io_.setUpDownTargetPos(pos);
 
+        target_updown_ = pos ;
         target_updown_tol_ = updownpostol ;
         target_updown_vel_ = updownveltol ;
     }
@@ -438,8 +439,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public void setUpDownTarget(double pos) {
-        io_.setUpDownTargetPos(pos);
         target_updown_ = pos ;
+        io_.setUpDownTargetPos(pos);
     }
 
     public void setTiltTarget(double pos) {
@@ -820,21 +821,21 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
         else if (state_ == State.MoveBothToPosition) {
             ststr += ":" + target_updown_ + ":" + target_tilt_ ;
-
         }
 
-        Logger.recordOutput("intake-shooter-state", ststr);
-        Logger.recordOutput("intake-next-state", next_state_) ;
-        Logger.recordOutput("updown-target", target_updown_) ;
-        Logger.recordOutput("tilt-target", target_tilt_) ;
-        Logger.recordOutput("shooter-target", target_velocity_) ;
-        Logger.recordOutput("is-tilt-ready", isTiltReady());
-        Logger.recordOutput("is-updown-ready", isUpDownReady());
-        Logger.recordOutput("is-shooter-ready", isShooterReady());
-        Logger.recordOutput("has-note", has_note_);
-        Logger.recordOutput("tracking", tracking_);
-        Logger.recordOutput("destination", getNoteDestination()) ;
-        Logger.recordOutput("updown-neg", -inputs_.updownVelocity) ;    
+        Logger.recordOutput("intake:shooter-state", ststr);
+        Logger.recordOutput("intake:next-state", next_state_) ;
+        Logger.recordOutput("intake:updown-target", target_updown_) ;
+        Logger.recordOutput("intake:updown-vel", inputs_.updownVelocity) ;
+        Logger.recordOutput("intake:tilt-target", target_tilt_) ;
+        Logger.recordOutput("intake:shooter-target", target_velocity_) ;
+        Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
+        Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
+        Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
+        Logger.recordOutput("intake:has-note", has_note_);
+        Logger.recordOutput("intake:tracking", tracking_);
+        Logger.recordOutput("intake:destination", getNoteDestination()) ;
+    
         
         periodicEnd();
     }

@@ -50,7 +50,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "auto";
+        return "auto-four-note";
     }    
 
     @Override

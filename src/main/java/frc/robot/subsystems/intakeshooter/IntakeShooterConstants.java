@@ -44,31 +44,42 @@ public class IntakeShooterConstants {
             public static final double kEject = 118.0 ;
         }            
 
-        public class PID {
-            public static final double kP = 10.0 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.18 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;
-        } ;
+        public class Real {
+            public class PID {
+                public static final double kP = 40.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.18 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            } ;
 
-        public class SimulationPID {
-            public static final double kP = 10.0 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.18 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;
-        } ;
-
-        public class MotionMagic {
-            public static final double kV = kvfactor ;
-            public static final double kA = kafactor ;
-            public static final double kJ = kjfactor ;
+            public class MotionMagic {
+                public static final double kV = kvfactor ;
+                public static final double kA = kafactor ;
+                public static final double kJ = kjfactor ;
+            }
         }
+
+        public class Simulated {
+            public class PID {
+                public static final double kP = 5.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 5.0 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            } ;
+
+            public class MotionMagic {
+                public static final double kV = kvfactor ;
+                public static final double kA = kafactor ;
+                public static final double kJ = kjfactor ;
+            }
+        }        
+
 
         public static final double[] kPwlValues = new double[] {
             0.0, 100.0, 
@@ -100,32 +111,64 @@ public class IntakeShooterConstants {
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;
         }             
-        public class TrackingPIDSlot1 {
-            public static final double kP = 5.0 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.35 ;
-            public static final double kV = 0.0 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;
-        };
 
-        public class MovementPIDSlot0 {
-            public static final double kP = 5.0 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.35 ;
-            public static final double kV = 0.1 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;
-        };        
+        public class Real {
+            public class TrackingPIDSlot1 {
+                public static final double kP = 5.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.35 ;
+                public static final double kV = 0.0 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };
 
-        public class MotionMagic {
-            // public static final double kV = 15 ;
-            public static final double kV = kvfactor * 7.2727273 / 20.0  ;
-            public static final double kA = kafactor * 7.2727273 / 20.0  ;
-            public static final double kJ = kjfactor * 7.2727273 / 20.0  ;
-        }
+            public class MovementPIDSlot0 {
+                public static final double kP = 5.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.35 ;
+                public static final double kV = 0.1 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };        
+
+            public class MotionMagic {
+                // public static final double kV = 15 ;
+                public static final double kV = kvfactor * 7.2727273 / 20.0  ;
+                public static final double kA = kafactor * 7.2727273 / 20.0  ;
+                public static final double kJ = kjfactor * 7.2727273 / 20.0  ;
+            }
+        } ;
+
+        public class Simulated {
+            public class TrackingPIDSlot1 {
+                public static final double kP = 0.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.0 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };
+
+            public class MovementPIDSlot0 {
+                public static final double kP = 5.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 5.0 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };        
+
+            public class MotionMagic {
+                public static final double kV = kvfactor * 7.2727273 / 20.0  ;
+                public static final double kA = kafactor * 7.2727273 / 20.0  ;
+                public static final double kJ = kjfactor * 7.2727273 / 20.0  ;
+            }
+        } ;
+
 
         public class AbsoluteEncoder {
             public static final int kChannel = 0;
@@ -201,10 +244,10 @@ public class IntakeShooterConstants {
         }
 
         public static class Simulated {
-            public static final double kP = 0.7;
+            public static final double kP = 0.0;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
-            public static final double kV = 0.09 ;
+            public static final double kV = 0.125 ;
             public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;  

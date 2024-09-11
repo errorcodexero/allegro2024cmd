@@ -5,6 +5,8 @@ import org.xero1425.base.XeroAutoCommand;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.base.XeroTimer;
 import org.xero1425.math.Pose2dWithRotation;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.AllegroContainer;
@@ -118,7 +120,8 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         container_.getDriveTrain().driveTo("C2-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
                         state_ = State.ShootSecond ;
                     }
-                    else {
+                    else 
+                    {
                         //
                         // We missed the second note, skip stright to the third node
                         //
