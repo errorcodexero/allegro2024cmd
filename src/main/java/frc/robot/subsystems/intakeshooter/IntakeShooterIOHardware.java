@@ -79,6 +79,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private StatusSignal<Double> tilt_voltage_signal_ ;
 
     private StatusSignal<Double> feeder_current_signal_ ;
+
     private StatusSignal<Double> shooter1_velocity_signal_ ;
     private StatusSignal<Double> shooter1_current_signal_ ;
     private StatusSignal<Double> shooter1_position_signal_ ;
@@ -335,8 +336,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         inputs.shooter1Position = shooter1_position_signal_.refresh().getValueAsDouble() ;
         inputs.shooter1Voltage = shooter1_voltage_signal_.refresh().getValueAsDouble() ;
 
-        inputs.shooter2Velocity = shooter2_velocity_signal_.refresh().getValueAsDouble() ;
-        inputs.shooter2Current = shooter2_current_signal_.refresh().getValueAsDouble() ;
+        inputs.shooter2Velocity = shooter2_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Shooter.kShooterRevsPerMotoRev ;
+        inputs.shooter2Current = shooter2_current_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Shooter.kShooterRevsPerMotoRev ;
         inputs.shooter2Position = shooter2_position_signal_.refresh().getValueAsDouble() ;
         inputs.shooter2Voltage = shooter2_voltage_signal_.refresh().getValueAsDouble() ;
 

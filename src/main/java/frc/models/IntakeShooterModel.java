@@ -15,16 +15,15 @@ import edu.wpi.first.hal.simulation.DIODataJNI;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 
 public class IntakeShooterModel extends SimulationModel {
-    private static final double kShooterGearRatio = 0.6 / 1.0 ;
-    private static final double kShooterInertia = 0.00001 ;
+    private static final double kShooterGearRatio = 1.0 / 1.0 ;
+    private static final double kShooterInertia = 0.000001 ;
 
-    private FlywheelSim shooter1_flywheel_ ;
-    private FlywheelSim shooter2_flywheel_ ;
-
+    private DCMotorSim shooter1_sim_ ;
+    private DCMotorSim shooter2_sim_ ;
 
     private TalonFX shooter1_ ;
     private TalonFX shooter2_ ;
@@ -64,13 +63,13 @@ public class IntakeShooterModel extends SimulationModel {
             return false ;
         }
         shooter1_ = motors.get(IntakeShooterSubsystem.SHOOTER1_MOTOR_NAME) ;
-        shooter1_flywheel_ = new FlywheelSim(DCMotor.getKrakenX60(1), kShooterGearRatio, kShooterInertia) ;
+        shooter1_sim_= new DCMotorSim(DCMotor.getKrakenX60(1), kShooterGearRatio, kShooterInertia) ;
 
         if (!motors.containsKey(IntakeShooterSubsystem.SHOOTER2_MOTOR_NAME)) {
             return false ;
         }
         shooter2_ = motors.get(IntakeShooterSubsystem.SHOOTER2_MOTOR_NAME) ;
-        shooter2_flywheel_ = new FlywheelSim(DCMotor.getKrakenX60(1), kShooterGearRatio, kShooterInertia) ;
+        shooter2_sim_= new DCMotorSim(DCMotor.getKrakenX60(1), kShooterGearRatio, kShooterInertia) ;
 
         if (!motors.containsKey(IntakeShooterSubsystem.UPDOWN_MOTOR_NAME)) {
             return false ;
@@ -120,26 +119,28 @@ public class IntakeShooterModel extends SimulationModel {
         }
 
         double battery = RobotController.getBatteryVoltage() ;
-        if (shooter1_ != null) {
+        if (shooter1_ != null && shooter1_sim_!= null) {
             TalonFXSimState st = shooter1_.getSimState() ;
             st.setSupplyVoltage(battery) ;
 
             double mv = st.getMotorVoltage() ;
-            shooter1_flywheel_.setInputVoltage(mv) ;
-            shooter1_flywheel_.update(dt) ;
+            shooter1_sim_.setInputVoltage(mv) ;
+            shooter1_sim_.update(dt) ;
 
-            st.setRotorVelocity(kShooterGearRatio * Units.radiansToRotations(shooter1_flywheel_.getAngularVelocityRadPerSec())) ;
+            st.setRawRotorPosition(shooter1_sim_.getAngularPositionRotations()) ;
+            st.setRotorVelocity(Units.radiansToRotations(shooter1_sim_.getAngularVelocityRadPerSec())) ;
         }
 
-        if (shooter2_ != null) {
+        if (shooter2_ != null && shooter2_sim_!= null) {
             TalonFXSimState st = shooter2_.getSimState() ;
             st.setSupplyVoltage(battery) ;
 
             double mv = st.getMotorVoltage() ;
-            shooter2_flywheel_.setInputVoltage(mv) ;
-            shooter2_flywheel_.update(dt) ;
+            shooter2_sim_.setInputVoltage(mv) ;
+            shooter2_sim_.update(dt) ;
 
-            st.setRotorVelocity(kShooterGearRatio * Units.radiansToRotations(shooter2_flywheel_.getAngularVelocityRadPerSec())) ;
+            st.setRawRotorPosition(shooter2_sim_.getAngularPositionRotations()) ;
+            st.setRotorVelocity(Units.radiansToRotations(shooter2_sim_.getAngularVelocityRadPerSec())) ;
         }        
     }
 }
