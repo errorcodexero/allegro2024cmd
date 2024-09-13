@@ -120,7 +120,7 @@ public abstract class XeroRobot extends LoggedRobot {
     protected abstract void createTestAutoModes() ;
     protected abstract void addRobotSimulationModels() ;
 
-    void logSubsystemCycles(int cycles) {
+    protected void logSubsystemCycles(int cycles) {
         log_subsystem_cycle_count_ = cycles ;
     }
 
@@ -367,7 +367,7 @@ public abstract class XeroRobot extends LoggedRobot {
             logger.startMessage(MessageType.Info) ;
             logger.add("Subsystem Timing ") ;
             logger.add("name", getName()) ;
-            logger.add("currant", curavg, "%.6f") ;
+            logger.add("current", curavg, "%.6f") ;
             logger.add("total", totavg, "%.6f") ;
             logger.endMessage();
 

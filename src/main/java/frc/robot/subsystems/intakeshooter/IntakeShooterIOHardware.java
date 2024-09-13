@@ -450,13 +450,13 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         if (XeroRobot.isReal())
         {
             final Slot0Configs shooter1slot0cfg = new Slot0Configs()
-                                    .withKP(IntakeShooterConstants.Shooter.Real.kP)
-                                    .withKI(IntakeShooterConstants.Shooter.Real.kI)
-                                    .withKD(IntakeShooterConstants.Shooter.Real.kD)
-                                    .withKV(IntakeShooterConstants.Shooter.Real.kV)
-                                    .withKA(IntakeShooterConstants.Shooter.Real.kA)
-                                    .withKG(IntakeShooterConstants.Shooter.Real.kG)
-                                    .withKS(IntakeShooterConstants.Shooter.Real.kS) ;
+                                    .withKP(IntakeShooterConstants.Shooter1.Real.kP)
+                                    .withKI(IntakeShooterConstants.Shooter1.Real.kI)
+                                    .withKD(IntakeShooterConstants.Shooter1.Real.kD)
+                                    .withKV(IntakeShooterConstants.Shooter1.Real.kV)
+                                    .withKA(IntakeShooterConstants.Shooter1.Real.kA)
+                                    .withKG(IntakeShooterConstants.Shooter1.Real.kG)
+                                    .withKS(IntakeShooterConstants.Shooter1.Real.kS) ;
             checkError("set-shooter1-PID-value", () -> shooter1_motor_.getConfigurator().apply(shooter1slot0cfg)) ;
         }
         else
@@ -489,13 +489,13 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         if (XeroRobot.isReal())
         {
             final Slot0Configs shooter2slot0cfg = new Slot0Configs()
-                                    .withKP(IntakeShooterConstants.Shooter.Real.kP)
-                                    .withKI(IntakeShooterConstants.Shooter.Real.kI)
-                                    .withKD(IntakeShooterConstants.Shooter.Real.kD)
-                                    .withKV(IntakeShooterConstants.Shooter.Real.kV)
-                                    .withKA(IntakeShooterConstants.Shooter.Real.kA)
-                                    .withKG(IntakeShooterConstants.Shooter.Real.kG)
-                                    .withKS(IntakeShooterConstants.Shooter.Real.kS) ;
+                                    .withKP(IntakeShooterConstants.Shooter2.Real.kP)
+                                    .withKI(IntakeShooterConstants.Shooter2.Real.kI)
+                                    .withKD(IntakeShooterConstants.Shooter2.Real.kD)
+                                    .withKV(IntakeShooterConstants.Shooter2.Real.kV)
+                                    .withKA(IntakeShooterConstants.Shooter2.Real.kA)
+                                    .withKG(IntakeShooterConstants.Shooter2.Real.kG)
+                                    .withKS(IntakeShooterConstants.Shooter2.Real.kS) ;
             checkError("set-shooter1-PID-value", () -> shooter2_motor_.getConfigurator().apply(shooter2slot0cfg)) ;
         }
         else

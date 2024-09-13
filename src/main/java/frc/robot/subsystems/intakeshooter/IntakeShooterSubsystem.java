@@ -57,7 +57,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         TransferContinueShooter,
         EnableTracking,
         HoldForShoot,
-        GoToEjectPosition
+        GoToEjectPosition,
+        Tuning,
+        WaitingForTunedNoteShot1,
+        WaitingForTunedNoteShot2,        
     }
 
 
@@ -105,8 +108,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
 
-    private boolean tuning_ = false ;
-
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier) throws Exception {
         super(robot, NAME) ;
 
@@ -138,6 +139,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
         need_stop_manipulator_ = false ;
+    }
+
+    public String stateString() {
+        return state_.toString() ;
+    }
+
+    public void startTuning() {
+        if (state_ == State.Idle) {
+            state_ = State.Tuning ;
+        }
     }
 
     public Map<String, TalonFX> getCTREMotors() {
@@ -260,6 +271,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public boolean isIdle() {
         return state_ == State.Idle ;
+    }
+
+    public boolean isTuning() {
+        return state_ == State.Tuning ;
     }
 
     public boolean isInTransferPosition() {
@@ -590,9 +605,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Math.abs(inputs_.shooter2Velocity - target_velocity_) < target_velocity_tol_ ;
     }
 
-    public void shoot() {
-        tuning_ = true ;
-        state_ = State.WaitingToShoot ;
+    public void startFeeder() {
+        io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
+        state_ = State.WaitingForTunedNoteShot1 ;
+    }
+
+    public void stopFeeder() {
+        io_.setFeederMotorVoltage(0.0) ;
+        state_ = State.Tuning ;
     }
 
     public void waitingToShootState() {
@@ -615,11 +635,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             io_.setFeederMotorVoltage(0.0);
 
-            if (tuning_) {
-                // Leave things where they are, we are going to shoot more
-                state_ = State.Idle ;
-            }
-            else if (!collect_after_manual_) {
+            if (!collect_after_manual_) {
                 //
                 // Move the updown and tilt to the stowed position
                 //
@@ -807,6 +823,22 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
             
             case HoldForShoot:
+                break ;
+
+            case Tuning:
+                break ;
+
+            case WaitingForTunedNoteShot1:
+                if (inputs_.risingEdge || inputs_.fallingEdge) {
+                    shoot_timer_.start() ;
+                    state_ = State.WaitingForTunedNoteShot2 ;
+                }
+                break ;
+
+            case WaitingForTunedNoteShot2:
+                if (shoot_timer_.isExpired()) {
+                    state_ = State.Tuning ;
+                }
                 break ;
         }
 

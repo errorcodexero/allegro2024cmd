@@ -106,8 +106,8 @@ public class Tracker extends XeroSubsystem {
             source_ = "RobotPose" ;
         }
 
-        Logger.recordOutput("tracker-angle-to-target", angle_to_target_) ;
-        Logger.recordOutput("tracker-distance-to-target", distance_to_target_) ;
+        Logger.recordOutput("tracker:angle-to-target", angle_to_target_) ;
+        Logger.recordOutput("tracker:distance-to-target", distance_to_target_) ;
 
         periodicEnd();
     }

@@ -7,7 +7,7 @@ public class RobotConstants {
 
     public static final boolean kTestMode = false ;
     public static final boolean kReplayMode = false ;
-    public static final boolean kCharMode = false ;
+    public static final boolean kCharMode = true ;
     public static final class WhichSubsystem {
         public static final boolean kCharDBSubsystem = false ;
         public static final boolean kCharTiltSubsystem = false ;    

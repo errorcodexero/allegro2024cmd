@@ -36,6 +36,8 @@ public class AllegroRobot extends XeroRobot {
     public AllegroRobot() {
         super(OIConstants.kDriverControllerPort, OIConstants.kOIControllerPort) ;
         setFieldLayout(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()) ;
+
+        logSubsystemCycles(0) ;
     }  
 
     protected void addRobotSimulationModels() {
@@ -50,7 +52,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "auto-four-note";
+        return "tuneshoot";
     }    
 
     @Override

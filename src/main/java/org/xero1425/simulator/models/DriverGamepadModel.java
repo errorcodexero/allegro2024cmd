@@ -13,6 +13,12 @@ public class DriverGamepadModel extends SimulationModel {
     private static final String axisEvent = "axis";
     private static final String povEvent = "pov";
 
+    private int index_ ;
+    private int buttons_ ;
+    private int button_count_ ;
+    private float[] axes_ ;
+    private short[] povs_ ;    
+
     public DriverGamepadModel(SimulationEngine engine, String model, String inst) {
         super(engine, model, inst);
     }
@@ -260,13 +266,4 @@ public class DriverGamepadModel extends SimulationModel {
         }        
         return true ;
     }
-
-    private int index_ ;
-
-    private int buttons_ ;
-    private int button_count_ ;
-
-    private float[] axes_ ;
-
-    private short[] povs_ ;
 }

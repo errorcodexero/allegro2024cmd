@@ -362,6 +362,10 @@ public class AllegroContainer extends XeroContainer {
     private void configureBindings(XeroRobot robot) throws Exception {
         if (robot.isCharMode()) {
             charBindings() ;
+
+            if (RobotConstants.WhichSubsystem.kCharTuneShooter) {
+                driveTrainBindings();
+            }
         }
         else {
             driveTrainBindings();

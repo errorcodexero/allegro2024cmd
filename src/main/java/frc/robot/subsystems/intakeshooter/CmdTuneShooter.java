@@ -1,25 +1,49 @@
 package frc.robot.subsystems.intakeshooter;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class CmdTuneShooter extends Command {
+
+    private enum State {
+        WaitingForFirstSettings,
+        WaitingForSubsystem,
+        WaitingForShot,
+    }
+
     private final IntakeShooterSubsystem shooter_;
-    private ShuffleboardTab tab_ ;
-    private SimpleWidget updown_widget_ ;
-    private SimpleWidget tilt_widget_ ;
-    private SimpleWidget velocity_widget_ ;
-    private SimpleWidget apply_widget_ ;
+
     private boolean last_apply_value_  = false ;
+
+    static private ShuffleboardTab tab_ = null ;
+    static private SimpleWidget updown_widget_  = null ;
+    static private SimpleWidget tilt_widget_  = null ;
+    static private SimpleWidget velocity_widget_  = null ;
+    static private SimpleWidget apply_widget_  = null ;
+
+    static private SuppliedValueWidget<Double> vel1_output_widget_ = null ;
+    static private SuppliedValueWidget<Double> vel2_output_widget_ = null ;
+    static private SuppliedValueWidget<Double> updown_output_widget_ = null ;
+    static private SuppliedValueWidget<Double> tilt_output_widget_ = null ;
+    static private SuppliedValueWidget<Boolean> updown_ready_widget_ = null ;
+    static private SuppliedValueWidget<Boolean> tilt_ready_widget_ = null ;
+    static private SuppliedValueWidget<Boolean> shooter_ready_widget_ = null ;
+    static private SuppliedValueWidget<String> intake_state_widget_ = null ;
+    static private SuppliedValueWidget<String> cmd_state_widget_ = null ;
 
     private final double kUpdownPositionTolerance = 1.0 ;
     private final double kUpdownVelocityTolerance = 1.0 ;    
     private final double kTiltPositionTolerance = 1.0 ;
     private final double kTiltVelocityTolerance = 1.0 ;
     private final double kShooterVelocityTolerance = 10.0 ;
+
+    private State state_ ;
 
     public CmdTuneShooter(IntakeShooterSubsystem subsystem) {
         shooter_ = subsystem;
@@ -28,27 +52,56 @@ public class CmdTuneShooter extends Command {
     
     @Override
     public void initialize() {
-        if (tab_ == null) {
-            tab_ = Shuffleboard.getTab("TuneShooter") ;
-            tab_.addDouble("vel1", ()-> { return shooter_.getShooter1Velocity();}) ;
-            tab_.addDouble("vel2", ()-> { return shooter_.getShooter2Velocity();}) ;
-            tab_.addDouble("tilt", ()-> { return shooter_.getTilt();}) ;
-            tab_.addDouble("updown", ()-> { return shooter_.getUpDown();}) ;
-
-            tab_.addBoolean("ud-ready", ()-> { return shooter_.isUpDownReady();}) ; 
-            tab_.addBoolean("tilt-ready", ()-> { return shooter_.isTiltReady();}) ;
-            tab_.addBoolean("shoot-ready", ()-> { return shooter_.isShooterReady();}) ;
-        }
-
-        updown_widget_ = tab_.add("UpDown Input", IntakeShooterConstants.UpDown.Positions.kShootNominal).withWidget(BuiltInWidgets.kTextView) ;
-        tilt_widget_ = tab_.add("Tilt Input", -74.0).withWidget(BuiltInWidgets.kTextView) ;
-        velocity_widget_ = tab_.add("Velocity Input", 0.0).withWidget(BuiltInWidgets.kTextView) ;
-        apply_widget_ = tab_.add("Apply", false).withWidget(BuiltInWidgets.kToggleSwitch) ;
+        state_ = State.WaitingForFirstSettings ;
+        populateShuffleBoard();
+        shooter_.startTuning() ;
     }
 
     @Override
     public void execute() {
-        if (applySettings()) {
+        switch(state_) {
+            case WaitingForFirstSettings:
+                if (shouldApplyNewSettings()) {
+                    doApplySettings();
+                    state_ = State.WaitingForSubsystem ;
+                }
+
+            case WaitingForSubsystem:
+                if (shouldApplyNewSettings()) {
+                    shooter_.stopFeeder() ;
+                    doApplySettings();
+                }
+                else if (shooter_.isTiltReady() && shooter_.isUpDownReady() && shooter_.isShooterReady()) {
+                    shooter_.startFeeder() ;
+                    state_ = State.WaitingForShot ;
+                }
+                else {
+                    shooter_.stopFeeder(); ;
+                }
+                break ;
+
+            case WaitingForShot:
+                if (shouldApplyNewSettings()) {
+                    shooter_.stopFeeder() ;
+                    doApplySettings();
+                }
+                else if (shooter_.isTuning()) {
+                    //
+                    // The shot is done and we are back at tuning again
+                    //
+                    state_ = State.WaitingForSubsystem ;
+                }
+        }
+
+        Logger.recordOutput("tune-st", state_.toString()) ;
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+
+    private void doApplySettings() {
             apply_widget_.getEntry().setBoolean(false) ;
 
             double updown = updown_widget_.getEntry().getDouble(0.0) ;
@@ -79,23 +132,71 @@ public class CmdTuneShooter extends Command {
             shooter_.setUpDownToAngle(updown, kUpdownPositionTolerance, kUpdownVelocityTolerance) ;
             shooter_.setTiltToAngle(tilt, kTiltPositionTolerance, kTiltVelocityTolerance) ;
             shooter_.setShooterVelocity(velocity, kShooterVelocityTolerance) ;
-        }
-
-        if (shooter_.isIdle()) {
-            shooter_.shoot() ;
-        }
     }
 
-    @Override
-    public boolean isFinished() {
-        return false;
-    }
-
-    private boolean applySettings() {
+    private boolean shouldApplyNewSettings() {
         boolean curval = apply_widget_.getEntry().getBoolean(false) ;
-        boolean ret = curval && !last_apply_value_ ;
+        boolean ret = (curval == true) && (last_apply_value_ == false) ;
 
         last_apply_value_ = curval ;
         return ret ;        
+    }
+
+    private void populateShuffleBoard() {
+        if (tab_ == null) {
+            tab_ = Shuffleboard.getTab("TuneShooter") ;
+        }
+
+        if (vel1_output_widget_ == null) {
+            vel1_output_widget_ = tab_.addDouble("vel1", ()-> { return shooter_.getShooter1Velocity();}).withSize(1, 1).withPosition(1, 1) ;
+        }
+
+        if (vel2_output_widget_ == null) {
+            vel2_output_widget_ = tab_.addDouble("vel2", ()-> { return shooter_.getShooter2Velocity();}).withSize(1, 1).withPosition(2, 1) ;
+        }
+
+        if (tilt_output_widget_ == null) {
+            tilt_output_widget_ = tab_.addDouble("tilt", ()-> { return shooter_.getTilt();}).withSize(1, 1).withPosition(1, 2) ;
+        }
+
+        if (updown_output_widget_ == null) {
+            updown_output_widget_ = tab_.addDouble("updown", ()-> { return shooter_.getUpDown();}).withSize(1, 1).withPosition(1, 3) ;
+        }
+
+        if (updown_ready_widget_ == null) {
+            updown_ready_widget_ = tab_.addBoolean("ud-ready", ()-> { return shooter_.isUpDownReady();}).withSize(1, 1).withPosition(2, 3) ;
+        }
+
+        if (tilt_ready_widget_ == null) {
+            tilt_ready_widget_ = tab_.addBoolean("tilt-ready", ()-> { return shooter_.isTiltReady();}).withSize(1, 1).withPosition(2, 2) ;
+        }
+
+        if (shooter_ready_widget_ == null) {
+            shooter_ready_widget_ = tab_.addBoolean("shoot-ready", ()-> { return shooter_.isShooterReady();}).withSize(1, 1).withPosition(3, 1) ;
+        }
+
+        if (intake_state_widget_ == null) {
+            intake_state_widget_ = tab_.addString("in-state", ()-> { return shooter_.stateString();}).withSize(1, 1).withPosition(1, 0) ;
+        }
+
+        if (cmd_state_widget_ == null) {
+            cmd_state_widget_ = tab_.addString("cmd-state", ()-> { return state_.toString();}).withSize(1, 1).withPosition(2, 0) ;
+        }        
+
+        if (updown_widget_ == null) {
+            updown_widget_ = tab_.add("UpDown Input", IntakeShooterConstants.UpDown.Positions.kShootNominal).withWidget(BuiltInWidgets.kTextView).withSize(1, 1).withPosition(0, 3) ;
+        }
+
+        if (tilt_widget_ == null) {
+            tilt_widget_ = tab_.add("Tilt Input", -74.0).withWidget(BuiltInWidgets.kTextView).withSize(1, 1).withPosition(0, 2) ;
+        }
+
+        if (velocity_widget_ == null) {
+            velocity_widget_ = tab_.add("Velocity Input", 0.0).withWidget(BuiltInWidgets.kTextView).withSize(1, 1).withPosition(0, 1) ;
+        }
+
+        if (apply_widget_ == null) {
+            apply_widget_ = tab_.add("Apply", false).withWidget(BuiltInWidgets.kToggleSwitch).withSize(1, 1).withPosition(0, 0) ;
+        }
     }
 }

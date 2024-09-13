@@ -124,7 +124,7 @@ public class IntakeShooterConstants {
             };
 
             public class MovementPIDSlot0 {
-                public static final double kP = 5.0 ;
+                public static final double kP = 24.0 ;
                 public static final double kI = 0.0 ;
                 public static final double kD = 0.35 ;
                 public static final double kV = 0.1 ;
@@ -227,21 +227,12 @@ public class IntakeShooterConstants {
         public static final double kTransferContLength = 8.0 ;     
 
         public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;
-        public static final double kShootMinVelocity = 20 ;
+        public static final double kShootMinVelocity = 0 ;
         public static final double kShootMaxVelocity = 90 ;
 
         public static final double kSimGearRatio = 0.6 ;      
         public static final double kSimMotorLoad = 0.001 ;
 
-        public static class Real {
-            public static final double kP = 0.7;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.135 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;   
-        }
 
         public static class Simulated {
             public static final double kP = 0.0;
@@ -273,12 +264,33 @@ public class IntakeShooterConstants {
         public static final int kMotorId = 3 ;
         public static final boolean kInvert = true ;             
         public static final double kCurrentLimit = 80.0 ;
+
+
+        public static class Real {
+            public static final double kP = 0.4;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.12727 ;
+            public static final double kA = 0.01718 ;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.24131 ;   
+        }        
     }
 
     public class Shooter2 {
         public static final int kMotorId = 4 ;
         public static final boolean kInvert = true ;             
         public static final double kCurrentLimit = 80.0 ;    
+
+        public static class Real {
+            public static final double kP = 0.4;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.12497 ;
+            public static final double kA = 0.017806 ;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.21256 ;   
+        }        
     }
 
     public class NoteSensor {
