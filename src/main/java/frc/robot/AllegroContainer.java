@@ -236,7 +236,7 @@ public class AllegroContainer extends XeroContainer {
 
         if (RobotConstants.WhichSubsystem.kCharTuneShooter)
         {
-            CmdTuneShooter cmd = new CmdTuneShooter(intake_shooter_) ;
+            CmdTuneShooter cmd = new CmdTuneShooter(intake_shooter_, true) ;
             driver_controller_.a().onTrue(cmd) ;
             total++ ;
         }

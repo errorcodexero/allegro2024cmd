@@ -63,6 +63,36 @@
                     }
                 }
             ]
-        }  
+        },
+        {
+            "time" : 24.0,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered rising edge of sensor",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },        
+        {
+            "time" : 24.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note left intake - triggered falling edge of sensor",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        } 
     ]
 }

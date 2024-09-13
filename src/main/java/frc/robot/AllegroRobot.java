@@ -60,12 +60,6 @@ public class AllegroRobot extends XeroRobot {
         return RobotConstants.kCharMode;
     }
 
-    @Override
-    public boolean isReplayMode() {
-        return RobotConstants.kReplayMode ;
-    }
-
-    @Override
     public boolean isTestMode() {
         return RobotConstants.kTestMode ;
     }

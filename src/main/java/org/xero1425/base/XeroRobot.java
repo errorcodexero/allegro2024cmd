@@ -51,7 +51,6 @@ public abstract class XeroRobot extends LoggedRobot {
     private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
 
-
     private boolean connected_callback_processed_ ;
     private List<Function<Boolean,Void>> connected_callbacks_ ;
 
@@ -110,7 +109,6 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     public abstract boolean isCharMode() ;
-    public abstract boolean isReplayMode() ;
     public abstract boolean isTestMode() ;
     public abstract String  getSimulationFileName() ; 
     protected abstract String getRobotSimFileName() ;
@@ -127,7 +125,7 @@ public abstract class XeroRobot extends LoggedRobot {
     public void addConnectedCallback(Function<Boolean,Void> cb) {
         connected_callbacks_.add(cb) ;
     }
-
+   
     private void commandInitialized(Command cmd) {
         logger_.startMessage(MessageType.Info) ;
         logger_.add("started command '" + cmd.getName() + "'") ;
