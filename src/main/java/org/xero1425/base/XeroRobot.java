@@ -111,7 +111,6 @@ public abstract class XeroRobot extends LoggedRobot {
     public abstract boolean isCharMode() ;
     public abstract boolean isTestMode() ;
     public abstract String  getSimulationFileName() ; 
-    protected abstract String getRobotSimFileName() ;
     protected abstract String getName() ;    
     protected abstract String getPracticeSerialNumber() ;    
     protected abstract void createCompetitionAutoModes() ;

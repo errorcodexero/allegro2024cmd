@@ -47,12 +47,13 @@ public class AllegroRobot extends XeroRobot {
         factory.registerModel("allegro-oi", "frc.models.AllegroOIModel");    
     }      
 
+    @Override
     public String getSimulationFileName() {
         String ret = SimArgs.InputFileName;
         if (ret != null)
             return ret;
 
-        return "tuneshoot";
+        return "shoot";
     }    
 
     @Override
@@ -63,11 +64,6 @@ public class AllegroRobot extends XeroRobot {
     public boolean isTestMode() {
         return RobotConstants.kTestMode ;
     }
-
-    @Override
-    public String getRobotSimFileName() {
-        return "shoot";
-        }
 
     @Override
     public String getName() {

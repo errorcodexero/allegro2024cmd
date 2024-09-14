@@ -113,8 +113,8 @@ public class OISubsystem extends XeroSubsystem {
             shoot_type_ = mapShootType(inputs_.manual1, inputs_.manual2) ;
         }
 
-        Logger.recordOutput("oi-note-dest", note_dest_) ;
-        Logger.recordOutput("oi-shoot-type", shoot_type_) ;
+        Logger.recordOutput("oi:note-dest", note_dest_) ;
+        Logger.recordOutput("oi:shoot-type", shoot_type_) ;
 
         periodicEnd();
     }

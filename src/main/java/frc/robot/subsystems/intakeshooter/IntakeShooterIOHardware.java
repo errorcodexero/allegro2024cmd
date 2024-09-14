@@ -27,6 +27,7 @@ import com.revrobotics.CANSparkBase;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.units.Units ;
 
@@ -257,11 +258,17 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
     private void noteInterruptHandler(boolean rising, boolean falling) {
         if (rising) {
-            rising_seen_.set(true) ;                
+            if (RobotBase.isReal())
+                rising_seen_.set(true) ;
+            else
+                falling_seen_.set(true) ;
         }
 
         if (falling) {
-            falling_seen_.set(true) ;
+            if (RobotBase.isReal())
+                falling_seen_.set(true) ;
+            else
+                rising_seen_.set(true) ;
         }
     }
 

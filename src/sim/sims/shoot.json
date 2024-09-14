@@ -20,6 +20,37 @@
             ]
         },
         {
+            "time" : 4.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set target to the speaker",
+                        "button1" : true,
+                        "button2" : false
+                    }
+                }
+            ]
+        },           
+        {
+            "time" : 4.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the right bumper button",
+                        "button6" : true
+                    }
+                }
+            ]
+        },  
+        {
             "time" : 6.0,
             "events" :
             [
@@ -48,9 +79,39 @@
                     }
                 }
             ]
-        },
+        },        
         {
-            "time" : 6.0,
+            "time" : 8.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the right bumper button",
+                        "button6" : true
+                    }
+                }
+            ]
+        },      
+        {
+            "time" : 8.5,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the right bumper button",
+                        "button6" : false
+                    }
+                }
+            ]
+        },                   
+        {
+            "time" : 10.0,
             "events" :
             [
                 {
