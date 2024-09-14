@@ -349,7 +349,7 @@ public class AllegroContainer extends XeroContainer {
         oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
 
         //
-        // If a note is collected and thet arget is the trap or amp, this trigger is fired to complete
+        // If a note is collected and the target is the trap or amp, this trigger is fired to complete
         // the transfer action.  The transfer action moves the note from the intake to the manipulator.
         //
         intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;

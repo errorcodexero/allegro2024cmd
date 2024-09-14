@@ -66,9 +66,8 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public String getRobotSimFileName() {
-        // return "src/sims/collect-shoot-transfer.jsonc" ;
-        return null ;
-    }
+        return "shoot";
+        }
 
     @Override
     public String getName() {
