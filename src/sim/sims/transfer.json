@@ -10,17 +10,18 @@
                     "instance" : "1",
                     "values" : 
                     {
-                        "start" : 10.0,
+                        "start" : 0,
                         "autonomous" : 0.0,
                         "between" : 0.0,
-                        "teleop" : 100000.0,
-                        "fms" : false
+                        "teleop" : 1000.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
                     }
                 }
             ]
         },
         {
-            "time" : 1.0,
+            "time" : 4.0,
             "events" :
             [
                 {
@@ -28,29 +29,38 @@
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment" : "Set Switch To Speaker",
-                        "speaker_amp_trap" : 1
+                        "comment" : "Set target to the amp",
+                        "note-target" : "amp"
+                    }
+                },
+                {
+                    "model" : "swervedrive",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set the drive pose to the test location",
+                        "pose" : "3.0,2.54789,0.0"
                     }
                 }
             ]
         },
         {
-            "time" : 10.0,
-            "events" : 
+            "time" : 4.2,
+            "events" :
             [
                 {
                     "model" : "drivergamepad",
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment": "Press the collect button",
-                        "button6" : true
+                        "comment" : "Press the right bumper button",
+                        "rb" : true
                     }
-                }                
+                }
             ]
         },
         {
-            "time" : 14.0,
+            "time" : 5.0,
             "events" :
             [
                 {
@@ -58,41 +68,41 @@
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : false
+                        "comment" : "Note arrived in intake - sensor on",
+                        "note-sensor" : true
                     }
                 }
             ]
         },
         {
-            "time" : 16.0,
-            "events" : 
+            "time" : 5.1,
+            "events" :
             [
                 {
-                    "model" : "drivergamepad",
+                    "model" : "intake-shooter",
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment": "Release the collect button",
-                        "button6" : false
+                        "comment" : "Note left intake - sensor off",
+                        "note-sensor" : false
                     }
-                }                
+                }
             ]
-        },
+        },        
         {
-            "time" : 20.0,
-            "events" : 
+            "time" : 5.2,
+            "events" :
             [
                 {
                     "model" : "drivergamepad",
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment": "Press the collect button",
-                        "button6" : true
+                        "comment" : "Release the right bumper button",
+                        "rb" : false
                     }
-                }                
+                }
             ]
-        }
+        }   
     ]
 }

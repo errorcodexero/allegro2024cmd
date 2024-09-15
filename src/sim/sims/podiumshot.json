@@ -1,0 +1,124 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "start" : 0,
+                        "autonomous" : 0.0,
+                        "between" : 0.0,
+                        "teleop" : 1000.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set target to the speaker",
+                        "note-target" : "speaker",
+                        "shoot-type" : "podium"
+                    }
+                },
+                {
+                    "model" : "swervedrive",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set the drive pose to the test location",
+                        "pose" : "3.0,2.54789,0.0"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the right bumper button",
+                        "rb" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.0,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - sensor on",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note left intake - sensor off",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },        
+        {
+            "time" : 6.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the right bumper button",
+                        "rb" : false
+                    }
+                }
+            ]
+        },      
+        {
+            "time" : 8.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the A button to shoot",
+                        "shoot" : true
+                    }
+                }
+            ]
+        }     
+    ]
+}
