@@ -253,6 +253,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return ret ;
     }
 
+    public Command manualShootCommand(double updown, double updownpostol, double updownveltol, double tilt, double tiltpostol, double tiltveltol, double shooter, double shooterveltol) {
+        Command ret = new FunctionalCommand(
+            ()->manualShoot(updown, updownpostol, updownveltol, tilt, tiltpostol, tiltveltol, shooter, shooterveltol, false),
+            ()-> {},
+            (Boolean b) -> { },
+            () -> isIdle());
+        ret.setName("manual-shoot");
+        return ret ;
+    }
+
     public Command shootCommand() {
         return runOnce(this::finishShot) ;
     }

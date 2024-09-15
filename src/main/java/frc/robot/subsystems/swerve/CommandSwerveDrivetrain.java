@@ -52,7 +52,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final int kDisplayEncoderValues = (1 << 4) ;
     private static final int kRecordModulePositions = (1 << 5) ;
     private static final int kRecordModuleTargets = (1 << 6) ;
-    private int kDumpOutputSelected = 0 ;
+    private int kDumpOutputSelected = kRecordModuleStates ;
     // private int kDumpOutputSelected =   kRecordModuleStates | 
     //                                     kDisplayAcquisition | 
     //                                     kDisplayEncoderValues | 

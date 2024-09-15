@@ -61,6 +61,10 @@ public class OISubsystem extends XeroSubsystem {
         return note_dest_ ;
     }
 
+    public ShootType getShootType() {
+        return shoot_type_ ;
+    }
+
     public Trigger shoot() {
         return shoot_trigger_ ;
     }    

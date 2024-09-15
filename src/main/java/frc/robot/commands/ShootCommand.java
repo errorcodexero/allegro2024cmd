@@ -1,11 +1,13 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.NoteDestination;
+import frc.robot.ShootType;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
+import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveRotateToAngle;
@@ -21,7 +23,6 @@ public class ShootCommand extends Command {
     private TrackerSubsystem tracker_ ;
 
     private SwerveRotateToAngle rotate_ ;
-    private SwerveRequest.SwerveDriveBrake brake_ ;    
     private Command shoot_ ;
 
     public ShootCommand(OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake) {
@@ -31,20 +32,47 @@ public class ShootCommand extends Command {
         db_ = db ;
         intake_ = intake ;
 
+        rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
+                        .withPositionTolerance(kShootPositionTolerance)
+                        .withVelocityTolerance(kShootVelocityTolerance) ;        
+
         addRequirements();
         setName("shoot") ;
     }
 
     @Override
     public void initialize() {
-        brake_ = new SwerveRequest.SwerveDriveBrake() ;
 
-        rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
-                        .withPositionTolerance(kShootPositionTolerance)
-                        .withVelocityTolerance(kShootVelocityTolerance) ;
-        shoot_ = null ;
-        
-        CommandScheduler.getInstance().schedule(rotate_);
+        if (oi_.getShootType() == ShootType.Podium) {
+            shoot_ = intake_.manualShootCommand(
+                                IntakeShooterConstants.ManualShotPodium.kUpDownPos,
+                                IntakeShooterConstants.ManualShotPodium.kUpDownPosTolerance,
+                                IntakeShooterConstants.ManualShotPodium.kUpDownVelTolerance,
+                                IntakeShooterConstants.ManualShotPodium.kTiltPos,
+                                IntakeShooterConstants.ManualShotPodium.kTiltPosTolerance,
+                                IntakeShooterConstants.ManualShotPodium.kTiltVelTolerance,
+                                IntakeShooterConstants.ManualShotPodium.kShooterVel,
+                                IntakeShooterConstants.ManualShotPodium.kShooterVelTolerance) ;
+            CommandScheduler.getInstance().schedule(shoot_);
+            rotate_ = null ;
+        }
+        else if (oi_.getShootType() == ShootType.Subwoofer) {
+            shoot_ = intake_.manualShootCommand(
+                                IntakeShooterConstants.ManualShotSubwoofer.kUpDownPos,
+                                IntakeShooterConstants.ManualShotSubwoofer.kUpDownPosTolerance,
+                                IntakeShooterConstants.ManualShotSubwoofer.kUpDownVelTolerance,
+                                IntakeShooterConstants.ManualShotSubwoofer.kTiltPos,
+                                IntakeShooterConstants.ManualShotSubwoofer.kTiltPosTolerance,
+                                IntakeShooterConstants.ManualShotSubwoofer.kTiltVelTolerance,
+                                IntakeShooterConstants.ManualShotSubwoofer.kShooterVel,
+                                IntakeShooterConstants.ManualShotSubwoofer.kShooterVelTolerance) ;
+            CommandScheduler.getInstance().schedule(shoot_);
+            rotate_ = null ;
+        }
+        else {
+            shoot_ = null ;
+            CommandScheduler.getInstance().schedule(rotate_);
+        }
     }
 
     @Override

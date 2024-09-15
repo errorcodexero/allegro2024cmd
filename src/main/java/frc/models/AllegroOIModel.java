@@ -21,6 +21,6 @@ public class AllegroOIModel extends OIBaseModel {
         super(engine, model, inst, buttonMap);
 
         registerMultiButton("note-target", new int[] { OIConstants.Buttons.kTarget1, OIConstants.Buttons.kTarget2 }, new String[] { "amp", "speaker", "trap" }) ;
-        registerMultiButton("shoot-type", new int[] { OIConstants.Buttons.kManual1, OIConstants.Buttons.kManual2 }, new String[] { "auto", "podium", "subwooffer"}) ;
+        registerMultiButton("shoot-type", new int[] { OIConstants.Buttons.kManual1, OIConstants.Buttons.kManual2 }, new String[] { "auto", "podium", "subwoofer"}) ;
     }
 }

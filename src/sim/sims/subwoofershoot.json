@@ -31,7 +31,7 @@
                     {
                         "comment" : "Set target to the speaker",
                         "note-target" : "speaker",
-                        "shoot-type" : "auto"
+                        "shoot-type" : "subwoofer"
                     }
                 },
                 {
@@ -91,7 +91,7 @@
             ]
         },        
         {
-            "time" : 8.0,
+            "time" : 6.2,
             "events" :
             [
                 {
@@ -106,16 +106,16 @@
             ]
         },      
         {
-            "time" : 10.0,
+            "time" : 8.0,
             "events" :
             [
                 {
-                    "model" : "drivergamepad",
+                    "model" : "allegro-oi",
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment" : "Press the X button to shoot",
-                        "a" : true
+                        "comment" : "Press the A button to shoot",
+                        "shoot" : true
                     }
                 }
             ]

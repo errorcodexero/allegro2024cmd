@@ -11,6 +11,28 @@ public class IntakeShooterConstants {
     public static final double kReverseDelayTime = 0.3 ;
     public static final double kTransferFeederToShooterDelay = 0.4 ;
 
+    public class ManualShotPodium {
+        public static final double kUpDownPos = 118.0 ;
+        public static final double kUpDownPosTolerance = 5.0 ;
+        public static final double kUpDownVelTolerance = 5.0 ;
+        public static final double kTiltPos = -657.0 ;
+        public static final double kTiltPosTolerance = 1.0 ;
+        public static final double kTiltVelTolerance = 5.0 ;
+        public static final double kShooterVel = 70.0 ;
+        public static final double kShooterVelTolerance = 5.0 ;
+    }
+
+    public class ManualShotSubwoofer {
+        public static final double kUpDownPos = 100.0 ;
+        public static final double kUpDownPosTolerance = 5.0 ;
+        public static final double kUpDownVelTolerance = 5.0 ;
+        public static final double kTiltPos = -65.0 ;
+        public static final double kTiltPosTolerance = 1.0 ;
+        public static final double kTiltVelTolerance = 5.0 ;
+        public static final double kShooterVel = 65.0 ;
+        public static final double kShooterVelTolerance = 5.0 ;
+    }
+
     public class Feeder {
         public static final int kMotorId = 1 ;
         public static final boolean kInvert = true ;

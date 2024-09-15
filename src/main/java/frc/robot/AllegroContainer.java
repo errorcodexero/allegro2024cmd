@@ -69,9 +69,11 @@ public class AllegroContainer extends XeroContainer {
     // Commands
     //
     private final SwerveRequest.FieldCentric drive_ = new SwerveRequest.FieldCentric()
-                                                            .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
-                                                            .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
-                                                            .withDriveRequestType(DriveRequestType.Velocity);                                                  
+                                                            .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.05)
+                                                            .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.05)
+                                                            .withDriveRequestType(DriveRequestType.Velocity);        
+
+    private final SwerveRequest.SwerveDriveBrake brake_ = new SwerveRequest.SwerveDriveBrake() ;
 
     final private double SlowFactor = 0.1 ;
 
@@ -297,6 +299,8 @@ public class AllegroContainer extends XeroContainer {
                             ).ignoringDisable(true));
 
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
+
+        driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_).ignoringDisable(true)) ;
         db_.registerTelemetry(logger_::telemeterize) ;
     }
     // #endregion
@@ -321,8 +325,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        driver_controller_.a().and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
-        // oi_.shoot().and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)

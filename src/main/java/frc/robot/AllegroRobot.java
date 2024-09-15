@@ -53,7 +53,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "shoot";
+        return "subwoofershoot";
     }    
 
     @Override
