@@ -3,8 +3,6 @@ package org.xero1425.simulator.models;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import org.xero1425.simulator.engine.SimulationModel;
 import org.xero1425.simulator.engine.SimulationEngine;
-
-import java.util.Dictionary;
 import java.util.Map;
 
 import org.xero1425.misc.BadParameterTypeException;

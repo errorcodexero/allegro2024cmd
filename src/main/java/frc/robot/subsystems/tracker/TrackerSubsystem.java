@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AprilTags;
 
-public class Tracker extends XeroSubsystem {
+public class TrackerSubsystem extends XeroSubsystem {
     private SwerveDrivetrain db_ ;
     private boolean has_target_info_ ;
     private int target_number_ ;
@@ -33,7 +33,7 @@ public class Tracker extends XeroSubsystem {
     private double angle_to_target_ ;
     private double distance_to_target_ ;
 
-    public Tracker(XeroRobot robot, SwerveDrivetrain db, String name) {
+    public TrackerSubsystem(XeroRobot robot, SwerveDrivetrain db, String name) {
         super(robot, "tracker") ;
 
         db_ = db ;

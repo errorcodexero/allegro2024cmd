@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
@@ -9,10 +10,8 @@ import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveConstants;
-import frc.robot.subsystems.swerve.SwerveRotateToAngle;
-import frc.robot.subsystems.tracker.Tracker;
+import frc.robot.subsystems.tracker.TrackerSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import java.util.Optional;
@@ -48,8 +47,7 @@ public class AllegroContainer extends XeroContainer {
     private final CommandSwerveDrivetrain db_ ;
     private final IntakeShooterSubsystem intake_shooter_ ;
     private final TrampSubsystem tramp_  ;
-    private final Tracker tracker_ ;
-    private final VisionSubsystem vision_ ;
+    private final TrackerSubsystem tracker_ ;
     private final OISubsystem oi_ ;
 
     //
@@ -74,8 +72,6 @@ public class AllegroContainer extends XeroContainer {
                                                             .withDeadband(TunerConstantsCompetition.kSpeedAt12VoltsMps * 0.1)
                                                             .withRotationalDeadband(SwerveConstants.kMaxRotationalSpeed * 0.1)
                                                             .withDriveRequestType(DriveRequestType.Velocity);                                                  
-
-    private final SwerveRotateToAngle rotate_ ;
 
     final private double SlowFactor = 0.1 ;
 
@@ -114,21 +110,11 @@ public class AllegroContainer extends XeroContainer {
             oi_ = null ;
         }
 
-        tracker_ = new Tracker(robot, db_, limelight_name_) ;
+        tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         db_.setLimelightName(limelight_name_);
 
-        vision_ = new VisionSubsystem(robot, db_, limelight_name_) ;
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
-        
-        vision_.enable(true);
-
-        //
-        // Create commands
-        //
-        rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
-                    .withPositionTolerance(SwerveConstants.kShootPositionTolerance)
-                    .withVelocityTolerance(SwerveConstants.kShootVelocityTolerance) ;
 
         //
         // Create OI devices
@@ -251,7 +237,7 @@ public class AllegroContainer extends XeroContainer {
     private double getLeftX() {
         double y = -driver_controller_.getLeftX() ;
 
-        if (driver_controller_.a().getAsBoolean()) {
+        if (driver_controller_.x().getAsBoolean()) {
             y = y * SlowFactor ;
         }
         else { 
@@ -264,7 +250,7 @@ public class AllegroContainer extends XeroContainer {
     private double getLeftY() {
         double x = -driver_controller_.getLeftY() ;
 
-        if (driver_controller_.a().getAsBoolean()) {
+        if (driver_controller_.x().getAsBoolean()) {
             x = x * SlowFactor ;
         }
         else {
@@ -277,8 +263,7 @@ public class AllegroContainer extends XeroContainer {
     private double getRightX() {
         double x = -driver_controller_.getRightX() ;
 
-        x = Math.signum(x) * x * x  ;
-        if (driver_controller_.a().getAsBoolean()) {
+        if (driver_controller_.x().getAsBoolean()) {
             x = x * SlowFactor ;
         }
         else {
@@ -336,8 +321,8 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        // oi_.shoot().and(intake_shooter_.readyForShoot()).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
-        driver_controller_.x().and(intake_shooter_.readyForShoot()).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+        driver_controller_.a().and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        // oi_.shoot().and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)

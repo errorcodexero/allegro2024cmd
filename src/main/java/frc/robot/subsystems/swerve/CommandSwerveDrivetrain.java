@@ -123,28 +123,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     /* May be changed to SysIdRoutineRotation or SysIdRoutineSteer */
     private final SysIdRoutine RoutineToApply = SysIdRoutineTranslation;
 
-    // public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
-    //     super(driveTrainConstants, OdometryUpdateFrequency, modules);
-    //     CommandScheduler.getInstance().registerSubsystem(this);
-
-    //     tareEverything();
-    //     seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));        
-    //     setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-
-    //     if (Utils.isSimulation()) {
-    //         startSimThread();
-    //     }
-    // }
-
     public CommandSwerveDrivetrain(XeroRobot robot, SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
 
         robot_ = robot ;
 
-        //
-        // We ave
-        // 
         CommandScheduler.getInstance().registerSubsystem(this);
+        robot.registerSubsystem("swerve", this);
 
         tareEverything();
         seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));

@@ -855,18 +855,20 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             ststr += ":" + target_updown_ + ":" + target_tilt_ ;
         }
 
-        Logger.recordOutput("intake:shooter-state", ststr);
-        Logger.recordOutput("intake:next-state", next_state_) ;
-        Logger.recordOutput("intake:updown-target", target_updown_) ;
-        Logger.recordOutput("intake:updown-vel", inputs_.updownVelocity) ;
-        Logger.recordOutput("intake:tilt-target", target_tilt_) ;
-        Logger.recordOutput("intake:shooter-target", target_velocity_) ;
-        Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
-        Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
-        Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
-        Logger.recordOutput("intake:has-note", has_note_);
-        Logger.recordOutput("intake:tracking", tracking_);
-        Logger.recordOutput("intake:destination", getNoteDestination()) ;
+        if (getVerbose()) {
+            Logger.recordOutput("intake:state", ststr);
+            Logger.recordOutput("intake:next-state", next_state_) ;
+            Logger.recordOutput("intake:updown-target", target_updown_) ;
+            Logger.recordOutput("intake:updown-vel", inputs_.updownVelocity) ;
+            Logger.recordOutput("intake:tilt-target", target_tilt_) ;
+            Logger.recordOutput("intake:shooter-target", target_velocity_) ;
+            Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
+            Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
+            Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
+            Logger.recordOutput("intake:has-note", has_note_);
+            Logger.recordOutput("intake:tracking", tracking_);
+            Logger.recordOutput("intake:destination", getNoteDestination()) ;
+        }
     
         
         periodicEnd();

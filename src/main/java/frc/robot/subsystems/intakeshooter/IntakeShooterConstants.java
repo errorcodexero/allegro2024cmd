@@ -38,7 +38,7 @@ public class IntakeShooterConstants {
         public class Positions {
             public static final double kStowed = 118.0 ;
             public static final double kStartTracking = 118.0 ;
-            public static final double kCollect = -10.0 ;
+            public static final double kCollect = -11.0 ;
             public static final double kTransfer = 90.0 ;
             public static final double kShootNominal = 118.0 ;
             public static final double kEject = 118.0 ;
@@ -105,7 +105,7 @@ public class IntakeShooterConstants {
         public class Positions {
             public static final double kStowed = -72.0 ;
             public static final double kStartTracking = -50.0 ;
-            public static final double kCollect = 45.0 ;
+            public static final double kCollect = 50.0 ;
             public static final double kTransfer = 0.0 ;
 
             public static final double kShootNominal = -50.0 ;

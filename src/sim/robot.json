@@ -11,12 +11,6 @@
             }            
         },
         {
-            "model" : "limelight",
-            "instance" : "1",
-            "props" : {
-            }
-        },
-        {
             "model": "drivergamepad",
             "instance": "1",
             "props": {
@@ -25,6 +19,13 @@
                 "buttons": 10,
                 "povs": 1,
                 "create_early": true
+            }
+        },
+        {
+            "model" : "swervedrive",
+            "instance" : "1",
+            "props" : {
+                "subsystem-name" : "swerve"
             }
         },
         {
