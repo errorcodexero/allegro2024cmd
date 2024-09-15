@@ -9,6 +9,7 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
 
     private XeroRobot robot_ ;
     private int logger_id_ ;
+    private boolean verbose_ = false ;
 
     public XeroSubsystem(XeroRobot robot, String name) {
         super(name) ;
@@ -17,6 +18,14 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
         logger_id_ = getMessageLogger().registerSubsystem(name) ;
 
         robot_.registerSubsystem(name, this) ;
+    }
+
+    public void setVerbose(boolean value) {
+        verbose_ = value ;
+    }
+
+    public boolean getVerbose() {
+        return verbose_ || XeroRobot.isSimulation() ;
     }
 
     public XeroRobot getRobot() {

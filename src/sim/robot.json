@@ -49,9 +49,7 @@
                 "axes" : 0,
                 "buttons" : 16,
                 "povs" : 0,
-                "create_early" : true,
-                "name-speaker_amp_trap:1" : 1,
-                "name-speaker_amp_trap:2" : 2
+                "create_early" : true
             }
         } 
     ]

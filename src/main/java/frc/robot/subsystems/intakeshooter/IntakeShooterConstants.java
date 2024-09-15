@@ -83,8 +83,8 @@ public class IntakeShooterConstants {
 
         public static final double[] kPwlValues = new double[] {
             0.0, 100.0, 
-            2.119, 100.0, 
-            2.12, 118.0, 
+            2.319, 100.0, 
+            2.32, 118.0, 
             5.0, 118.0
         } ;
     }
@@ -124,7 +124,7 @@ public class IntakeShooterConstants {
             };
 
             public class MovementPIDSlot0 {
-                public static final double kP = 24.0 ;
+                public static final double kP = 16.0 ;
                 public static final double kI = 0.0 ;
                 public static final double kD = 0.35 ;
                 public static final double kV = 0.1 ;
@@ -197,18 +197,15 @@ public class IntakeShooterConstants {
         }
 
         public static final double[] kPwlValues = new double[] {
-            1.24,  -64, 
-            1.52,  -60,
-            1.82,  -55,
-            2.119, -55,
-            2.12,  -74,
-            2.43,  -66,
-            2.73,  -64,
-            3.04,  -62,
-            3.34,  -61,
-            3.6399,-59,
-            3.64,  -59,
-            4.0,   -57
+            1.42, -55.0,
+            1.72, -53,
+            2.02, -50,
+            2.319, -49.0,
+            2.32, -68.0,
+            2.62, -64.0,
+            2.93, -62.0,
+            3.23, -61.0,
+            3.5, -58.0
         } ;            
     }
 
@@ -245,18 +242,15 @@ public class IntakeShooterConstants {
         }
 
         public static final double[] kPwlValues = new double[] {
-            1.24,  65, 
-            1.52,  65,
-            1.82,  65,
-            2.119, 65,
-            2.12,  80,
-            2.43,  80,
-            2.73,  80,
-            3.04,  80,
-            3.34,  80,
-            3.6399,80,
-            3.64,  84,
-            4.0,   84            
+            1.42, 75,
+            1.72, 75,
+            2.02, 75,
+            2.319, 75,
+            2.32, 75,
+            2.62, 75,
+            2.93, 75,
+            3.23, 75,
+            3.5, 80            
         } ;            
     }
 

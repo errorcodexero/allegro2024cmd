@@ -184,6 +184,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     }
 
     public void setTiltTargetPos(boolean tracking, double t) {
+        tracking = false ;
         if (tracking) {
             tilt_motor_.setControl(new PositionVoltage(t / IntakeShooterConstants.Tilt.kDegreesPerRev)
                             .withSlot(1)

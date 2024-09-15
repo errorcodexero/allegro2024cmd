@@ -236,8 +236,8 @@ public class AllegroContainer extends XeroContainer {
 
         if (RobotConstants.WhichSubsystem.kCharTuneShooter)
         {
-            CmdTuneShooter cmd = new CmdTuneShooter(intake_shooter_, true) ;
-            driver_controller_.a().onTrue(cmd) ;
+            CmdTuneShooter cmd = new CmdTuneShooter(intake_shooter_, false) ;
+            driver_controller_.x().onTrue(cmd) ;
             total++ ;
         }
 
@@ -336,7 +336,8 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().and(intake_shooter_.readyForShoot()).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+        // oi_.shoot().and(intake_shooter_.readyForShoot()).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
+        driver_controller_.x().and(intake_shooter_.readyForShoot()).onTrue(rotate_.andThen(intake_shooter_.shootCommand())) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)

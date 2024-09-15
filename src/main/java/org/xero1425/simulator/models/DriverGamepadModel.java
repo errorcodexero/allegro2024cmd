@@ -3,6 +3,10 @@ package org.xero1425.simulator.models;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import org.xero1425.simulator.engine.SimulationModel;
 import org.xero1425.simulator.engine.SimulationEngine;
+
+import java.util.Dictionary;
+import java.util.Map;
+
 import org.xero1425.misc.BadParameterTypeException;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
@@ -12,6 +16,19 @@ public class DriverGamepadModel extends SimulationModel {
     private static final String buttonEvent = "button";
     private static final String axisEvent = "axis";
     private static final String povEvent = "pov";
+
+    private static final Map<String, Integer> buttonMap = Map.of(
+        "a", 1,
+        "b", 2,
+        "x", 3,
+        "y", 4,
+        "lb", 5,
+        "rb", 6,
+        "back", 7,
+        "start", 8,
+        "lstick", 9,
+        "rstick", 10
+    ) ;
 
     private int index_ ;
     private int buttons_ ;
@@ -134,10 +151,47 @@ public class DriverGamepadModel extends SimulationModel {
     public void run(double dt) {
     }
 
+    private void doOneButton(String name, int which, SettingsValue value) {
+        if (which > button_count_) {
+            MessageLogger logger = getEngine().getMessageLogger();
+            logger.startMessage(MessageType.Error);
+            logger.add("event: model ").addQuoted(getModelName());
+            logger.add(" instance ").addQuoted(getInstanceName());
+            logger.add(" event name ").addQuoted(name);
+            logger.add(" exceeds the defined max button count").endMessage();
+            return ;
+        }
+
+        if (!value.isBoolean()) {
+       
+            return ;         
+        }
+
+        try {
+            if (value.getBoolean())
+                buttons_ |= (1 << (which - 1)) ;
+            else
+                buttons_ &= ~(1 << (which - 1)) ;
+
+            DriverStationDataJNI.setJoystickButtons((byte) index_, buttons_, button_count_);                
+        }
+        catch(BadParameterTypeException e) {
+            MessageLogger logger = getEngine().getMessageLogger();
+            logger.startMessage(MessageType.Error);
+            logger.add("event: model ").addQuoted(getModelName());
+            logger.add(" instance ").addQuoted(getInstanceName());
+            logger.add(" event name ").addQuoted(name);
+            logger.add(" value is not a boolean").endMessage();            
+        }
+    }
+
     public boolean processEvent(String name, SettingsValue value) {
         int which = 0 ;
 
-        if (name.startsWith(buttonEvent)) {
+        if (buttonMap.containsKey(name)) {
+            which = buttonMap.get(name) ;
+            doOneButton(name, which, value) ;
+        } else if (name.startsWith(buttonEvent)) {
             try {
                 which = Integer.parseInt(name.substring(buttonEvent.length())) ;
             }
@@ -150,37 +204,7 @@ public class DriverGamepadModel extends SimulationModel {
                 logger.add(" is not valid, should be button followed by an integer (e.g. button2)").endMessage();    
                 return true ;            
             }
-
-            if (which > button_count_) {
-                MessageLogger logger = getEngine().getMessageLogger();
-                logger.startMessage(MessageType.Error);
-                logger.add("event: model ").addQuoted(getModelName());
-                logger.add(" instance ").addQuoted(getInstanceName());
-                logger.add(" event name ").addQuoted(name);
-                logger.add(" exceeds the defined max button count").endMessage();
-
-                return true ;
-            }
-
-            if (!value.isBoolean()) {
-                MessageLogger logger = getEngine().getMessageLogger();
-                logger.startMessage(MessageType.Error);
-                logger.add("event: model ").addQuoted(getModelName());
-                logger.add(" instance ").addQuoted(getInstanceName());
-                logger.add(" event name ").addQuoted(name);
-                logger.add(" value is not a boolean").endMessage();                
-            }
-
-            try {
-                if (value.getBoolean())
-                    buttons_ |= (1 << (which - 1)) ;
-                else
-                    buttons_ &= ~(1 << (which - 1)) ;
-            }
-            catch(BadParameterTypeException e) {
-            }
-
-            DriverStationDataJNI.setJoystickButtons((byte) index_, buttons_, button_count_);
+            doOneButton(name, which, value) ;
         }
         else if (name.startsWith(axisEvent)) {
             try {

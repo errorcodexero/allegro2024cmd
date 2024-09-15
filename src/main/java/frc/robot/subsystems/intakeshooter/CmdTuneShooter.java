@@ -69,6 +69,7 @@ public class CmdTuneShooter extends Command {
                     doApplySettings();
                     state_ = State.WaitingForSubsystem;
                 }
+                break ;
 
             case WaitingForSubsystem:
                 if (shouldApplySettings) {

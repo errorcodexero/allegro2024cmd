@@ -484,13 +484,15 @@ public class TrampSubsystem extends XeroSubsystem {
             aux += ":" + climber_dir_.toString() ;
         }
         
-        Logger.recordOutput("tramp-state", state_ + aux);
-        Logger.recordOutput("elev-target", target_elev_);
-        Logger.recordOutput("arm-target", target_arm_);
-        Logger.recordOutput("manipulator-voltage", io_.getManipulatorVoltage());
-        Logger.recordOutput("climber-voltage", io_.getClimberMotorVoltage());
-        Logger.recordOutput("is-elev-ready", isElevatorReady());
-        Logger.recordOutput("is-arm-ready", isArmReady());
+        if (getVerbose()) {
+            Logger.recordOutput("tramp-state", state_ + aux);
+            Logger.recordOutput("elev-target", target_elev_);
+            Logger.recordOutput("arm-target", target_arm_);
+            Logger.recordOutput("manipulator-voltage", io_.getManipulatorVoltage());
+            Logger.recordOutput("climber-voltage", io_.getClimberMotorVoltage());
+            Logger.recordOutput("is-elev-ready", isElevatorReady());
+            Logger.recordOutput("is-arm-ready", isArmReady());
+        }
 
         periodicEnd();
     }

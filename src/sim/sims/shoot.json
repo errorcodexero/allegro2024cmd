@@ -1,3 +1,6 @@
+//
+// Fire a shot in teleop
+//
 {
     "stimulus" :
     [
@@ -14,7 +17,8 @@
                         "autonomous" : 0.0,
                         "between" : 0.0,
                         "teleop" : 1000.0,
-                        "fms" : false
+                        "fms" : false,
+                        "alliance" : "blue1"
                     }
                 }
             ]
@@ -34,7 +38,38 @@
                     }
                 }
             ]
-        },           
+        },
+        {
+            "time" : 4.1,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Reset the heading for the drive base",
+                        "y" : true,
+                        "b" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the right bumper button",
+                        "button2" : true
+                    }
+                }
+            ]
+        },
         {
             "time" : 4.2,
             "events" :

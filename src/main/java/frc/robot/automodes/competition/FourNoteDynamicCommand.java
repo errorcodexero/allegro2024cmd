@@ -5,8 +5,6 @@ import org.xero1425.base.XeroAutoCommand;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.base.XeroTimer;
 import org.xero1425.math.Pose2dWithRotation;
-import org.xero1425.misc.MessageLogger;
-import org.xero1425.misc.MessageType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.AllegroContainer;
