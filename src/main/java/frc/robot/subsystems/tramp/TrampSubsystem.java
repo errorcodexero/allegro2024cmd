@@ -104,10 +104,10 @@ public class TrampSubsystem extends XeroSubsystem {
 
         destsupplier_ = dest ;
 
-        eject_timer_ = new XeroTimer(robot, "tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
-        shoot_timer_ = new XeroTimer(robot, "tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
-        deposit_trap_timer_ = new XeroTimer(robot, "tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
-        transfer_timer_ = new XeroTimer(robot, "tramp-transfer-timer", TrampConstants.Manipulator.kTransferTime) ;
+        eject_timer_ = new XeroTimer("tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
+        shoot_timer_ = new XeroTimer("tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
+        deposit_trap_timer_ = new XeroTimer("tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
+        transfer_timer_ = new XeroTimer("tramp-transfer-timer", TrampConstants.Manipulator.kTransferTime) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 

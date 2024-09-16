@@ -4,7 +4,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.NoteDestination;
 import frc.robot.ShootType;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;

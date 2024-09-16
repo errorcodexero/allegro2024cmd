@@ -1,7 +1,5 @@
 package org.xero1425.simulator.models;
 
-import java.util.List;
-
 import org.xero1425.base.ISubsystemSim;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;

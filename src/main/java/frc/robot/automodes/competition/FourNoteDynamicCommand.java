@@ -47,7 +47,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
 
         addRequirements(container.getDriveTrain(), container.getIntakeShooter(), container.getTramp());
 
-        collect_delay_timer_ = new XeroTimer(getRobot(), "four-note-collect-delay", FourNoteDynamicConstants.kDelayForIntakeDownTime) ;
+        collect_delay_timer_ = new XeroTimer("four-note-collect-delay", FourNoteDynamicConstants.kDelayForIntakeDownTime) ;
     }
 
     @Override

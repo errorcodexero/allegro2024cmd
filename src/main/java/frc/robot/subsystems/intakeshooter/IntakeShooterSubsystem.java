@@ -116,12 +116,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         destsupplier_ = destsupplier ;
 
-        capture_timer_ = new XeroTimer(getRobot(), "collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
-        reverse_timer_ = new XeroTimer(getRobot(), "reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
-        shoot_timer_ = new XeroTimer(getRobot(), "shoot-timer", IntakeShooterConstants.Feeder.kShootTime) ;
-        eject_forward_timer_ = new XeroTimer(getRobot(), "eject-forward", IntakeShooterConstants.Shooter.kEjectForwardTime) ;
-        eject_reverse_timer_ = new XeroTimer(getRobot(), "eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
-        eject_pause_timer_ = new XeroTimer(getRobot(), "eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
+        capture_timer_ = new XeroTimer("collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
+        reverse_timer_ = new XeroTimer("reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
+        shoot_timer_ = new XeroTimer("shoot-timer", IntakeShooterConstants.Feeder.kShootTime) ;
+        eject_forward_timer_ = new XeroTimer("eject-forward", IntakeShooterConstants.Shooter.kEjectForwardTime) ;
+        eject_reverse_timer_ = new XeroTimer("eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
+        eject_pause_timer_ = new XeroTimer("eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
 
         io_.setTiltMotorPosition(io_.getTiltAbsoluteEncoderPosition());
         io_.setUpDownMotorPosition(IntakeShooterConstants.UpDown.Positions.kStowed);

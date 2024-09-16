@@ -1,0 +1,114 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "start" : 0,
+                        "autonomous" : 0.0,
+                        "between" : 0.0,
+                        "teleop" : 1000.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 5.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the x button",
+                        "x" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 5.4,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the x button",
+                        "x" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the a button",
+                        "a" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.4,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the a button",
+                        "a" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the a button",
+                        "a" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.4,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the a button",
+                        "a" : false
+                    }
+                }
+            ]
+        }          
+    ]
+}

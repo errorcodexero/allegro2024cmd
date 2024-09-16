@@ -3,25 +3,25 @@ package org.xero1425.base;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
 
+import edu.wpi.first.wpilibj.Timer;
+
 public class XeroTimer {
     private static int LoggerID = -1 ;
     private static final String LoggerIDName = "XeroTimer" ;
-    private XeroRobot robot_ ;
     private boolean running_ ;
     private double duration_ ;
     private double endtime_ ;
     private double start_ ;
     private String name_ ;
 
-    public XeroTimer(XeroRobot robot, String name, double duration) {
-        robot_ = robot ;
+    public XeroTimer(String name, double duration) {
         name_ = name ;
         duration_ = duration ;
         running_ = false ;
         endtime_ = 0.0 ;        
 
         if (LoggerID == -1) {
-            LoggerID = robot_.getMessageLogger().registerSubsystem(LoggerIDName) ;
+            LoggerID = MessageLogger.getTheMessageLogger().registerSubsystem(LoggerIDName) ;
         }
     }
 
@@ -31,7 +31,7 @@ public class XeroTimer {
 
     public void setDuration(double dur) {
         if (running_) {
-            MessageLogger logger = robot_.getMessageLogger() ;
+            MessageLogger logger = MessageLogger.getTheMessageLogger();
             logger.startMessage(MessageType.Error).add("Timer ").add(name_).add(" had duration updated while running - change ignored").endMessage();
         }
 
@@ -39,17 +39,17 @@ public class XeroTimer {
     }
 
     public double elapsed() {
-        return robot_.getTime() - start_ ;
+        return Timer.getFPGATimestamp() - start_ ;
     }
 
     public void start() {
         if (running_) {
-            MessageLogger logger = robot_.getMessageLogger() ;
+            MessageLogger logger = MessageLogger.getTheMessageLogger() ;
             logger.startMessage(MessageType.Error).add("Timer ").add(name_).add(" was started while running").endMessage();
         }
 
         running_ = true ;
-        start_ = robot_.getTime() ;
+        start_ = Timer.getFPGATimestamp() ;
         endtime_ = start_ + duration_ ;
     }
 
@@ -63,7 +63,7 @@ public class XeroTimer {
         if (running_ == false)
             return true ;
 
-        if (running_ && robot_.getTime() > endtime_) {
+        if (running_ && Timer.getFPGATimestamp() > endtime_) {
             running_ = false ;
             ret = true ;
         }
@@ -75,7 +75,7 @@ public class XeroTimer {
         String ret = "XeroTimer " + name_ ;
         ret += " running " + (running_ ? "true" : "false");
         ret += " endtime " + endtime_ ;
-        ret += " currenttime " + robot_.getTime() ;
+        ret += " currenttime " + Timer.getFPGATimestamp() ;
         return ret;
     }
 }

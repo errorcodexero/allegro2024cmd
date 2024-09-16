@@ -2,12 +2,14 @@ package frc.robot;
 
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
+import frc.robot.commands.VibrateCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.swerve.CmdTuneRotateDb;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
@@ -229,6 +231,13 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
+        if (RobotConstants.WhichSubsystem.kCharRotateDB)
+        {
+            CmdTuneRotateDb cmd = new CmdTuneRotateDb(driver_controller_, db_) ;
+            driver_controller_.x().onTrue(cmd) ;            
+            total++ ;
+        }
+
         if (total > 1) {
             throw new Exception("Only one subsystem can be characterized at a time") ;
         }
@@ -325,7 +334,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_).andThen(new VibrateCommand(driver_controller_, 2.0))) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)

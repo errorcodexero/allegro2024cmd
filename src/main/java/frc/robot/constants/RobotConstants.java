@@ -7,7 +7,7 @@ public class RobotConstants {
 
     public static final boolean kTestMode = false ;
     public static final boolean kReplayMode = false ;
-    public static final boolean kCharMode = false ;
+    public static final boolean kCharMode = true ;
     public static final class WhichSubsystem {
         public static final boolean kCharDBSubsystem = false ;
         public static final boolean kCharTiltSubsystem = false ;    
@@ -18,7 +18,8 @@ public class RobotConstants {
         public static final boolean kCharArmSubsystem = false ;
         public static final boolean kCharClimberSubsystem = false ;    
         public static final boolean kCharManipulatorSubsystem = false ;
-        public static final boolean kCharTuneShooter = true ;
+        public static final boolean kCharTuneShooter = false ;
+        public static final boolean kCharRotateDB = true ;
     }
 
     public static enum Mode
