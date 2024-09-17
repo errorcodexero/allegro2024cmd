@@ -16,6 +16,22 @@ import frc.robot.NoteDestination;
 import frc.robot.ShotType;
 
 public class OISubsystem extends XeroSubsystem {
+    public enum OILed {
+        DBReady(1),
+        ShooterReady(2),
+        TiltReady(3),
+        TrackerReady(4),
+        ClimbUpPrepEnabled(5),
+        ClimbUpExecEnabled(6),
+        AutoTrapExecEnabled(8);
+
+        public final Integer value ;
+
+        private OILed(int value) {
+            this.value = value ;
+        }
+    }
+
     private NoteDestination note_dest_;
     private ShotType shot_type_ ;
 
@@ -47,6 +63,10 @@ public class OISubsystem extends XeroSubsystem {
         climb_up_prep_trigger_ = new Trigger(() -> inputs_.climbUpPrep) ;
         climb_up_exec_trigger_ = new Trigger(() -> inputs_.climbUpExec) ;
         auto_trap_trigger_ = new Trigger(() -> inputs_.autoTrap) ;
+    }
+
+    public void setLEDState(OILed led, boolean b) {
+        ios_.setLED(led.value, b) ;
     }
 
     public String getPressedString() {

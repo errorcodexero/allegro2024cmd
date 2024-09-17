@@ -11,14 +11,8 @@ public class TrackerIOLimelight implements TrackerIO {
     }
 
     public void updateInputs(TrackerIO.TrackerInputs inputs) {
-        inputs.tv = LimelightHelpers.getTV(limelight_name_) ;
-        inputs.tx = LimelightHelpers.getTX(limelight_name_) ;
-        inputs.ty = LimelightHelpers.getTY(limelight_name_) ;
-
-        PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
-        if (estimate != null) {
-            inputs.llx = estimate.pose.getX() ;
-        }
+        PoseEstimate est = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
+        inputs.tag_count_ = est != null ? est.tagCount : 0 ;
     }
 
     public void setTarget(int tag) {

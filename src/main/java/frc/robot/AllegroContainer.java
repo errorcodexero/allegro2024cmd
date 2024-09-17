@@ -146,6 +146,10 @@ public class AllegroContainer extends XeroContainer {
     public CommandSwerveDrivetrain getDriveTrain() {
         return db_ ;
     }
+
+    public TrackerSubsystem getTracker() {
+        return tracker_ ;
+    }
     // #endregion
 
     // #region All Bindings

@@ -10,6 +10,7 @@ import frc.robot.ShotType;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.oi.OISubsystem.OILed;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveRotateToAngle;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
@@ -74,7 +75,7 @@ public class ShootCommand extends Command {
         else {
             rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(kShootPositionTolerance)
-                            .withVelocityTolerance(kShootVelocityTolerance) ;              
+                            .withVelocityTolerance(kShootVelocityTolerance) ;
             shoot_ = null ;
             CommandScheduler.getInstance().schedule(rotate_);
         }
@@ -84,6 +85,8 @@ public class ShootCommand extends Command {
     public void execute() {
         String str ="empty" ;
 
+        boolean dbready = false ;
+
         if (rotate_ != null) {
             if (oi_.abort().getAsBoolean()) {
                 rotate_.cancel();
@@ -91,17 +94,27 @@ public class ShootCommand extends Command {
                 str = "aborted" ;
             }
             else if (rotate_.isFinished()) {
-                rotate_ = null ;
-                shoot_ = intake_.shootCommand() ;
-                CommandScheduler.getInstance().schedule(shoot_);
-                str = "rfinished" ;
+                if (!tracker_.isFrozen()) {
+                    tracker_.freezePose(true);                
+                }
+                if (tracker_.isOkToShoot()) {
+                    rotate_ = null ;
+                    shoot_ = intake_.shootCommand() ;
+                    CommandScheduler.getInstance().schedule(shoot_);
+                    str = "rfinished" ;
+                }
+                else {
+                    str = "waitfortracker" ;
+                }
             }
             else {
                 str = "rotate" ;
             }
         }
         else if (shoot_ != null) {
+            dbready = true ;
             if (intake_.hasShotLeft()) {
+                tracker_.freezePose(false);
                 str = "sfinished" ;
                 shoot_ = null ;
             }
@@ -111,6 +124,10 @@ public class ShootCommand extends Command {
         }
 
         Logger.recordOutput("scmd-st", str) ;
+        oi_.setLEDState(OILed.DBReady, dbready);
+        oi_.setLEDState(OILed.ShooterReady, intake_.isShooterReady()) ;
+        oi_.setLEDState(OILed.TiltReady, intake_.isTiltReady()) ;
+        oi_.setLEDState(OILed.TrackerReady, tracker_.isOkToShoot()) ;
     }
 
     @Override
