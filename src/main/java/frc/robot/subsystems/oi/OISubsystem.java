@@ -11,14 +11,13 @@ import org.xero1425.misc.SettingsValue;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.NoteDestination;
-import frc.robot.ShootType;
+import frc.robot.ShotType;
 
 public class OISubsystem extends XeroSubsystem {
     private NoteDestination note_dest_;
-    private ShootType shoot_type_ ;
+    private ShotType shot_type_ ;
 
     private Trigger eject_trigger_ ;
     private Trigger abort_trigger_ ;
@@ -29,8 +28,6 @@ public class OISubsystem extends XeroSubsystem {
     private Trigger climb_up_exec_trigger_ ;
     private Trigger auto_trap_trigger_ ;
 
-    private NoteDestination auto_node_dest_ ;
-
     private OIIos ios_ ;
     private OIIosInputsAutoLogged inputs_ ;
 
@@ -40,8 +37,7 @@ public class OISubsystem extends XeroSubsystem {
         ios_ = new OIIosHID(port) ;
         inputs_ = new OIIosInputsAutoLogged() ;
 
-        auto_node_dest_ = NoteDestination.AutoSpeaker ;
-        note_dest_ = NoteDestination.AutoSpeaker ;
+        note_dest_ = NoteDestination.Speaker ;
 
         eject_trigger_ = new Trigger(() -> inputs_.eject) ;
         abort_trigger_ = new Trigger(() -> inputs_.abort) ;
@@ -53,6 +49,60 @@ public class OISubsystem extends XeroSubsystem {
         auto_trap_trigger_ = new Trigger(() -> inputs_.autoTrap) ;
     }
 
+    public String getPressedString() {
+        String str = "" ;
+
+        if (eject_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "eject" ;
+        }
+
+        if (abort_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "abort" ;
+        }
+        
+        if (turtle_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "turtle" ;
+        }
+        
+        if (shoot_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "shoot" ;
+        }
+        
+        if (collect_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "collect" ;
+        }
+        
+        if (climb_up_prep_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "climbprep" ;
+        }
+        
+        if (climb_up_exec_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "climbexec" ;
+        }
+        
+        if (auto_trap_trigger_.getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "autotrap" ;
+        }        
+
+        return str ;
+    }
+
     public SettingsValue getProperty(String name) {
         return null ;
     }    
@@ -61,8 +111,8 @@ public class OISubsystem extends XeroSubsystem {
         return note_dest_ ;
     }
 
-    public ShootType getShootType() {
-        return shoot_type_ ;
+    public ShotType getShotType() {
+        return shot_type_ ;
     }
 
     public Trigger shoot() {
@@ -97,10 +147,6 @@ public class OISubsystem extends XeroSubsystem {
         return auto_trap_trigger_ ;
     }
 
-    public void setAutoNoteDestination(NoteDestination dest) {
-        auto_node_dest_ = dest ;
-    }
-
     @Override
     public void periodic() {
         periodicStart();
@@ -108,18 +154,12 @@ public class OISubsystem extends XeroSubsystem {
         ios_.updateInputs(inputs_) ;
         Logger.processInputs("oi", inputs_);
 
-        if (DriverStation.isAutonomousEnabled()) {
-            note_dest_ = auto_node_dest_ ;
-            shoot_type_ = ShootType.Subwoofer ;
-        }
-        else {
-            note_dest_ = mapNoteDestination(inputs_.target1, inputs_.target2) ;
-            shoot_type_ = mapShootType(inputs_.manual1, inputs_.manual2) ;
-        }
+        note_dest_ = mapNoteDestination(inputs_.target1, inputs_.target2) ;
+        shot_type_ = mapShotType(inputs_.manual1, inputs_.manual2) ;
 
         if (getVerbose()) {
             Logger.recordOutput("oi:note-dest", note_dest_) ;
-            Logger.recordOutput("oi:shoot-type", shoot_type_) ;
+            Logger.recordOutput("oi:shoot-type", shot_type_) ;
         }
 
         periodicEnd();
@@ -132,7 +172,7 @@ public class OISubsystem extends XeroSubsystem {
         if (!b1 && !b2) {
             dest = NoteDestination.Amp ;
         } else if (b1 && !b2) {
-            dest = NoteDestination.AutoSpeaker ;
+            dest = NoteDestination.Speaker ;
         } else if (!b1 && b2) {
             dest = NoteDestination.Trap ;
         }
@@ -140,16 +180,16 @@ public class OISubsystem extends XeroSubsystem {
         return dest ;
     }
 
-    private ShootType mapShootType(boolean b1, boolean b2)
+    private ShotType mapShotType(boolean b1, boolean b2)
     {
-        ShootType dest = ShootType.Undefined ;
+        ShotType dest = ShotType.Undefined ;
         
         if (!b1 && !b2) {
-            dest = ShootType.Auto ;
+            dest = ShotType.Auto ;
         } else if (b1 && !b2) {
-            dest = ShootType.Podium ;
+            dest = ShotType.Podium ;
         } else if (!b1 && b2) {
-            dest = ShootType.Subwoofer ;
+            dest = ShotType.Subwoofer ;
         }
 
         return dest ;

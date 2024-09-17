@@ -91,7 +91,7 @@ public abstract class XeroRobot extends LoggedRobot {
             String str = SimArgs.InputFileName;
             if (str == null)
                 str = getSimulationFileName() ;
-
+                            
             if (str == null) {
                 System.out.println("The code is setup to simulate, but the derived robot class did not provide a stimulus file") ;
                 System.out.println("Not initializing the Xero1425 Simulation engine - assuming Romi robot") ;
@@ -110,7 +110,8 @@ public abstract class XeroRobot extends LoggedRobot {
 
     public abstract boolean isCharMode() ;
     public abstract boolean isTestMode() ;
-    public abstract String  getSimulationFileName() ; 
+    public abstract String  getSimulationFileName() ;
+    public abstract String getSimulationAutoMode() ;
     protected abstract String getName() ;    
     protected abstract String getPracticeSerialNumber() ;    
     protected abstract void createCompetitionAutoModes() ;
@@ -175,7 +176,7 @@ public abstract class XeroRobot extends LoggedRobot {
             // Neither the game controller nor the OI are connected.  We assume that the robot has not connected
             // yet with the driver station.  In a real event, this connection will mean we have an FMS connection
             // as the FMS connects the two.  In the school, this means the driver station computer has not connected
-            // to the the rboto WIFI AP yet, so we wait until we see a connection so we know what to do.
+            // to the the robot WIFI AP yet, so we wait until we see a connection so we know what to do.
             //
             return ;
         }
@@ -229,6 +230,7 @@ public abstract class XeroRobot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
+        createAutoModes();        
     }
 
     @Override
@@ -245,7 +247,6 @@ public abstract class XeroRobot extends LoggedRobot {
                 cb.apply(false) ;
             }
         }
-        createAutoModes();
 
         if (isSimulation()) {
             SimulationEngine engine = SimulationEngine.getInstance() ;
@@ -304,27 +305,37 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     private void autoModeChooser() {
-        if (chooser_ == null && automodes_.size() > 0) {
-            chooser_ = new SendableChooser<>();
-            chooser_.onChange((mode) -> autoModeChanged(mode)) ;
-            boolean defaultSet = false ;
-            for (XeroAutoCommand mode : automodes_) {
-                chooser_.addOption(mode.toString(), mode) ;
-                if (!defaultSet) {
-                    auto_mode_ = mode ;
-                    chooser_.setDefaultOption(mode.toString(), mode) ;
-                    defaultSet = true ;
+        if (XeroRobot.isSimulation()) {
+            String name = getSimulationAutoMode() ;
+            for (XeroAutoCommand cmd: automodes_) {
+                if (cmd.getName().equals(name)) {
+                    auto_mode_ = cmd ;
+                    break ;
                 }
             }
+        } else {
+            if (chooser_ == null && automodes_.size() > 0) {
+                chooser_ = new SendableChooser<>();
+                chooser_.onChange((mode) -> autoModeChanged(mode)) ;
+                boolean defaultSet = false ;
+                for (XeroAutoCommand mode : automodes_) {
+                    chooser_.addOption(mode.toString(), mode) ;
+                    if (!defaultSet) {
+                        auto_mode_ = mode ;
+                        chooser_.setDefaultOption(mode.toString(), mode) ;
+                        defaultSet = true ;
+                    }
+                }
 
-            ShuffleboardTab tab = Shuffleboard.getTab("AutoMode") ;
-            chosen_ = tab.add("Auto Mode Selected", auto_mode_.toString()).withSize(2, 1).withPosition(3, 0).getEntry() ;
-            desc_ = tab.add("Auto Mode Description", auto_mode_.toString()).withSize(5, 2).withPosition(0, 1).getEntry() ;
-            tab.add("Auto Mode Selecter", chooser_).withSize(2,1).withWidget(BuiltInWidgets.kComboBoxChooser).withPosition(0, 0) ;
-        }
+                ShuffleboardTab tab = Shuffleboard.getTab("AutoMode") ;
+                chosen_ = tab.add("Auto Mode Selected", auto_mode_.toString()).withSize(2, 1).withPosition(3, 0).getEntry() ;
+                desc_ = tab.add("Auto Mode Description", auto_mode_.toString()).withSize(5, 2).withPosition(0, 1).getEntry() ;
+                tab.add("Auto Mode Selecter", chooser_).withSize(2,1).withWidget(BuiltInWidgets.kComboBoxChooser).withPosition(0, 0) ;
+            }
 
-        if (chooser_ != null) {
-            auto_mode_ = chooser_.getSelected() ;
+            if (chooser_ != null) {
+                auto_mode_ = chooser_.getSelected() ;
+            }
         }
     }
     private void initSubsystemTiming(String name) {

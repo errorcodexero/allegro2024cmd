@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import org.littletonrobotics.junction.Logger;
+import org.xero1425.math.XeroMath;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -30,26 +31,26 @@ public class CmdTuneRotateDb extends Command {
             boolean newcmd = false ;
 
             if (ctrl_.getHID().getAButtonPressed()) {
-                target_ += 45.0 ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ + 45.0) ;
                 newcmd = true ;
             }
             else if (ctrl_.getHID().getBButtonPressed()) {
-                target_ -= 45.0 ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ + 180.0); 
                 newcmd = true ;
             }
             else if (ctrl_.getHID().getXButtonPressed()) {
-                target_ += 5.0 ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ + 5.0) ;
                 newcmd = true ;                
 
             }
             else if (ctrl_.getHID().getYButtonPressed()) {
-                target_ -= 5.0 ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ - 5.0) ;
                 newcmd = true ;                
             }
 
             if (newcmd) {
                 rotate_ = new SwerveRotateToAngle(db_, () -> { return target_ ; }) ;    
-        CommandScheduler.getInstance().schedule(rotate_) ;                            
+                CommandScheduler.getInstance().schedule(rotate_) ;                            
             }
         }
 

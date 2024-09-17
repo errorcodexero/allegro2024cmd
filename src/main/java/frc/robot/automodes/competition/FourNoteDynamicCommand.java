@@ -8,7 +8,6 @@ import org.xero1425.math.Pose2dWithRotation;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.AllegroContainer;
-import frc.robot.NoteDestination;
 
 public class FourNoteDynamicCommand extends XeroAutoCommand {
 
@@ -69,7 +68,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
                 FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol,
-                true) ;
+                true, true) ;
         state_ = State.ShootFirst ;
     }
 
@@ -90,7 +89,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                     // Delay for the intake to go down enough that is sure to be
                     // down when the robot arrives at the first note
                     //
-                    container_.getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     container_.getIntakeShooter().setManualShootParameters(FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualTilt) ;
                     container_.getIntakeShooter().collect() ;
   
@@ -134,7 +132,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true) ;
+                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, true) ;
                     state_ = State.FinishSecond ;
                 }
                 break ;
@@ -144,7 +142,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                     //
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
-                    container_.getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     container_.getIntakeShooter().setManualShootParameters(FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualTilt) ;
                     container_.getIntakeShooter().collect() ;  
                     container_.getDriveTrain().driveTo("Shoot-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
@@ -162,7 +159,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true) ;
+                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, true) ;
                         state_ = State.ShootThird ;                                   
 
                     }
@@ -181,7 +178,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                     container_.getIntakeShooter().manualShoot(
                             FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                             FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                            FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true) ;
+                            FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, true) ;
                     state_ = State.FinishThird ;
                 }
                 break ;
@@ -191,7 +188,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                     //
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
-                    container_.getOI().setAutoNoteDestination(NoteDestination.ManualSpeaker) ;
                     container_.getIntakeShooter().setManualShootParameters(FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualTilt) ;
                     container_.getIntakeShooter().collect() ;                    
                     container_.getDriveTrain().driveTo("Shoot-C4", null, collect3pose_, 3.0, 2.5, 0, 0, 0.2) ;
@@ -209,7 +205,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true) ;
+                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, true);
                         state_ = State.ShootFourth ;                                   
 
                     }
@@ -224,7 +220,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true) ;
+                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, false) ;
 
                     state_ = State.FinishFourth ;
                 }

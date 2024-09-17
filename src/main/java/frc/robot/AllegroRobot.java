@@ -53,8 +53,13 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "dbtunerotate";
-    }    
+        return "autofour";
+    }
+
+    @Override
+    public String getSimulationAutoMode() {
+        return "four-note" ;
+    }
 
     @Override
     public boolean isCharMode() {
@@ -129,6 +134,7 @@ public class AllegroRobot extends XeroRobot {
         }
     }
 
+
     /**
      * This function is called every 20 ms, no matter the mode. Use this for items
      * like diagnostics
@@ -142,6 +148,8 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void robotPeriodic() {
         super.robotPeriodic();      
+
+        Logger.recordOutput("driver", container_.getDriveControllerOIString()) ;
         
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled

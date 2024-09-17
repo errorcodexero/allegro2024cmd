@@ -5,19 +5,20 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SwerveRotateToAngle extends Command {
 
-    private static final double kP = 0.3 ;
+    private static final double kP = 15.0 ;
     private static final double kI = 0.0 ;
-    private static final double kD = 0.0 ;
+    private static final double kD = 1.0 ;
+    private static final double kMax = 160.0 ;
 
-    private static final double kDefaultPostol = 5.0 ;
+    private static final double kDefaultPostol = 1.0 ;
     private static final double kDefaultVeltol = 5.0 ;
 
     private PIDController pid_ ;
@@ -57,8 +58,8 @@ public class SwerveRotateToAngle extends Command {
     @Override
     public void initialize() {
         pid_ = new PIDController(kP, kI, kD) ;
+        pid_.enableContinuousInput(-180.0, 180.0);
         is_finished_ = false ;
-
     }
 
     @Override
@@ -67,17 +68,21 @@ public class SwerveRotateToAngle extends Command {
         double current = db_.getState().Pose.getRotation().getDegrees() ;
         double rotvel = pid_.calculate(current, target) ;
 
+        if (Math.abs(rotvel) > kMax) {
+            rotvel = Math.signum(rotvel) * kMax ;
+        }
+
         double current_angular_velocity = db_.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() ;
         is_finished_ = Math.abs(current - target) < postol_ && Math.abs(current_angular_velocity) < veltol_ ;
 
         if (!is_finished_) {
-            db_.setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds(0, 0, rotvel))) ;
-        }
-        else {
-            db_.setControl(new SwerveDriveBrake()) ;
+            db_.setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds(0, 0, Units.degreesToRadians(rotvel)))) ;
+        } else {
+            db_.setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds(0, 0, 0))) ;
         }
 
         Logger.recordOutput("rotdb:target", target) ;
+        Logger.recordOutput("rotdb:desired", rotvel) ;
         Logger.recordOutput("rotdb:position", db_.getState().Pose.getRotation().getDegrees())  ;
         Logger.recordOutput("rotdb:velocity", current_angular_velocity) ;
         Logger.recordOutput("rotdb:is-finished", is_finished_) ;

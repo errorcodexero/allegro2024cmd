@@ -1,10 +1,12 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
+import org.littletonrobotics.junction.Logger;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.ShootType;
+import frc.robot.ShotType;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -30,10 +32,8 @@ public class ShootCommand extends Command {
 
         db_ = db ;
         intake_ = intake ;
-
-        rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
-                        .withPositionTolerance(kShootPositionTolerance)
-                        .withVelocityTolerance(kShootVelocityTolerance) ;        
+        
+        rotate_ = null ;      
 
         addRequirements();
         setName("shoot") ;
@@ -42,7 +42,10 @@ public class ShootCommand extends Command {
     @Override
     public void initialize() {
 
-        if (oi_.getShootType() == ShootType.Podium) {
+        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+        logger.startMessage(MessageType.Debug).add("Started The ShootCommand").endMessage();
+
+        if (oi_.getShotType() == ShotType.Podium) {
             shoot_ = intake_.manualShootCommand(
                                 IntakeShooterConstants.ManualShotPodium.kUpDownPos,
                                 IntakeShooterConstants.ManualShotPodium.kUpDownPosTolerance,
@@ -55,7 +58,7 @@ public class ShootCommand extends Command {
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
-        else if (oi_.getShootType() == ShootType.Subwoofer) {
+        else if (oi_.getShotType() == ShotType.Subwoofer) {
             shoot_ = intake_.manualShootCommand(
                                 IntakeShooterConstants.ManualShotSubwoofer.kUpDownPos,
                                 IntakeShooterConstants.ManualShotSubwoofer.kUpDownPosTolerance,
@@ -69,6 +72,9 @@ public class ShootCommand extends Command {
             rotate_ = null ;
         }
         else {
+            rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
+                            .withPositionTolerance(kShootPositionTolerance)
+                            .withVelocityTolerance(kShootVelocityTolerance) ;              
             shoot_ = null ;
             CommandScheduler.getInstance().schedule(rotate_);
         }
@@ -76,20 +82,41 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
+        String str ="empty" ;
+
         if (rotate_ != null) {
             if (oi_.abort().getAsBoolean()) {
                 rotate_.cancel();
                 rotate_ = null ;
+                str = "aborted" ;
             }
             else if (rotate_.isFinished()) {
                 rotate_ = null ;
                 shoot_ = intake_.shootCommand() ;
                 CommandScheduler.getInstance().schedule(shoot_);
+                str = "rfinished" ;
+            }
+            else {
+                str = "rotate" ;
             }
         }
         else if (shoot_ != null) {
-            db_.setControl(new SwerveDriveBrake()) ;
+            if (intake_.hasShotLeft()) {
+                str = "sfinished" ;
+                shoot_ = null ;
+            }
+            else {
+                str = "shoot" ;
+            }
         }
+
+        Logger.recordOutput("scmd-st", str) ;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+        logger.startMessage(MessageType.Debug).add("end The ShootCommand", interrupted).endMessage();
     }
 
     @Override

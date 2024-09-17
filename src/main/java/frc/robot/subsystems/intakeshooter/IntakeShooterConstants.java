@@ -15,7 +15,7 @@ public class IntakeShooterConstants {
         public static final double kUpDownPos = 118.0 ;
         public static final double kUpDownPosTolerance = 5.0 ;
         public static final double kUpDownVelTolerance = 5.0 ;
-        public static final double kTiltPos = -657.0 ;
+        public static final double kTiltPos = -67.0 ;
         public static final double kTiltPosTolerance = 1.0 ;
         public static final double kTiltVelTolerance = 5.0 ;
         public static final double kShooterVel = 70.0 ;
@@ -49,8 +49,8 @@ public class IntakeShooterConstants {
         public static final boolean kInvert = true ;
 
         public static final double kCurrentLimit = 60.0 ;
-        public static final double kTargetPosTolerance = 2.0 ;
-        public static final double kTargetVelTolerance = 1.0 ;
+        public static final double kTargetPosTolerance = 5.0 ;
+        public static final double kTargetVelTolerance = 5.0 ;
         public static final double kDegreesPerRev = 7.2727273 ;
         public static final double kSimGearRatio = 2.0 ;
         public static final double kSimMotorLoad = 0.00001 ;
@@ -115,8 +115,8 @@ public class IntakeShooterConstants {
         public static final int kMotorId = 5 ;
         public static final boolean kInvert = true ;            
         public static final double kCurrentLimit = 60.0 ;
-        public static final double kTargetPosTolerance = 2.0 ;
-        public static final double kTargetVelTolerance = 1.0 ;
+        public static final double kTargetPosTolerance = 5.0 ;
+        public static final double kTargetVelTolerance = 5.0 ;
         public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
@@ -272,7 +272,7 @@ public class IntakeShooterConstants {
             2.62, 75,
             2.93, 75,
             3.23, 75,
-            3.5, 80            
+            3.5, 75
         } ;            
     }
 

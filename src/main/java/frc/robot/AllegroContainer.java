@@ -2,7 +2,6 @@ package frc.robot;
 
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
-import frc.robot.commands.VibrateCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
@@ -97,6 +96,7 @@ public class AllegroContainer extends XeroContainer {
                                                  TunerConstantsCompetition.BackRight);
 
         Supplier<NoteDestination> notesupply = null ;
+        Supplier<ShotType> shotsupply = null ;
 
         if (!robot.isCharMode()) {
             //
@@ -104,6 +104,7 @@ public class AllegroContainer extends XeroContainer {
             //
             oi_ = new OISubsystem(robot, OIConstants.kOIControllerPort) ;
             notesupply = () -> oi_.getNoteDestination() ;
+            shotsupply = () -> oi_.getShotType() ;
         }
         else {
             //
@@ -117,7 +118,7 @@ public class AllegroContainer extends XeroContainer {
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         db_.setLimelightName(limelight_name_);
 
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply) ;
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
 
         //
@@ -334,7 +335,8 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_).andThen(new VibrateCommand(driver_controller_, 2.0))) ;
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        // driver_controller_.a().and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
@@ -371,4 +373,82 @@ public class AllegroContainer extends XeroContainer {
         }
     }
     // #endregion
+
+    private String getDriveControllerString() {
+        String str = "" ;
+
+        if (driver_controller_.a().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "a" ;
+        }
+
+        if (driver_controller_.b().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "b" ;
+        }        
+
+        if (driver_controller_.x().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "x" ;
+        }    
+        
+        if (driver_controller_.y().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "y" ;
+        }   
+        
+        if (driver_controller_.back().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "back" ;
+        }      
+        
+        if (driver_controller_.start().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "start" ;
+        }   
+        
+        if (driver_controller_.leftBumper().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "lb" ;
+        }     
+        
+        if (driver_controller_.rightBumper().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "rb" ;
+        }          
+
+        if (driver_controller_.leftStick().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "ls" ;
+        }     
+        
+        if (driver_controller_.rightStick().getAsBoolean()) {
+            if (str.length() > 0)
+                str += "," ;
+            str += "rs" ;
+        }    
+
+        return str ;
+    }
+
+    public String getDriveControllerOIString() {
+        String str = getDriveControllerString() ;
+
+        String oistr = oi_.getPressedString() ;
+        if (oistr.length() > 0 && str.length() > 0)
+            str += "," ;
+        str += oistr ;
+
+        str = "[" + str + "]";
+        return str ;
+    }    
 }

@@ -85,7 +85,7 @@ public class EventsManager {
             obj = stimarray.get(i);
             if (obj instanceof JSONObject) {
                 try {
-                    parseTimePoint((JSONObject) obj);
+                    parseTimePoint(i + 1, (JSONObject) obj);
                 }
                 catch(Exception ex) {
                     logger.startMessage(MessageType.Error);
@@ -113,17 +113,30 @@ public class EventsManager {
         events_.remove(0) ;
     }
 
-    private void parseTimePoint(JSONObject tpt) throws Exception {
+    private void parseTimePoint(int index, JSONObject tpt) throws Exception {
         Object obj ;
 
-        if (!tpt.containsKey("time"))
+        if (!tpt.containsKey("time")) {
+            String str = String.format("time point at stimulus index %d is missing the time property", index) ;
+            MessageLogger logger = engine_.getMessageLogger() ;
+            logger.startMessage(MessageType.Warning).add(str).endMessage();
             return ;
+        }
 
+        double t = 0.0 ;
         obj = tpt.get("time") ;
-        if (!(obj instanceof Double))
+        if (obj instanceof Double) {
+            t = (Double)obj ;
+        }
+        else if (obj instanceof Long) {
+            t = ((Long)obj).doubleValue() ;
+        }
+        else {
+            String str = String.format("time point at stimulus index %d has the wrong type for a time value", index) ;
+            MessageLogger logger = engine_.getMessageLogger() ;
+            logger.startMessage(MessageType.Warning).add(str).endMessage();
             return ;
-
-        double t = (Double)obj ;
+        }
 
         if (tpt.containsKey("events")) {
             obj = tpt.get("events") ;

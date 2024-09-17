@@ -99,6 +99,10 @@ public interface IntakeShooterIO {
     public default void simulate(double period) {
     }    
 
+    public default double getFeederMotorVoltage() {
+        return 0.0 ;
+    }
+
     public default Map<String, TalonFX> getCTREMotors() {
         return null ;
     }
