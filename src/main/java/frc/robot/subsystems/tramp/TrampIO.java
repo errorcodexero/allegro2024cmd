@@ -90,9 +90,6 @@ public interface TrampIO {
     public default void logClimberMotor(SysIdRoutineLog log) {
     }      
 
-    public default void simulate(double period) {
-    }    
-
     public default Map<String, TalonFX> getCTREMotors() {
         return null ;
     }

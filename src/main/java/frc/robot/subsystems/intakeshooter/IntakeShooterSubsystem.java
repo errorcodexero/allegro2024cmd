@@ -53,8 +53,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         EjectPause,
         EjectReverse,
         TransferStartingShooter,
-        TransferWaitForSensor,
-        TransferWaitForNoSensor,
+        TransferWaitForNote,
+        TransferWaitForNoNote,
         TransferFinishTransfer,
         TransferContinueShooter,
         EnableTracking,
@@ -357,23 +357,23 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // method assumes the intake/shooter and elevator/manipulator are in the correct positions
     // before being called.  If they are in the transfer position, the state will be HoldingTransferPosition.
     //
-    public void transfer() {
+    public void transferNoTrampSensor() {
         if (has_note_ && state_ == State.HoldingTransferPosition) {
             need_stop_manipulator_ = false ;
 
-            if (inputs_.noteSensor ^ IntakeShooterConstants.NoteSensor.kInverted) {
+            if (isNoteDetected()) {
                 //
                 // The note is already sitting on the sensor.  We just wait for the note to
                 // move off the sensor
                 //
-                initial_transfer_state_ = State.TransferWaitForNoSensor ;
+                initial_transfer_state_ = State.TransferWaitForNoNote ;
             }
             else {
                 //
                 // The note is not on the sensor, so the sensor is assumed to be sitting in the middle of the note.
                 // We wait until we sense the note and then look for the note to move off the sensor.
                 //
-                initial_transfer_state_ = State.TransferWaitForSensor ;
+                initial_transfer_state_ = State.TransferWaitForNote ;
             }
 
             //
@@ -382,6 +382,17 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
             state_ = State.TransferStartingShooter ;            
         }
+    }
+
+    public void transferWithTrampSensor() {
+        if (has_note_ && state_ == State.HoldingTransferPosition) {      
+            //
+            // Start the shooter wheels so they are moving when the note hits the shooter.
+            //
+            setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
+            initial_transfer_state_ = State.Idle ;
+            state_ = State.TransferStartingShooter ; 
+        }              
     }
 
     //
@@ -691,6 +702,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         state_ = State.Tuning ;
     }
 
+    public void stopShooter() {
+        io_.setShooter1MotorVoltage(0.0) ;
+        io_.setShooter2MotorVoltage(0.0) ;
+    }
+
     public void waitingToShootState() {
         if (isTiltReady() && isUpDownReady() && isShooterReady()) {
             io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
@@ -848,7 +864,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 transferStartingShooterState() ;
                 break ;
 
-            case TransferWaitForSensor:
+            case TransferWaitForNote:
                 if (inputs_.risingEdge && inputs_.fallingEdge) {
                     //
                     // The note completely passed the sensor since the last robot loop
@@ -860,11 +876,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                     //
                     // The leading edge of the note passed the sensor, wait for the trailing edge
                     //
-                    state_ = State.TransferWaitForNoSensor ;
+                    state_ = State.TransferWaitForNoNote ;
                 }
                 break ;
 
-            case TransferWaitForNoSensor:
+            case TransferWaitForNoNote:
                 if (inputs_.risingEdge) {
                     state_ = State.TransferFinishTransfer ;
                     transfer_start_pos_ = inputs_.shooter1Position ;
@@ -952,6 +968,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:feederVoltage", io_.getFeederMotorVoltage()) ;
             Logger.recordOutput("intake:readyForShoot", readyForShoot().getAsBoolean()) ;
             Logger.recordOutput("intake:tracking", tracking_) ;
+            Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
         }
         periodicEnd();
     }

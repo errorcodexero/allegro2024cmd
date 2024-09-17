@@ -58,12 +58,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "shoot";
+        return "transfer";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "four-note" ;
+        return "auto-four" ;
     }
 
     @Override

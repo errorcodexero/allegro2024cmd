@@ -240,7 +240,7 @@ public class IntakeShooterConstants {
 
         public static final double kAutoShootVelocityTol = 5.0 ;            
 
-        public static final double kTransferVelocity = 15.0 ;
+        public static final double kTransferVelocity = 5.0 ;
         public static final double kTransferVelocityTol = 5.0 ;
         public static final double kTransferTransferLength = 0.6 ;
         public static final double kTransferContLength = 8.0 ;     

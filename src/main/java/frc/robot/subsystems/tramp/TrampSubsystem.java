@@ -52,7 +52,10 @@ public class TrampSubsystem extends XeroSubsystem {
         DepositingNote,
         Trap3,
         Transferring,
-        TransferringTimer,
+        TransferringWithSensor,
+        TransferringTimer,        
+        TransferManipulatorDelayed,
+        TransferManipulatorRun,
         Shooting,
         BasicClimbMovingElevatorArm,
         BasicClimbMovingClimber,        
@@ -84,6 +87,8 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
     private XeroTimer transfer_timer_ ;
+    private XeroTimer transfer_st1_delay_timer_ ;
+    private XeroTimer transfer_st2_run__timer_ ;
 
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
@@ -93,6 +98,8 @@ public class TrampSubsystem extends XeroSubsystem {
     private ClimberDir climber_dir_ ;
     private double climber_target_ ;
     private double manipulator_target_ ;
+
+    private int transfer_strategy_ ;
 
     public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
         super(robot, NAME) ;
@@ -108,6 +115,8 @@ public class TrampSubsystem extends XeroSubsystem {
         shoot_timer_ = new XeroTimer("tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer("tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
         transfer_timer_ = new XeroTimer("tramp-transfer-timer", TrampConstants.Manipulator.kTransferTime) ;
+        transfer_st1_delay_timer_ = new XeroTimer("tramp-transfer-st1-delay", 0.5) ;
+        transfer_st2_run__timer_ = new XeroTimer("tramp-transfer-st2-run", 0.2) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
@@ -117,6 +126,15 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.Idle ;
         climber_dir_ = ClimberDir.None ;
         climber_target_ = 0.0 ;
+    }
+
+    public void stopManipulatorHoldNote() {
+        //
+        // Enable a PID controller to hold the note in place.
+        //
+        io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+        has_note_ = true ;
+        state_ = State.HoldingAmpPosition ;
     }
 
     public SettingsValue getProperty(String name) {
@@ -266,16 +284,36 @@ public class TrampSubsystem extends XeroSubsystem {
         }
     }
 
+    public boolean hasNote() {
+        return has_note_ ;
+    }
+
     public void eject() {
         io_.setManipulatorVoltage(TrampConstants.Manipulator.kEjectVoltage);
         eject_timer_.start();
         state_ = State.Eject ;
     }
 
-    public void transfer() {
+    public void transferNoTrampSensor(int strategy) {
+        transfer_strategy_ = strategy ;
+
+        if (state_ == State.HoldingTransferPosition) {
+            if (transfer_strategy_ == 0) {
+                transfer_timer_.start() ;
+                io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
+                state_ = State.Transferring ;
+            }
+            else if (transfer_strategy_ == 1) {
+                state_ = State.TransferManipulatorDelayed ;
+                transfer_st1_delay_timer_.start();
+            }
+        }
+    }
+
+    public void transferWithTrampSensor() {
         if (state_ == State.HoldingTransferPosition) {
             io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
-            state_ = State.Transferring ;
+            state_ = State.TransferringWithSensor ;
         }
     }
 
@@ -285,11 +323,6 @@ public class TrampSubsystem extends XeroSubsystem {
         next_state_ = State.Idle ;
     }
 
-    @Override
-    public void simulationPeriodic() {
-        io_.simulate(getRobot().getPeriod()) ;
-    }
-    
     @Override
     public void periodic() {
         periodicStart();
@@ -393,6 +426,9 @@ public class TrampSubsystem extends XeroSubsystem {
                 break ;
 
             case Transferring:
+                break ;
+
+            case TransferringWithSensor:
                 if (inputs_.noteSensor) {
                     state_ = State.TransferringTimer ;
                     transfer_timer_.start();
@@ -406,6 +442,23 @@ public class TrampSubsystem extends XeroSubsystem {
                     state_ = State.Idle ;
                     io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
                 }
+                break ;
+
+            case TransferManipulatorDelayed:
+                if (transfer_st1_delay_timer_.isExpired()) {
+                    io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
+                    transfer_st2_run__timer_.start() ;
+                    state_ = State.TransferManipulatorRun ;
+                }
+                break ;
+
+            case TransferManipulatorRun:
+                if (transfer_st2_run__timer_.isExpired()) {
+                    has_note_ = true ;
+                    state_ = State.Idle ;
+                    io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+                }
+                break ;
 
             case Shooting:
                 if (shoot_timer_.isExpired()) {
@@ -492,6 +545,8 @@ public class TrampSubsystem extends XeroSubsystem {
             Logger.recordOutput("tramp:climber-voltage", io_.getClimberMotorVoltage());
             Logger.recordOutput("tramp:is-elev-ready", isElevatorReady());
             Logger.recordOutput("tramp:is-arm-ready", isArmReady());
+            Logger.recordOutput("tramp:readyForAmp", readyForAmp().getAsBoolean());
+            Logger.recordOutput("tramp:hasnote", hasNote()) ;     
         }
 
         periodicEnd();

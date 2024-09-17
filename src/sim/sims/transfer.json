@@ -13,7 +13,7 @@
                         "start" : 0,
                         "autonomous" : 0.0,
                         "between" : 0.0,
-                        "teleop" : 1000.0,
+                        "teleop" : 16.0,
                         "fms" : false,
                         "alliance" : "blue1"
                     }
@@ -31,15 +31,6 @@
                     {
                         "comment" : "Set target to the amp",
                         "note-target" : "amp"
-                    }
-                },
-                {
-                    "model" : "swervedrive",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Set the drive pose to the test location",
-                        "pose" : "3.0,2.54789,0.0"
                     }
                 }
             ]
@@ -69,13 +60,13 @@
                     "values" : 
                     {
                         "comment" : "Note arrived in intake - sensor on",
-                        "note-sensor" : true
+                        "note-sensor" : false
                     }
                 }
             ]
         },
         {
-            "time" : 5.1,
+            "time" : 5.04,
             "events" :
             [
                 {
@@ -84,7 +75,7 @@
                     "values" : 
                     {
                         "comment" : "Note left intake - sensor off",
-                        "note-sensor" : false
+                        "note-sensor" : true
                     }
                 }
             ]
@@ -103,6 +94,66 @@
                     }
                 }
             ]
-        }   
+        },
+        {
+            "time" : 6.8,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Back edge of note passes sensor",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.9,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Back edge of note clears sensor",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 12.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the shoot button (a)",
+                        "a" : true
+                    }
+                }
+            ]
+        }, 
+        {
+            "time" : 13.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the shoot button (a)",
+                        "a" : false
+                    }
+                }
+            ]
+        }        
     ]
 }

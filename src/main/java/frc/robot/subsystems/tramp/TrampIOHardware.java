@@ -375,37 +375,6 @@ public class TrampIOHardware implements TrampIO {
             .angularVelocity(Units.RevolutionsPerSecond.of(climber_velocity_sig_.refresh().getValueAsDouble())) ;
     }    
      
-
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // Simulation
-    //
-    ////////////////////////////////////////////////////////////////////////////    
-
-    public void doSim(TalonFX motor, DCMotorSim sim, double period){
-        TalonFXSimState state = motor.getSimState() ;
-        state.setSupplyVoltage(RobotController.getBatteryVoltage()) ;
-        sim.setInputVoltage(state.getMotorVoltage());
-        sim.update(period) ;
-        state.setRawRotorPosition(sim.getAngularPositionRotations()) ;
-        state.setRotorVelocity(edu.wpi.first.math.util.Units.radiansToRotations(sim.getAngularVelocityRadPerSec())) ;
-    }    
-
-    public void simulate(double period) {
-        doSim(arm_motor_, arm_sim_, period) ;
-        doSim(elevator_motor_, elevator_sim_, period) ;
-        doSim(climber_motor_, climber_sim_, period) ;
-
-        //
-        // The RevRobotics motors do not provide simulation support, so we have to simulate them
-        // here "manually".  This simulation is specific to the use case here
-        //
-        if (Math.abs(manipulator_voltage_) > 0.01) {
-            double pos = manipulator_encoder_.getPosition() + 0.04 ;
-            manipulator_encoder_.setPosition(pos) ;
-        }
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     //
     // Utility methods

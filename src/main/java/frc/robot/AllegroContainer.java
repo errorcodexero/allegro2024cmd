@@ -340,12 +340,11 @@ public class AllegroContainer extends XeroContainer {
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
         oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
-        // driver_controller_.a().and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
         //
-        oi_.shoot().and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
+        driver_controller_.a().or(oi_.shoot()).and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
 
         //
         // Climb Up Exec, bound to complete the trap sequence
@@ -356,7 +355,7 @@ public class AllegroContainer extends XeroContainer {
         // If a note is collected and the target is the trap or amp, this trigger is fired to complete
         // the transfer action.  The transfer action moves the note from the intake to the manipulator.
         //
-        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
+        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_, false)) ;
 
         oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
         oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
