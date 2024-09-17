@@ -171,6 +171,7 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called once each time the robot enters Disabled mode. */
     @Override
     public void disabledInit() {
+        super.disabledInit();
     }
 
     @Override
@@ -201,7 +202,8 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-    }
+        super.teleopPeriodic();
+    }    
 
     @Override
     public void testInit() {
@@ -212,6 +214,7 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
+        super.testPeriodic();
     }
 
     /** This function is called once when the robot is first started up. */

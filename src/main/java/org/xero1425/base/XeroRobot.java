@@ -230,7 +230,7 @@ public abstract class XeroRobot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        createAutoModes();        
+        createAutoModes();
     }
 
     @Override
@@ -271,9 +271,7 @@ public abstract class XeroRobot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        if (auto_mode_ != null) {
-            auto_mode_.cancel() ;
-        }
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override

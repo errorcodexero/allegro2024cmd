@@ -1,8 +1,6 @@
 package frc.robot.commands;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.misc.MessageLogger;
-import org.xero1425.misc.MessageType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -42,10 +40,6 @@ public class ShootCommand extends Command {
 
     @Override
     public void initialize() {
-
-        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
-        logger.startMessage(MessageType.Debug).add("Started The ShootCommand").endMessage();
-
         if (oi_.getShotType() == ShotType.Podium) {
             shoot_ = intake_.manualShootCommand(
                                 IntakeShooterConstants.ManualShotPodium.kUpDownPos,
@@ -132,8 +126,6 @@ public class ShootCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
-        logger.startMessage(MessageType.Debug).add("end The ShootCommand", interrupted).endMessage();
     }
 
     @Override
