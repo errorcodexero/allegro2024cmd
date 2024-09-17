@@ -20,6 +20,7 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -79,6 +80,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private double target_velocity_tol_ ;
     private double next_updown_ ;
     private double transfer_start_pos_ ;
+
+    private double auto_manual_shoot_updown_ ;
+    private double auto_manual_shoot_tilt_ ;
 
     private boolean tracking_ ;
     private DoubleSupplier distsupplier_ ;
@@ -205,10 +209,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public boolean transferNote() {
-        NoteDestination dest = getNoteDestination() ;
-        boolean ret = has_note_ && 
+        boolean ret = false ;
+
+        if (!DriverStation.isAutonomous()) {
+            NoteDestination dest = getNoteDestination() ;
+            ret = has_note_ && 
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
                      (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
+        }
         return ret;
     }
 
@@ -323,7 +331,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public void setManualShootParameters(double updown, double tilt) {
-        assert false ;
+        auto_manual_shoot_tilt_ = tilt ;
+        auto_manual_shoot_updown_ = updown ;
     }
 
     //
@@ -471,10 +480,15 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private NoteDestination getNoteDestination() {
-        if (destsupplier_ != null)
-            return destsupplier_.get() ;
+        NoteDestination ret = NoteDestination.Speaker ;
+        if (DriverStation.isAutonomous()) {
+            ret = NoteDestination.AutoDefinedSpeaker ;
+        }
+        else if (destsupplier_ != null) {
+            ret = destsupplier_.get() ;
+        }
 
-        return NoteDestination.Speaker ;
+        return ret ;
     }
 
     private ShotType getShotType() {
@@ -565,6 +579,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             
             NoteDestination dest = getNoteDestination();
             switch(dest) {
+                case AutoDefinedSpeaker:
+                    next_state_ = State.Idle ;
+                    gotoPosition(auto_manual_shoot_updown_, Double.NaN, Double.NaN, auto_manual_shoot_tilt_, Double.NaN, Double.NaN) ; 
+                    break ;
                 case Speaker:
                     {
                         ShotType type = getShotType() ;
