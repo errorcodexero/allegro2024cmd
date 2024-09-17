@@ -335,6 +335,7 @@ public class TrampIOHardware implements TrampIO {
 
     public void setManipulatorTargetPosition(double pos) {
         manipulator_pid_.setReference(pos, CANSparkBase.ControlType.kPosition, 0) ;
+        manipulator_voltage_ = 0.0 ;
     }
 
     public void setManipulatorVoltage(double volts) {

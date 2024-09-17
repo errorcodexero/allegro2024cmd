@@ -46,7 +46,7 @@ public class TransferNoteCommand extends Command {
                 }
                 else {
                     intake_shooter_.transferNoTrampSensor();
-                    tramp_.transferNoTrampSensor(0);
+                    tramp_.transferNoTrampSensor(1);
                     state_ = State.InTransferNoSensor ;
                 }
             }

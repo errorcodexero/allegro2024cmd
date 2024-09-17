@@ -116,7 +116,7 @@ public class TrampSubsystem extends XeroSubsystem {
         deposit_trap_timer_ = new XeroTimer("tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
         transfer_timer_ = new XeroTimer("tramp-transfer-timer", TrampConstants.Manipulator.kTransferTime) ;
         transfer_st1_delay_timer_ = new XeroTimer("tramp-transfer-st1-delay", 0.5) ;
-        transfer_st2_run__timer_ = new XeroTimer("tramp-transfer-st2-run", 0.2) ;
+        transfer_st2_run__timer_ = new XeroTimer("tramp-transfer-st2-run", 0.5) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
