@@ -919,7 +919,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferFinishTransfer:
-                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferTransferLength) {                
+                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {                
                     need_stop_manipulator_ = true ;
                     has_note_ = false ;                    
                     state_ = State.TransferContinueShooter ;
@@ -927,7 +927,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferContinueShooter:
-                if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
+                if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
                     io_.setFeederMotorVoltage(0.0);
                     setShooterVoltage(0.0);
                     next_state_ = State.Idle ;                    

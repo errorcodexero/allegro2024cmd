@@ -61,7 +61,7 @@ public class IntakeShooterConstants {
             public static final double kStowed = 118.0 ;
             public static final double kStartTracking = 118.0 ;
             public static final double kCollect = -11.0 ;
-            public static final double kTransfer = 90.0 ;
+            public static final double kTransfer = 100.0 ;
             public static final double kShootNominal = 118.0 ;
             public static final double kEject = 118.0 ;
         }            
@@ -128,7 +128,7 @@ public class IntakeShooterConstants {
             public static final double kStowed = -72.0 ;
             public static final double kStartTracking = -50.0 ;
             public static final double kCollect = 50.0 ;
-            public static final double kTransfer = 0.0 ;
+            public static final double kTransfer = -15.0 ;
 
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;
@@ -244,7 +244,7 @@ public class IntakeShooterConstants {
         public static final double kTransferVelocity = 20.0 ;
         public static final double kTransferRunShooterDuration = 2.5 ;
         public static final double kTransferVelocityTol = 5.0 ;
-        public static final double kTransferTransferLength = 0.3 ;
+        public static final double kTransferLength = 0.4 ;
         public static final double kTransferContLength = 8.0 ;     
 
         public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;
