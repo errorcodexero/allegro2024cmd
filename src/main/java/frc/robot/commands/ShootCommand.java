@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import org.littletonrobotics.junction.Logger;
+import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -40,6 +42,9 @@ public class ShootCommand extends Command {
 
     @Override
     public void initialize() {
+        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+        logger.startMessage(MessageType.Debug).add("Running the shoot command").endMessage();
+
         if (oi_.getShotType() == ShotType.Podium) {
             shoot_ = intake_.manualShootCommand(
                                 IntakeShooterConstants.ManualShotPodium.kUpDownPos,
@@ -67,6 +72,7 @@ public class ShootCommand extends Command {
             rotate_ = null ;
         }
         else {
+            logger.startMessage(MessageType.Debug).add("Running auto shoot command").endMessage();            
             rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(kShootPositionTolerance)
                             .withVelocityTolerance(kShootVelocityTolerance) ;
@@ -77,18 +83,23 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
+        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+
+
         String str ="empty" ;
 
         boolean dbready = false ;
 
         if (rotate_ != null) {
             if (oi_.abort().getAsBoolean()) {
+                tracker_.freezePose(false);
                 rotate_.cancel();
                 rotate_ = null ;
                 str = "aborted" ;
             }
             else if (rotate_.isFinished()) {
                 if (!tracker_.isFrozen()) {
+                    logger.startMessage(MessageType.Debug).add("shoot: freezing the robot pose").endMessage();                    
                     tracker_.freezePose(true);                
                 }
                 if (tracker_.isOkToShoot()) {

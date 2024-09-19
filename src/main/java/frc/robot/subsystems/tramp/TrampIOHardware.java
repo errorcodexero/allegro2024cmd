@@ -17,19 +17,15 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units ;
 import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
@@ -47,15 +43,6 @@ public class TrampIOHardware implements TrampIO {
     private CANSparkFlex manipulator_motor_ ;
     private RelativeEncoder manipulator_encoder_ ;
     private SparkPIDController manipulator_pid_ ;
-    private DigitalInput note_sensor_ ;
-    private AsynchronousInterrupt note_interrupt_ ;
-    private AtomicBoolean rising_seen_ ;
-    private AtomicBoolean falling_seen_ ;
-
-    private DCMotorSim arm_sim_ ;
-    private DCMotorSim elevator_sim_ ;
-    private DCMotorSim climber_sim_ ;
-    private DIOSim note_sim_ ;
 
     private StatusSignal<Double> elevator_pos_sig_ ;
     private StatusSignal<Double> elevator_vel_sig_ ;
@@ -178,17 +165,6 @@ public class TrampIOHardware implements TrampIO {
         manipulator_pid_.setFF(TrampConstants.Manipulator.PID.kV, 0) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        // Note Sensor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////  
-        note_sensor_ = new DigitalInput(TrampConstants.NoteSensor.kChannel) ;
-        note_interrupt_ = new AsynchronousInterrupt(note_sensor_, (rising, falling) -> { noteInterruptHandler(rising, falling); }) ;
-        note_interrupt_.setInterruptEdges(true, true);
-        note_interrupt_.enable();
-
-        rising_seen_ = new AtomicBoolean() ;
-        falling_seen_ = new AtomicBoolean() ;
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
         /////////////////////////////////////////////////////////////////////////////////////////////////            
         BaseStatusSignal.setUpdateFrequencyForAll(75.0,
@@ -212,16 +188,6 @@ public class TrampIOHardware implements TrampIO {
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Simulation initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////  
-        if (RobotBase.isSimulation()) {
-            arm_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Arm.kSimGearRatio, TrampConstants.Arm.kSimMotorLoad) ;
-            elevator_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Elevator.kSimGearRatio, TrampConstants.Elevator.kSimMotorLoad);
-            climber_sim_ = new DCMotorSim(DCMotor.getKrakenX60Foc(1), TrampConstants.Climber.kSimGearRatio, TrampConstants.Climber.kSimMotorLoad) ;
-
-            note_sim_ = new DIOSim(note_sensor_) ;
-            note_sim_.setIsInput(true) ;
-            note_sim_.setValue(true);
-            note_sim_.setInitialized(true);
-        }        
     }
 
     public void updateInputs(TrampIOInputs inputs) {
@@ -251,17 +217,6 @@ public class TrampIOHardware implements TrampIO {
         inputs.manipulatorPosition = manipulator_encoder_.getPosition() ;
         inputs.manipulatorVelocity = manipulator_encoder_.getVelocity() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
-        
-        inputs.risingEdge = rising_seen_.get() ;
-        inputs.fallingEdge = falling_seen_.get() ;
-
-        inputs.noteSensor = note_sensor_.get() ;
-
-        rising_seen_.set(false) ;
-        falling_seen_.set(false) ;
-
-        
-        SmartDashboard.putBoolean("TSensor", inputs.noteSensor) ;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -381,28 +336,6 @@ public class TrampIOHardware implements TrampIO {
     // Utility methods
     //
     ////////////////////////////////////////////////////////////////////////////
-
-    private void noteInterruptHandler(boolean rising, boolean falling) {
-        if (rising) {
-            if (RobotBase.isSimulation()) {
-                // falling/rising swapped in simulation.
-                // Bug report: https://github.com/wpilibsuite/allwpilib/issues/6515
-                falling_seen_.set(true) ;
-            }
-            else {
-                rising_seen_.set(true) ;
-            }
-        }
-
-        if (falling) {
-            if (RobotBase.isSimulation()) {
-                rising_seen_.set(true) ;
-            }
-            else {
-                falling_seen_.set(true) ;
-            }
-        }
-    }
 
     private static void checkError(String msg, Supplier<StatusCode> toApply) throws Exception {
         StatusCode code = StatusCode.StatusCodeNotInitialized ;

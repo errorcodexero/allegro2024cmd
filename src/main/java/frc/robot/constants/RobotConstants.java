@@ -18,8 +18,8 @@ public class RobotConstants {
         public static final boolean kCharArmSubsystem = false ;
         public static final boolean kCharClimberSubsystem = false ;    
         public static final boolean kCharManipulatorSubsystem = false ;
-        public static final boolean kCharTuneShooter = false ;
-        public static final boolean kCharRotateDB = true ;
+        public static final boolean kCharTuneShooter = true ;
+        public static final boolean kCharRotateDB = false ;
     }
 
     public static enum Mode

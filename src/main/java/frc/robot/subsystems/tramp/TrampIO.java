@@ -30,9 +30,6 @@ public interface TrampIO {
         public double climberVelocity = 0.0 ;
         public double climberOutput = 0.0 ;
         public double climberEncoder = 0.0 ;
-        public boolean risingEdge = false ;
-        public boolean fallingEdge = false ;
-        public boolean noteSensor = false ;
     }
 
     public default void updateInputs(TrampIOInputs inputs) {

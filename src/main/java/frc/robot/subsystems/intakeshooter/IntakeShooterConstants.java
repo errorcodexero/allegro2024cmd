@@ -227,7 +227,8 @@ public class IntakeShooterConstants {
             2.62, -64.0,
             2.93, -62.0,
             3.23, -61.0,
-            3.5, -58.0
+            3.5, -58.0,
+            3.9, -57.0
         } ;            
     }
 
@@ -240,9 +241,10 @@ public class IntakeShooterConstants {
 
         public static final double kAutoShootVelocityTol = 5.0 ;            
 
-        public static final double kTransferVelocity = 5.0 ;
+        public static final double kTransferVelocity = 20.0 ;
+        public static final double kTransferRunShooterDuration = 2.5 ;
         public static final double kTransferVelocityTol = 5.0 ;
-        public static final double kTransferTransferLength = 0.6 ;
+        public static final double kTransferTransferLength = 0.3 ;
         public static final double kTransferContLength = 8.0 ;     
 
         public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;
@@ -251,7 +253,6 @@ public class IntakeShooterConstants {
 
         public static final double kSimGearRatio = 0.6 ;      
         public static final double kSimMotorLoad = 0.001 ;
-
 
         public static class Simulated {
             public static final double kP = 0.0;
@@ -272,7 +273,7 @@ public class IntakeShooterConstants {
             2.62, 75,
             2.93, 75,
             3.23, 75,
-            3.5, 75
+            3.5, 80,
         } ;            
     }
 

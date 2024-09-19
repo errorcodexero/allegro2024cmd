@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class SwerveRotateToAngle extends Command {
 
-    private static final double kP = 15.0 ;
+    private static final double kP = 12.0 ;
     private static final double kI = 0.0 ;
-    private static final double kD = 1.0 ;
+    private static final double kD = 0.0 ;
     private static final double kMax = 160.0 ;
 
     private static final double kDefaultPostol = 1.0 ;
@@ -81,8 +81,8 @@ public class SwerveRotateToAngle extends Command {
             db_.setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds(0, 0, 0))) ;
         }
 
-        Logger.recordOutput("rotdb:target", target) ;
-        Logger.recordOutput("rotdb:desired", rotvel) ;
+        Logger.recordOutput("rotdb:tarpos", target) ;
+        Logger.recordOutput("rotdb:tarvel", rotvel) ;
         Logger.recordOutput("rotdb:position", db_.getState().Pose.getRotation().getDegrees())  ;
         Logger.recordOutput("rotdb:velocity", current_angular_velocity) ;
         Logger.recordOutput("rotdb:is-finished", is_finished_) ;

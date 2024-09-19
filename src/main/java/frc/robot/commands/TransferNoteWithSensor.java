@@ -1,15 +1,16 @@
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 
-public class TransferNoteCommand extends Command {
+public class TransferNoteWithSensor extends Command {
     private enum State {
         MoveToPosition,
-        InTransferNoSensor,
-        InTransferWithSensor,
-        MoveTrampToDestination,
+        WaitForShooter,
+        WaitingForTrampStop,
         Done
     }
 
@@ -17,13 +18,13 @@ public class TransferNoteCommand extends Command {
     private TrampSubsystem tramp_ ;
     private State state_ ;
 
-    public TransferNoteCommand(IntakeShooterSubsystem intake_shooter, TrampSubsystem tramp) {
+    public TransferNoteWithSensor(IntakeShooterSubsystem intake_shooter, TrampSubsystem tramp) {
         addRequirements(intake_shooter, tramp);
 
         intake_shooter_ = intake_shooter;
         tramp_ = tramp ;
 
-        setName("transfer-note") ;
+        setName("transfer-note-with-sensor") ;
     }
 
     @Override
@@ -38,31 +39,24 @@ public class TransferNoteCommand extends Command {
     public void execute() {
         if (state_ == State.MoveToPosition) {
             if (intake_shooter_.isInTransferPosition() && tramp_.isInTransferPosition()) {
-                int strat = 0 ;
-                intake_shooter_.transferNoTrampSensor(strat);
-                tramp_.transferNoTrampSensor(strat);
-                state_ = State.InTransferNoSensor ;
+                intake_shooter_.transferWithTrampSensor();
+                state_ = State.WaitForShooter ;
             }
         }
-        else if (state_ == State.InTransferNoSensor) {
-            if (intake_shooter_.needStopManipulator())  {
-                tramp_.stopManipulatorHoldNote() ;
-                tramp_.moveToDestinationPosition() ;
-                state_ = State.MoveTrampToDestination ;
-            }
+        else if (state_ == State.WaitForShooter) {
+            if (intake_shooter_.isShooterReady()) {
+                tramp_.transferWithTrampSensor();
+                state_ = State.WaitingForTrampStop ;
+            }            
         }
-        else if (state_ == State.InTransferWithSensor) {
-            tramp_.setShooterVelocity(intake_shooter_.getShooter1Velocity()) ;
-            if (tramp_.hasNote()) {
-                intake_shooter_.stopShooter() ;
-                state_ = State.MoveTrampToDestination ;
-            }
-        }
-        else if (state_ == State.MoveTrampToDestination) {
+        else if (state_ == State.WaitingForTrampStop) {
             if (tramp_.isIdle()) {
+                intake_shooter_.stopShooterInTransfer() ;
                 state_ = State.Done ;
             }
         }
+
+        Logger.recordOutput("xferst", state_) ;
     }
 
     @Override
@@ -70,3 +64,4 @@ public class TransferNoteCommand extends Command {
         return state_ == State.Done ;
     }
 }
+

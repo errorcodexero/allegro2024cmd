@@ -6,7 +6,7 @@ public class TrackerConstants {
     public static final double kCameraAngle = 40.0 ;
     public static final double kTargetHeight = 1.4511 ;
     public static final double kMaximumShotDistance = 3.5 ;
-    public static final double kMaximumShotAngle = 60.0 ;
+    public static final double kMaximumShotAngle = 75.0 ;
     public static final boolean kDoAprilTagDistanceCheck = true ;
     public static final double kAprilTagMaxDistance = 0.3 ;
     public static final boolean kDoAprilTagTimeCheck = true ;
