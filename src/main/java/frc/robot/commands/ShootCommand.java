@@ -87,8 +87,6 @@ public class ShootCommand extends Command {
     @Override
     public void execute() {
         MessageLogger logger = MessageLogger.getTheMessageLogger() ;
-
-
         String str ="empty" ;
 
         boolean dbready = false ;

@@ -16,6 +16,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 
 public class IntakeShooterModel extends SimulationModel {
@@ -43,6 +44,9 @@ public class IntakeShooterModel extends SimulationModel {
     private TalonFX feeder_ ;
     private TalonFX updown_ ;
     private TalonFX tilt_ ;
+
+    private double updown_pos_ ;
+    private double tilt_pos_ ;
     
     int note_sensor_ ;
     
@@ -177,10 +181,23 @@ public class IntakeShooterModel extends SimulationModel {
             updown_sim_.setInputVoltage(mv) ;
             updown_sim_.update(dt) ;
 
-            // TODO: convert circular motor motion to up/down degrees
+            updown_pos_ = updown_sim_.getAngularPositionRotations() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
 
-            st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
-            st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;
+            if (updown_pos_ < IntakeShooterConstants.UpDown.kMinPosition) {
+                updown_pos_ = IntakeShooterConstants.UpDown.kMinPosition ;
+
+                st.setRawRotorPosition(updown_pos_ / IntakeShooterConstants.UpDown.kDegreesPerRev) ;
+                st.setRotorVelocity(0.0) ;
+            }
+            else if (updown_pos_ > IntakeShooterConstants.UpDown.kMaxPosition) {
+                updown_pos_ = IntakeShooterConstants.UpDown.kMaxPosition ;
+                st.setRawRotorPosition(updown_pos_ / IntakeShooterConstants.UpDown.kDegreesPerRev) ;
+                st.setRotorVelocity(0.0) ;                
+            }
+            else {
+                st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
+                st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;
+            }
         }
 
         if (tilt_ != null && tilt_sim_!= null) {
@@ -191,10 +208,23 @@ public class IntakeShooterModel extends SimulationModel {
             tilt_sim_.setInputVoltage(mv) ;
             tilt_sim_.update(dt) ;
 
-            // TODO: convert circular motor motion to tilt degrees            
+            tilt_pos_ = tilt_sim_.getAngularPositionRotations() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
 
-            st.setRawRotorPosition(tilt_sim_.getAngularPositionRotations()) ;
-            st.setRotorVelocity(Units.radiansToRotations(tilt_sim_.getAngularVelocityRadPerSec())) ;
+            if (tilt_pos_ < IntakeShooterConstants.Tilt.kMinPosition) {
+                tilt_pos_ = IntakeShooterConstants.Tilt.kMinPosition ;
+
+                st.setRawRotorPosition(tilt_pos_ / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
+                st.setRotorVelocity(0.0) ;
+            }
+            else if (tilt_pos_ > IntakeShooterConstants.Tilt.kMaxPosition) {
+                tilt_pos_ = IntakeShooterConstants.Tilt.kMaxPosition ;
+                st.setRawRotorPosition(tilt_pos_ / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
+                st.setRotorVelocity(0.0) ;                
+            }
+            else {
+                st.setRawRotorPosition(tilt_sim_.getAngularPositionRotations()) ;
+                st.setRotorVelocity(Units.radiansToRotations(tilt_sim_.getAngularVelocityRadPerSec())) ;
+            }
         }
     }
 }
