@@ -2,6 +2,7 @@ package frc.models;
 
 import java.util.Map;
 
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SettingsValue;
@@ -26,11 +27,11 @@ public class IntakeShooterModel extends SimulationModel {
     private static final double kFeederGearRatio = 1.0 / 1.0 ;
     private static final double kFeederInertia = 0.000001 ;
     
-    private static final double kUpDownGearRatio = 49.5 ;
-    private static final double kUpDownInertia = 0.00000000000000000001 ;
+    private static final double kUpDownGearRatio = 4.0 ; ;
+    private static final double kUpDownInertia = 0.0001 ;
 
-    private static final double kTiltGearRatio = 18 ;
-    private static final double kTiltInertia = 0.0000000000000000000001 ;
+    private static final double kTiltGearRatio = 4.0 ;
+    private static final double kTiltInertia = 0.0001 ;
 
     private DCMotorSim shooter1_sim_ ;
     private DCMotorSim shooter2_sim_ ;
@@ -181,23 +182,12 @@ public class IntakeShooterModel extends SimulationModel {
             updown_sim_.setInputVoltage(mv) ;
             updown_sim_.update(dt) ;
 
+            Logger.recordOutput("updown-mv", mv) ;
+
+            st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
+            st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;            
+
             updown_pos_ = updown_sim_.getAngularPositionRotations() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
-
-            if (updown_pos_ < IntakeShooterConstants.UpDown.kMinPosition) {
-                updown_pos_ = IntakeShooterConstants.UpDown.kMinPosition ;
-
-                st.setRawRotorPosition(updown_pos_ / IntakeShooterConstants.UpDown.kDegreesPerRev) ;
-                st.setRotorVelocity(0.0) ;
-            }
-            else if (updown_pos_ > IntakeShooterConstants.UpDown.kMaxPosition) {
-                updown_pos_ = IntakeShooterConstants.UpDown.kMaxPosition ;
-                st.setRawRotorPosition(updown_pos_ / IntakeShooterConstants.UpDown.kDegreesPerRev) ;
-                st.setRotorVelocity(0.0) ;                
-            }
-            else {
-                st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
-                st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;
-            }
         }
 
         if (tilt_ != null && tilt_sim_!= null) {
@@ -208,23 +198,10 @@ public class IntakeShooterModel extends SimulationModel {
             tilt_sim_.setInputVoltage(mv) ;
             tilt_sim_.update(dt) ;
 
+            st.setRawRotorPosition(tilt_sim_.getAngularPositionRotations()) ;
+            st.setRotorVelocity(Units.radiansToRotations(tilt_sim_.getAngularVelocityRadPerSec())) ;
+
             tilt_pos_ = tilt_sim_.getAngularPositionRotations() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
-
-            if (tilt_pos_ < IntakeShooterConstants.Tilt.kMinPosition) {
-                tilt_pos_ = IntakeShooterConstants.Tilt.kMinPosition ;
-
-                st.setRawRotorPosition(tilt_pos_ / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
-                st.setRotorVelocity(0.0) ;
-            }
-            else if (tilt_pos_ > IntakeShooterConstants.Tilt.kMaxPosition) {
-                tilt_pos_ = IntakeShooterConstants.Tilt.kMaxPosition ;
-                st.setRawRotorPosition(tilt_pos_ / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
-                st.setRotorVelocity(0.0) ;                
-            }
-            else {
-                st.setRawRotorPosition(tilt_sim_.getAngularPositionRotations()) ;
-                st.setRotorVelocity(Units.radiansToRotations(tilt_sim_.getAngularVelocityRadPerSec())) ;
-            }
         }
     }
 }

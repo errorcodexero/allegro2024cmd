@@ -94,7 +94,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
         /////////////////////////////////////////////////////////////////////////////////////////////////                                    
-        checkError("set-intake-signals-update-frequeny", () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0,
+        checkError("set-intake-signals-update-frequeny-fast", () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0,
                                             updown_position_signal_,
                                             updown_velocity_signal_,
                                             updown_current_signal_,
@@ -103,7 +103,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                             tilt_velocity_signal_,
                                             tilt_current_signal_,
                                             tilt_voltage_signal_,
-                                            feeder_current_signal_,
                                             shooter1_velocity_signal_,
                                             shooter1_current_signal_,
                                             shooter1_position_signal_,
@@ -112,6 +111,9 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                             shooter2_current_signal_,
                                             shooter2_position_signal_,
                                             shooter2_voltage_signal_)) ;
+
+        checkError("set-intake-signals-update-frequeny-slow", () -> BaseStatusSignal.setUpdateFrequencyForAll(1.0,
+                                            feeder_current_signal_)) ;                                            
 
         checkError("updown-optimize-bus", () -> updown_motor_.optimizeBusUtilization()) ;
         checkError("tilt-optimize-bus", () -> tilt_motor_.optimizeBusUtilization()) ;
@@ -308,8 +310,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.UpDown.kInvert,
                     IntakeShooterConstants.UpDown.kCurrentLimit);
         talon_motors_.put(IntakeShooterSubsystem.UPDOWN_MOTOR_NAME, updown_motor_) ;                     
-        updown_motor_.getPosition().setUpdateFrequency(100) ;
-        updown_motor_.getVelocity().setUpdateFrequency(100) ;
 
         if (XeroRobot.isReal()) {
             final Slot0Configs updownslot0cfg = new Slot0Configs()
@@ -357,12 +357,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         updown_velocity_signal_ = updown_motor_.getVelocity() ;
         updown_current_signal_ = updown_motor_.getSupplyCurrent() ;
         updown_voltage_signal_ = updown_motor_.getMotorVoltage() ;
-
-        BaseStatusSignal.setUpdateFrequencyForAll(200,
-            updown_position_signal_,
-            updown_velocity_signal_,
-            updown_current_signal_,
-            updown_voltage_signal_) ;
     }
 
     private void initTiltMotor() throws Exception {
@@ -417,12 +411,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         tilt_velocity_signal_ = tilt_motor_.getVelocity() ;
         tilt_current_signal_ = tilt_motor_.getSupplyCurrent() ;
         tilt_voltage_signal_ = tilt_motor_.getMotorVoltage() ;    
-        
-        BaseStatusSignal.setUpdateFrequencyForAll(200,
-            tilt_position_signal_,
-            tilt_velocity_signal_,
-            tilt_current_signal_,
-            tilt_voltage_signal_) ;
     }
 
     void initShooterMotors() throws Exception {
@@ -431,8 +419,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter1.kInvert,
                     IntakeShooterConstants.Shooter1.kCurrentLimit);
         talon_motors_.put(IntakeShooterSubsystem.SHOOTER1_MOTOR_NAME, shooter1_motor_) ;                    
-        shooter1_motor_.getVelocity().setUpdateFrequency(100) ;
-        shooter1_motor_.getPosition().setUpdateFrequency(100) ;
 
         if (XeroRobot.isReal())
         {
@@ -471,8 +457,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter2.kInvert,
                     IntakeShooterConstants.Shooter2.kCurrentLimit);
         talon_motors_.put(IntakeShooterSubsystem.SHOOTER2_MOTOR_NAME, shooter2_motor_) ;                     
-        shooter2_motor_.getVelocity().setUpdateFrequency(100) ;
-        shooter2_motor_.getPosition().setUpdateFrequency(100) ;                   
+                  
         if (XeroRobot.isReal())
         {
             final Slot0Configs shooter2slot0cfg = new Slot0Configs()

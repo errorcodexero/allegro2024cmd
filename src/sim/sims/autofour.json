@@ -1,4 +1,10 @@
 {
+    "purpose" : [
+        "",
+        "*********************************************************************",
+        " Simulation Purpose: Run the four note auto mode",
+        "*********************************************************************"
+    ],
     "stimulus" :
     [
         {
@@ -10,7 +16,7 @@
                     "instance" : "1",
                     "values" : 
                     {
-                        "start" : 3.0,
+                        "start" : 1.0,
                         "autonomous" : 20.0,
                         "between" : 0.0,
                         "teleop" : 0.0,
@@ -33,7 +39,7 @@
                     }
                 }
             ]
-        },
+        },      
         {
             "time" : 9.06,
             "events" :
@@ -49,6 +55,16 @@
                 }
             ]
         },
+        {
+            "time" : 9.4,
+            "asserts" : [
+                {
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": true
+                }
+            ]
+        },          
         {
             "time" : 11.9,
             "events" :

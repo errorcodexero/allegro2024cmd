@@ -183,7 +183,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public SettingsValue getProperty(String name) {
-        return null ;
+        SettingsValue v = null ;
+
+        if (name.equals("has-note")) {
+            v = new SettingsValue(has_note_) ;
+        }
+
+        return v ;
     }
     // #endregion
 
@@ -1014,12 +1020,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);
             Logger.recordOutput("intake:next-state", next_state_) ;
-            Logger.recordOutput("intake:updown-target", target_updown_) ;
-            Logger.recordOutput("intake:updown-vel", inputs_.updownVelocity) ;
-            Logger.recordOutput("intake:tilt-target", target_tilt_) ;
-            Logger.recordOutput("intake:shooter-target", target_velocity_) ;
+
+            if (state_ == State.MoveBothToPosition)
+                Logger.recordOutput("intake:updown-target", target_updown_) ;
+            if (state_ == State.MoveBothToPosition || state_ == State.MoveTiltToPosition)
+                Logger.recordOutput("intake:tilt-target", target_tilt_) ;
             Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
             Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
+
             Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
             Logger.recordOutput("intake:has-note", has_note_);
             Logger.recordOutput("intake:tracking", tracking_);

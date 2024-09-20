@@ -59,8 +59,7 @@ public class SimulationAssertEvent extends SimulationEvent {
             } else {
                 boolean pass = false;
 
-                SettingsValue value = getValue(engine) ;
-                if (value == null) {
+                if (value_ == null) {
                     logger.startMessage(MessageType.Error);
                     logger.add("AssertFailed: ");
                     logger.add("subsystem ", subsystem_);
@@ -72,13 +71,13 @@ public class SimulationAssertEvent extends SimulationEvent {
 
                 if (v.isDouble()) {
                     try {
-                        pass = Math.abs(v.getDouble() - value.getDouble()) < tolerance_;
+                        pass = Math.abs(v.getDouble() - value_.getDouble()) < tolerance_;
                     } catch (BadParameterTypeException e) {
                         // Should never happen
                         pass = false;
                     }
                 } else {
-                    pass = v.equals(value);
+                    pass = v.equals(value_);
                 }
 
                 if (!pass) {
@@ -86,7 +85,7 @@ public class SimulationAssertEvent extends SimulationEvent {
                     logger.add("AssertFailed: ");
                     logger.add("subsystem ").addQuoted(subsystem_) ;
                     logger.add(", property ").addQuoted(name_) ;
-                    logger.add(", expected ").addQuoted(value.toString());
+                    logger.add(", expected ").addQuoted(value_.toString());
                     logger.add(", got ").addQuoted(v.toString());
                     logger.endMessage();
                     engine.addAssertError();
@@ -95,7 +94,7 @@ public class SimulationAssertEvent extends SimulationEvent {
                     logger.add("AssertPassed: ");
                     logger.add("subsystem", subsystem_);
                     logger.add(", property ").addQuoted(name_) ;
-                    logger.add(", value ").addQuoted(value.toString());
+                    logger.add(", value ").addQuoted(value_.toString());
                     logger.endMessage();
                     engine.addAssertPassed();
                 }
@@ -110,21 +109,4 @@ public class SimulationAssertEvent extends SimulationEvent {
     public void setTolerance(double v) {
         tolerance_ = v;
     }
-
-    private SettingsValue getValue(SimulationEngine engine) {
-        SettingsValue ret = null;
-
-        if (value_ != null) {
-            ret = value_;
-        } else {
-            // try {
-            //     ret = engine.getRobot().getSettingsSupplier().get(setting_);
-            // } catch (MissingParameterException e) {
-            //     ret = null ;
-            // }
-        }
-
-        return ret ;
-    }
-
 }

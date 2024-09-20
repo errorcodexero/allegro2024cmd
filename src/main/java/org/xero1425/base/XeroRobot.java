@@ -50,6 +50,7 @@ public abstract class XeroRobot extends LoggedRobot {
     private int gamepad_port_ ;
     private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
+    private boolean auto_modes_created_ ;
 
     private boolean connected_callback_processed_ ;
     private List<Function<Boolean,Void>> connected_callbacks_ ;
@@ -70,6 +71,7 @@ public abstract class XeroRobot extends LoggedRobot {
 
         gamepad_port_ = gp ;
         oi_port_ = oi ;
+        auto_modes_created_ = false ;
 
         robot_ = this ;
         automodes_ = new ArrayList<>() ;
@@ -171,7 +173,7 @@ public abstract class XeroRobot extends LoggedRobot {
 
     protected void createAutoModes() {
 
-        if (!DriverStation.isJoystickConnected(gamepad_port_) && !DriverStation.isJoystickConnected(oi_port_)) {
+        if (!DriverStation.isJoystickConnected(gamepad_port_) && !DriverStation.isJoystickConnected(oi_port_) && !XeroRobot.isSimulation()) {
             //
             // Neither the game controller nor the OI are connected.  We assume that the robot has not connected
             // yet with the driver station.  In a real event, this connection will mean we have an FMS connection
@@ -181,11 +183,15 @@ public abstract class XeroRobot extends LoggedRobot {
             return ;
         }
 
-        if (shouldBeCompetition() || !isTestMode()) {
-            createCompetitionAutoModes() ;
-        }
-        else {
-            createTestAutoModes() ;
+        if (!auto_modes_created_) {
+            if (shouldBeCompetition() || !isTestMode()) {
+                createCompetitionAutoModes() ;
+            }
+            else {
+                createTestAutoModes() ;
+            }
+
+            auto_modes_created_ = true ;
         }
 
         autoModeChooser();

@@ -53,12 +53,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "transfer";
+        return "autofour";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "auto-four" ;
+        return "four-note" ;
     }
 
     @Override
