@@ -45,6 +45,9 @@ public class ShootCommand extends Command {
         MessageLogger logger = MessageLogger.getTheMessageLogger() ;
         logger.startMessage(MessageType.Debug).add("Running the shoot command").endMessage();
 
+        shoot_ = null ;
+        rotate_ = null ;
+
         if (oi_.getShotType() == ShotType.Podium) {
             shoot_ = intake_.manualShootCommand(
                                 IntakeShooterConstants.ManualShotPodium.kUpDownPos,
@@ -71,7 +74,7 @@ public class ShootCommand extends Command {
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
-        else {
+        else if (tracker_.isOkToShoot()) {
             logger.startMessage(MessageType.Debug).add("Running auto shoot command").endMessage();            
             rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(kShootPositionTolerance)
