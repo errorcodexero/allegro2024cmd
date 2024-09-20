@@ -16,8 +16,12 @@ import frc.robot.subsystems.swerve.SwerveRotateToAngle;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 
 public class ShootCommand extends Command {
-    private final static double kShootPositionTolerance = 2.0 ;
-    private final static double kShootVelocityTolerance = 2.0 ;
+    private final static double kShootPositionDistanceNear = 1.0 ;
+    private final static double kShootPositionDistanceFar = 4.0 ;
+    private final static double kShootPositionToleranceAtFar = 2.0 ;
+    private final static double kShootPositionToleranceAtNear = 10.0 ;
+    private final static double kShootVelocityTolerance = 10.0 ;
+ 
 
     private OISubsystem oi_ ;
     private CommandSwerveDrivetrain db_ ;
@@ -77,12 +81,13 @@ public class ShootCommand extends Command {
         else if (tracker_.isOkToShoot()) {
             logger.startMessage(MessageType.Debug).add("Running auto shoot command").endMessage();            
             rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
-                            .withPositionTolerance(kShootPositionTolerance)
+                            .withPositionTolerance(rotatePositionTolerence())
                             .withVelocityTolerance(kShootVelocityTolerance) ;
             shoot_ = null ;
             CommandScheduler.getInstance().schedule(rotate_);
         }
     }
+
 
     @Override
     public void execute() {
@@ -144,4 +149,14 @@ public class ShootCommand extends Command {
     public boolean isFinished() {
         return rotate_ == null && shoot_ == null ;
     }
+
+    //
+    // Find the tolerance of the angle for rotating the drive base bassed on the distance to the target.
+    //
+    private double rotatePositionTolerence() {
+        double delta = tracker_.distance() - kShootPositionDistanceNear ;
+        double percent = delta / (kShootPositionDistanceFar - kShootPositionDistanceNear) ;
+        double output = kShootPositionToleranceAtFar - percent * (kShootPositionToleranceAtFar - kShootPositionToleranceAtNear) ;
+        return output ;
+    }       
 }

@@ -15,7 +15,7 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
         super(name) ;
 
         robot_ = robot ;
-        logger_id_ = getMessageLogger().registerSubsystem(name) ;
+        logger_id_ = MessageLogger.getTheMessageLogger().registerSubsystem(name) ;
 
         robot_.registerSubsystem(name, this) ;
     }
@@ -30,10 +30,6 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
 
     public XeroRobot getRobot() {
         return robot_ ;
-    }
-
-    protected MessageLogger getMessageLogger() {
-        return robot_.getMessageLogger() ;
     }
 
     public int getMessageLoggerID() {

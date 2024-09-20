@@ -17,7 +17,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 
 public class IntakeShooterModel extends SimulationModel {
@@ -46,9 +45,6 @@ public class IntakeShooterModel extends SimulationModel {
     private TalonFX updown_ ;
     private TalonFX tilt_ ;
 
-    private double updown_pos_ ;
-    private double tilt_pos_ ;
-    
     int note_sensor_ ;
     
     public IntakeShooterModel(SimulationEngine engine, String model, String inst) {
@@ -115,7 +111,7 @@ public class IntakeShooterModel extends SimulationModel {
             }
         }
         catch(Exception ex) {
-            MessageLogger logger = getEngine().getRobot().getMessageLogger() ;
+            MessageLogger logger = MessageLogger.getTheMessageLogger() ;
             logger.startMessage(MessageType.Error) ;
             logger.add("time", getEngine().getSimulationTime());
             logger.add("event", name) ;
@@ -129,7 +125,7 @@ public class IntakeShooterModel extends SimulationModel {
     public void run(double dt) {
         if (shooter1_ == null) {
             if (!createModels()) {
-                MessageLogger logger = getEngine().getRobot().getMessageLogger() ;
+                MessageLogger logger = MessageLogger.getTheMessageLogger() ;
                 logger.startMessage(MessageType.Error) ;
                 logger.add("time", getEngine().getSimulationTime());
                 logger.add("msg", "failed to create intake-shooter motor models") ;
@@ -186,8 +182,6 @@ public class IntakeShooterModel extends SimulationModel {
 
             st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
             st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;            
-
-            updown_pos_ = updown_sim_.getAngularPositionRotations() * IntakeShooterConstants.UpDown.kDegreesPerRev ;
         }
 
         if (tilt_ != null && tilt_sim_!= null) {
@@ -200,8 +194,6 @@ public class IntakeShooterModel extends SimulationModel {
 
             st.setRawRotorPosition(tilt_sim_.getAngularPositionRotations()) ;
             st.setRotorVelocity(Units.radiansToRotations(tilt_sim_.getAngularVelocityRadPerSec())) ;
-
-            tilt_pos_ = tilt_sim_.getAngularPositionRotations() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
         }
     }
 }

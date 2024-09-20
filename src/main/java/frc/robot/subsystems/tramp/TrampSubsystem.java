@@ -88,6 +88,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
     private Trigger climber_down_trigger_ ;
+    private Trigger climber_up_trigger_ ;    
     private Trigger basic_climb_ready_trigger_ ;
 
     private ClimberDir climber_dir_ ;
@@ -111,6 +112,7 @@ public class TrampSubsystem extends XeroSubsystem {
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
         climber_down_trigger_ = new Trigger(()-> inputs_.climberPosition < 0.1) ;
+        climber_up_trigger_ = new Trigger(()-> inputs_.climberPosition >= TrampConstants.Climber.kClimberUpPosition - 0.1) ;        
         basic_climb_ready_trigger_ = new Trigger(()-> state_ == State.BasicClimbReady) ;
         
         state_ = State.Idle ;
@@ -143,6 +145,10 @@ public class TrampSubsystem extends XeroSubsystem {
     public Trigger isClimberDown() {
         return climber_down_trigger_ ;
     }
+
+    public Trigger isClimberUp() {
+        return climber_up_trigger_ ;
+    }    
 
     public Trigger isBasicClimbReady() {
         return basic_climb_ready_trigger_ ;

@@ -84,7 +84,7 @@ public class AmpTrapModel extends SimulationModel {
     public void run(double dt) {
         if (arm_ == null) {
             if (!createModels()) {
-                MessageLogger logger = getEngine().getRobot().getMessageLogger() ;
+                MessageLogger logger = MessageLogger.getTheMessageLogger() ;
                 logger.startMessage(MessageType.Error) ;
                 logger.add("time", getEngine().getSimulationTime());
                 logger.add("msg", "failed to create intake-shooter motor models") ;

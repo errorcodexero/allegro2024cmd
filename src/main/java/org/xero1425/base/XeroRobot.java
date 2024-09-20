@@ -235,12 +235,13 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     @Override
-    public void disabledPeriodic() {
-        createAutoModes();
-    }
-
-    @Override
     public void robotPeriodic() {
+          
+        //
+        // Runs the Scheduler.
+        //
+        CommandScheduler.getInstance().run();   
+
         if (DriverStation.isDSAttached() && !connected_callback_processed_) {
             connected_callback_processed_ = true ;
             for (Function<Boolean,Void> cb : connected_callbacks_) {
@@ -276,19 +277,32 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     @Override
+    public void autonomousPeriodic() {
+    }
+
+    @Override
     public void teleopInit() {
         CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void teleopPeriodic() {
     }
 
     @Override
     public void simulationInit() {
     }
 
-    protected void enableMessages() {
+    @Override
+    public void simulationPeriodic() {
     }
 
-    public MessageLogger getMessageLogger() {
-        return logger_ ;
+    @Override
+    public void disabledPeriodic() {
+        createAutoModes();
+    }    
+
+    protected void enableMessages() {
     }
 
     public boolean isPracticeBot() {

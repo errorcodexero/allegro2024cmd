@@ -17,7 +17,7 @@
                     "values" : 
                     {
                         "start" : 1.0,
-                        "autonomous" : 20.0,
+                        "autonomous" : 17.0,
                         "between" : 0.0,
                         "teleop" : 0.0,
                         "fms" : false
@@ -26,7 +26,17 @@
             ]
         },
         {
-            "time" : 9.0,
+            "time" : 6.0,
+            "asserts" : [
+                {
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": false
+                }
+            ]
+        },        
+        {
+            "time" : 6.8,
             "events" :
             [
                 {
@@ -41,7 +51,57 @@
             ]
         },      
         {
-            "time" : 9.06,
+            "time" : 6.9,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.0,
+            "asserts" : [
+                {
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": true
+                }
+            ]
+        },          
+        {
+            "time" : 8.8,
+            "asserts" : [
+                {
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": false
+                }
+            ]
+        },         
+        {
+            "time" : 9.2,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 9.3,
             "events" :
             [
                 {
@@ -64,9 +124,19 @@
                     "value": true
                 }
             ]
-        },          
+        },
         {
-            "time" : 11.9,
+            "time" : 11.5,
+            "asserts" : [
+                {
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": false
+                }
+            ]
+        }, 
+        {
+            "time" : 13.4,
             "events" :
             [
                 {
@@ -81,7 +151,7 @@
             ]
         },
         {
-            "time" : 12.0,
+            "time" : 13.5,
             "events" :
             [
                 {
@@ -96,34 +166,24 @@
             ]
         },
         {
-            "time" : 15.6,
-            "events" :
-            [
+            "time" : 13.6,
+            "asserts" : [
                 {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : true
-                    }
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": true
                 }
             ]
         },
         {
-            "time" : 15.8,
-            "events" :
-            [
+            "time" : 16.0,
+            "asserts" : [
                 {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : false
-                    }
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": false
                 }
             ]
-        }            
+        }         
     ]
 }

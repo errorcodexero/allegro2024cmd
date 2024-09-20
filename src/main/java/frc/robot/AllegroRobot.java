@@ -14,7 +14,6 @@ import org.xero1425.simulator.engine.ModelFactory;
 import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.testmodes.TeeTestModeCommand;
@@ -53,7 +52,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autofour";
+        return "trap";
     }
 
     @Override
@@ -93,9 +92,9 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public void enableMessages() {
-        getMessageLogger().enableSubsystem(container_.getIntakeShooter().getName()) ;
-        getMessageLogger().enableSubsystem(container_.getDriveTrain().getName()) ;
-        getMessageLogger().enableSubsystem(container_.getTramp().getName()) ;
+        MessageLogger.getTheMessageLogger().enableSubsystem(container_.getIntakeShooter().getName()) ;
+        MessageLogger.getTheMessageLogger().enableSubsystem(container_.getDriveTrain().getName()) ;
+        MessageLogger.getTheMessageLogger().enableSubsystem(container_.getTramp().getName()) ;
     }      
 
     /**
@@ -126,7 +125,7 @@ public class AllegroRobot extends XeroRobot {
             enableMessages() ;
 
         } catch (Exception e) {
-            MessageLogger logger = getMessageLogger() ;
+            MessageLogger logger = MessageLogger.getTheMessageLogger() ;
             logger.startMessage(MessageType.Error) ;
             logger.add("exception caught creating robot container - " + e.getMessage()) ;
             logger.endMessage();
@@ -152,73 +151,6 @@ public class AllegroRobot extends XeroRobot {
         if (!RobotConstants.kCharMode) { 
             Logger.recordOutput("driver", container_.getDriveControllerOIString()) ;
         }
-        
-        // Runs the Scheduler. This is responsible for polling buttons, adding
-        // newly-scheduled
-        // commands, running already-scheduled commands, removing finished or
-        // interrupted commands,
-        // and running subsystem periodic() methods. This must be called from the
-        // robot's periodic
-        // block in order for anything in the Command-based framework to work.
-        CommandScheduler.getInstance().run();      
-    }
-
-    /** This function is called once each time the robot enters Disabled mode. */
-    @Override
-    public void disabledInit() {
-        super.disabledInit();
-    }
-
-    @Override
-    public void disabledPeriodic() {
-        super.disabledPeriodic();
-    }
-
-    /**
-     * This autonomous runs the autonomous command selected by your
-     * {@link AllegroContainer} class.
-     */
-    @Override
-    public void autonomousInit() {
-        super.autonomousInit();
-    }
-
-    /** This function is called periodically during autonomous. */
-    @Override
-    public void autonomousPeriodic() {
-        super.autonomousPeriodic();
-    }
-
-    @Override
-    public void teleopInit() {
-        super.teleopInit();
-    }
-
-    /** This function is called periodically during operator control. */
-    @Override
-    public void teleopPeriodic() {
-    }    
-
-    @Override
-    public void testInit() {
-        // Cancels all running commands at the start of test mode.
-        CommandScheduler.getInstance().cancelAll();
-    }
-
-    /** This function is called periodically during test mode. */
-    @Override
-    public void testPeriodic() {
-        super.testPeriodic();
-    }
-
-    /** This function is called once when the robot is first started up. */
-    @Override
-    public void simulationInit() {
-        super.simulationInit();
-    }
-
-    /** This function is called periodically whilst in simulation. */
-    @Override
-    public void simulationPeriodic() {
+   
     }
 }
