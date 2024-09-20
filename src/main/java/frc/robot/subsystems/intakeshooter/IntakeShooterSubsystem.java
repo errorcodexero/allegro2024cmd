@@ -52,17 +52,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         EjectForward,
         EjectPause,
         EjectReverse,
-        TransferStartingShooter,
-        TransferWaitForNote,
-        TransferWaitForNoNote,
-        TransferFinishTransfer,
-        TransferContinueShooter,
-        TransferRunShooter,
-        TransferRunShooterWaitForStop,
         EnableTracking,
         HoldForShoot,
         GoToEjectPosition,
         Tuning,
+
+        TransferWaitForNoNote,
+        TransferWaitForNote,
+        TransferRunToManiulatorStop,
+        TransferRunToShooterStop,
+
         WaitingForTunedNoteShot1,
         WaitingForTunedNoteShot2,        
     }
@@ -100,11 +99,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private XeroTimer eject_forward_timer_ ;
     private XeroTimer eject_reverse_timer_ ;
     private XeroTimer eject_pause_timer_ ;
-    private XeroTimer transfer_shooter_timer_ ;
 
     private State state_ ;
     private State next_state_ ;
-    private State initial_transfer_state_ ;
 
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
@@ -128,7 +125,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         eject_forward_timer_ = new XeroTimer("eject-forward", IntakeShooterConstants.Shooter.kEjectForwardTime) ;
         eject_reverse_timer_ = new XeroTimer("eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
         eject_pause_timer_ = new XeroTimer("eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
-        transfer_shooter_timer_ = new XeroTimer("transfer-shooter", IntakeShooterConstants.Shooter.kTransferRunShooterDuration) ;
 
         io_.setTiltMotorPosition(io_.getTiltAbsoluteEncoderPosition());
         io_.setUpDownMotorPosition(IntakeShooterConstants.UpDown.Positions.kStowed);
@@ -360,48 +356,27 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // method assumes the intake/shooter and elevator/manipulator are in the correct positions
     // before being called.  If they are in the transfer position, the state will be HoldingTransferPosition.
     //
-    public void transferNoTrampSensor(int strategy) {
+    public void doTransferNote() {
         if (has_note_ && state_ == State.HoldingTransferPosition) {
+            io_.setFeederMotorVoltage(0.3);
+            setShooterVelocity(58.0, 10.0);
             need_stop_manipulator_ = false ;
 
-            if (strategy == 1) {
-                transfer_shooter_timer_.start() ;                
-                initial_transfer_state_ = State.TransferRunShooter;
+            if (isNoteDetected()) {
+                //
+                // The note is already sitting on the sensor.  We just wait for the note to
+                // move off the sensor
+                //
+                state_ = State.TransferWaitForNoNote ;
             }
             else {
-                if (isNoteDetected()) {
-                    //
-                    // The note is already sitting on the sensor.  We just wait for the note to
-                    // move off the sensor
-                    //
-                    initial_transfer_state_ = State.TransferWaitForNoNote ;
-                }
-                else {
-                    //
-                    // The note is not on the sensor, so the sensor is assumed to be sitting in the middle of the note.
-                    // We wait until we sense the note and then look for the note to move off the sensor.
-                    //
-                    initial_transfer_state_ = State.TransferWaitForNote ;
-                }
+                //
+                // The note is not on the sensor, so the sensor is assumed to be sitting in the middle of the note.
+                // We wait until we sense the note and then look for the note to move off the sensor.
+                //
+                state_ = State.TransferWaitForNote ;
             }
-
-            //
-            // Start the shooter wheels so they are moving when the note hits the shooter.
-            //
-            setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
-            state_ = State.TransferStartingShooter ;            
         }
-    }
-
-    public void transferWithTrampSensor() {
-        if (has_note_ && state_ == State.HoldingTransferPosition) {      
-            //
-            // Start the shooter wheels so they are moving when the note hits the shooter.
-            //
-            setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
-            initial_transfer_state_ = State.TransferRunShooterWaitForStop ;
-            state_ = State.TransferStartingShooter ; 
-        }              
     }
 
     //
@@ -809,13 +784,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
-    private void transferStartingShooterState() {
-        if (isShooterReady()) {
-            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kTransferVoltage);
-            state_ = initial_transfer_state_ ;
-        }
-    }
-
     private void trackTargetDistance() {
         double dist = distsupplier_.getAsDouble() ;
 
@@ -888,16 +856,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 ejectReverseState() ;
                 break ;
 
-            case TransferStartingShooter:
-                transferStartingShooterState() ;
-                break ;
-
             case TransferWaitForNote:
                 if (inputs_.risingEdge && inputs_.fallingEdge) {
                     //
                     // The note completely passed the sensor since the last robot loop
                     //
-                    state_ = State.TransferFinishTransfer ;
+                    state_ = State.TransferRunToManiulatorStop ;
                     transfer_start_pos_ = inputs_.shooter1Position ;                    
                 }
                 else if (inputs_.fallingEdge) {
@@ -908,25 +872,22 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 }
                 break ;
 
-            case TransferRunShooterWaitForStop:
-                break ;
-
             case TransferWaitForNoNote:
                 if (inputs_.risingEdge) {
-                    state_ = State.TransferFinishTransfer ;
+                    state_ = State.TransferRunToManiulatorStop ;
                     transfer_start_pos_ = inputs_.shooter1Position ;
-                }
+                }                
                 break ;
 
-            case TransferFinishTransfer:
+            case TransferRunToManiulatorStop:
                 if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {                
                     need_stop_manipulator_ = true ;
                     has_note_ = false ;                    
-                    state_ = State.TransferContinueShooter ;
+                    state_ = State.TransferRunToShooterStop ;
                 }
                 break ;
 
-            case TransferContinueShooter:
+            case TransferRunToShooterStop:
                 if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
                     io_.setFeederMotorVoltage(0.0);
                     setShooterVoltage(0.0);
@@ -935,15 +896,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                  IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
                 }
                 break ;
-
-            case TransferRunShooter:
-                if (transfer_shooter_timer_.isExpired()) {
-                    io_.setFeederMotorVoltage(0.0);
-                    setShooterVoltage(0.0);
-                    state_ = State.Idle ;                    
-                }
-                break ;
-
+                
             case EnableTracking:
                 setTracking(true);
                 state_ = State.HoldForShoot ;

@@ -7,8 +7,7 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 public class TransferNoteCommand extends Command {
     private enum State {
         MoveToPosition,
-        InTransferNoSensor,
-        InTransferWithSensor,
+        TransferringNote,
         MoveTrampToDestination,
         Done
     }
@@ -36,32 +35,30 @@ public class TransferNoteCommand extends Command {
 
     @Override
     public void execute() {
-        if (state_ == State.MoveToPosition) {
-            if (intake_shooter_.isInTransferPosition() && tramp_.isInTransferPosition()) {
-                int strat = 0 ;
-                intake_shooter_.transferNoTrampSensor(strat);
-                tramp_.transferNoTrampSensor(strat);
-                state_ = State.InTransferNoSensor ;
-            }
-        }
-        else if (state_ == State.InTransferNoSensor) {
-            if (intake_shooter_.needStopManipulator())  {
-                tramp_.stopManipulatorHoldNote() ;
-                tramp_.moveToDestinationPosition() ;
-                state_ = State.MoveTrampToDestination ;
-            }
-        }
-        else if (state_ == State.InTransferWithSensor) {
-            tramp_.setShooterVelocity(intake_shooter_.getShooter1Velocity()) ;
-            if (tramp_.hasNote()) {
-                intake_shooter_.stopShooter() ;
-                state_ = State.MoveTrampToDestination ;
-            }
-        }
-        else if (state_ == State.MoveTrampToDestination) {
-            if (tramp_.isIdle()) {
-                state_ = State.Done ;
-            }
+        switch(state_) {
+            case MoveToPosition:
+                if (intake_shooter_.isInTransferPosition() && tramp_.isInTransferPosition()) {
+                    intake_shooter_.doTransferNote();
+                    tramp_.transferNote();
+                    state_ = State.TransferringNote ;
+                }
+                break ;
+
+            case TransferringNote:
+                if (intake_shooter_.needStopManipulator())  {
+                    tramp_.endNoteTransfer() ;
+                    state_ = State.MoveTrampToDestination ;
+                }
+                break ;
+
+            case MoveTrampToDestination:
+                if (tramp_.isIdle()) {
+                    state_ = State.Done ;
+                }
+                break ;
+
+            case Done:
+                break ;
         }
     }
 

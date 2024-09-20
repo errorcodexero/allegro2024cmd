@@ -61,7 +61,7 @@ public class IntakeShooterConstants {
             public static final double kStowed = 118.0 ;
             public static final double kStartTracking = 118.0 ;
             public static final double kCollect = -11.0 ;
-            public static final double kTransfer = 100.0 ;
+            public static final double kTransfer = 90.0 ;
             public static final double kShootNominal = 118.0 ;
             public static final double kEject = 118.0 ;
         }            
@@ -86,10 +86,10 @@ public class IntakeShooterConstants {
 
         public class Simulated {
             public class PID {
-                public static final double kP = 5.0 ;
+                public static final double kP = 40.0 ;
                 public static final double kI = 0.0 ;
                 public static final double kD = 0.0 ;
-                public static final double kV = 5.0 ;
+                public static final double kV = 0.18 ;
                 public static final double kA = 0.0 ;
                 public static final double kG = 0.0 ;
                 public static final double kS = 0.0 ;
@@ -128,23 +128,13 @@ public class IntakeShooterConstants {
             public static final double kStowed = -72.0 ;
             public static final double kStartTracking = -50.0 ;
             public static final double kCollect = 50.0 ;
-            public static final double kTransfer = -15.0 ;
+            public static final double kTransfer = 0.0 ;
 
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;
         }             
 
         public class Real {
-            public class TrackingPIDSlot1 {
-                public static final double kP = 5.0 ;
-                public static final double kI = 0.0 ;
-                public static final double kD = 0.35 ;
-                public static final double kV = 0.0 ;
-                public static final double kA = 0.0 ;
-                public static final double kG = 0.0 ;
-                public static final double kS = 0.0 ;
-            };
-
             public class MovementPIDSlot0 {
                 public static final double kP = 16.0 ;
                 public static final double kI = 0.0 ;
@@ -164,21 +154,11 @@ public class IntakeShooterConstants {
         } ;
 
         public class Simulated {
-            public class TrackingPIDSlot1 {
-                public static final double kP = 0.0 ;
-                public static final double kI = 0.0 ;
-                public static final double kD = 0.0 ;
-                public static final double kV = 0.0 ;
-                public static final double kA = 0.0 ;
-                public static final double kG = 0.0 ;
-                public static final double kS = 0.0 ;
-            };
-
             public class MovementPIDSlot0 {
-                public static final double kP = 5.0 ;
+                public static final double kP = 16.0 ;
                 public static final double kI = 0.0 ;
-                public static final double kD = 0.0 ;
-                public static final double kV = 5.0 ;
+                public static final double kD = 0.35 ;
+                public static final double kV = 0.1 ;
                 public static final double kA = 0.0 ;
                 public static final double kG = 0.0 ;
                 public static final double kS = 0.0 ;

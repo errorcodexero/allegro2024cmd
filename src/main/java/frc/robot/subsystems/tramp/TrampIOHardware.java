@@ -2,7 +2,6 @@ package frc.robot.subsystems.tramp;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.xero1425.base.TalonFXFactory;
@@ -23,11 +22,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.units.Units ;
-import edu.wpi.first.wpilibj.AsynchronousInterrupt;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.simulation.DIOSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -66,6 +60,8 @@ public class TrampIOHardware implements TrampIO {
 
     public TrampIOHardware() throws Exception {
 
+        motors_ = new HashMap<>() ;
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Elevator motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////            
@@ -73,6 +69,7 @@ public class TrampIOHardware implements TrampIO {
                                                                     TrampConstants.Elevator.kInverted,
                                                                     TrampConstants.Elevator.kCurrentLimit);
                                                                     elevator_motor_.setPosition(0.0) ;
+        motors_.put(TrampSubsystem.ELEVATOR_MOTOR_NAME, elevator_motor_) ;
         final Slot0Configs elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.PID.kP)
                                 .withKI(TrampConstants.Elevator.PID.kI)
                                 .withKD(TrampConstants.Elevator.PID.kD)
@@ -107,6 +104,7 @@ public class TrampIOHardware implements TrampIO {
         arm_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Arm.kMotorId,
                                                                TrampConstants.Arm.kInverted,
                                                                TrampConstants.Arm.kCurrentLimit);
+        motors_.put(TrampSubsystem.ARM_MOTOR_NAME, arm_motor_) ;                                                               
         final Slot0Configs armcfg = new Slot0Configs().withKP(TrampConstants.Arm.PID.kP)
                                 .withKI(TrampConstants.Arm.PID.kI)
                                 .withKD(TrampConstants.Arm.PID.kD)
@@ -141,6 +139,7 @@ public class TrampIOHardware implements TrampIO {
         climber_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Climber.kMotorId,
                                                                    TrampConstants.Climber.kInverted,
                                                                    TrampConstants.Climber.kCurrentLimit);
+        motors_.put(TrampSubsystem.CLIMBER_MOTOR_NAME, climber_motor_) ;                                                                      
         climber_pos_sig_ = climber_motor_.getPosition() ;
         climber_current_sig_ = climber_motor_.getSupplyCurrent() ;
         climber_output_sig_ = climber_motor_.getClosedLoopOutput();

@@ -55,8 +55,6 @@ public class TrampConstants {
         public static final double kDegreesPerRev = 24.30790007 ;
         public static final double kTargetPosTolerance = 4.0 ;
         public static final double kTargetVelTolerance = 100.0 ;
-        public static final double kSimGearRatio = 2.0 ;      
-        public static final double kSimMotorLoad = 0.00001 ;
         public static final double kMinPosition = 0.0 ;
         public static final double kMaxPosition = 12.5 ;
 
@@ -95,7 +93,7 @@ public class TrampConstants {
         public static final double kCurrentLimit = 60.0 ;        
         public static final double kEjectVoltage = 6.0 ;
         public static final double kEjectTime = 0.5 ;
-        public static final double kTransferVoltage = 2.0;
+        public static final double kTransferVoltage = -1.2;
         public static final double kShootTime = 1.5 ;
         public static final double kShootPower = -5.0 ;
         public static final double kTrapMoveNoteDistance = 0.7 ;

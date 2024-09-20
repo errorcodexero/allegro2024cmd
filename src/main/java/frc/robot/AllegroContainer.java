@@ -2,7 +2,6 @@ package frc.robot;
 
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
-import frc.robot.commands.TransferNoteWithSensor;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;

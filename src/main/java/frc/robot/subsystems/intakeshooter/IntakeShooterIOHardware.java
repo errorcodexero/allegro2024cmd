@@ -15,7 +15,6 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -385,16 +384,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withKS(IntakeShooterConstants.Tilt.Real.MovementPIDSlot0.kS) ;
             checkError("tilt-set-PID-value-movement", () -> tilt_motor_.getConfigurator().apply(tiltslot0cfg)) ;
 
-            final Slot1Configs tiltslot1cfg = new Slot1Configs()
-                                    .withKP(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kP)
-                                    .withKI(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kI)
-                                    .withKD(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kD)
-                                    .withKV(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kV)
-                                    .withKA(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kA)
-                                    .withKG(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kG)
-                                    .withKS(IntakeShooterConstants.Tilt.Real.TrackingPIDSlot1.kS) ;
-            checkError("tilt-set-PID-value-tracking", () -> tilt_motor_.getConfigurator().apply(tiltslot1cfg)) ;        
-
             final MotionMagicConfigs tiltmagiccfg = new MotionMagicConfigs().withMotionMagicCruiseVelocity(IntakeShooterConstants.Tilt.Real.MotionMagic.kV)
                                     .withMotionMagicAcceleration(IntakeShooterConstants.Tilt.Real.MotionMagic.kA)
                                     .withMotionMagicJerk(IntakeShooterConstants.Tilt.Real.MotionMagic.kJ) ;
@@ -411,16 +400,6 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withKG(IntakeShooterConstants.Tilt.Simulated.MovementPIDSlot0.kG)
                                     .withKS(IntakeShooterConstants.Tilt.Simulated.MovementPIDSlot0.kS) ;
             checkError("tilt-set-PID-value-movement", () -> tilt_motor_.getConfigurator().apply(tiltslot0cfg)) ;
-
-            final Slot1Configs tiltslot1cfg = new Slot1Configs()
-                                    .withKP(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kP)
-                                    .withKI(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kI)
-                                    .withKD(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kD)
-                                    .withKV(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kV)
-                                    .withKA(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kA)
-                                    .withKG(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kG)
-                                    .withKS(IntakeShooterConstants.Tilt.Simulated.TrackingPIDSlot1.kS) ;
-            checkError("tilt-set-PID-value-tracking", () -> tilt_motor_.getConfigurator().apply(tiltslot1cfg)) ;        
 
             final MotionMagicConfigs tiltmagiccfg = new MotionMagicConfigs().withMotionMagicCruiseVelocity(IntakeShooterConstants.Tilt.Simulated.MotionMagic.kV)
                                     .withMotionMagicAcceleration(IntakeShooterConstants.Tilt.Simulated.MotionMagic.kA)

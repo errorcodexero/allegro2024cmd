@@ -197,7 +197,6 @@ public class AllegroRobot extends XeroRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        super.teleopPeriodic();
     }    
 
     @Override
