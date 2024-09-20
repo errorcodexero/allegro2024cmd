@@ -4,8 +4,6 @@ import org.xero1425.base.XeroRobot;
 import org.xero1425.base.XeroSubsystem;
 import org.xero1425.base.XeroTimer;
 import org.xero1425.math.PieceWiseLinear;
-import org.xero1425.misc.MessageLogger;
-import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -30,31 +28,39 @@ import frc.robot.NoteDestination;
 import frc.robot.ShotType;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
+
+    // #region constant strings, used for simulator
     static final public String NAME = "IntakeShooterSubsystem" ;
     static final public String FEEDER_MOTOR_NAME = "feeder" ;
     static final public String SHOOTER1_MOTOR_NAME = "shooter1" ;
     static final public String SHOOTER2_MOTOR_NAME = "shooter2" ;
     static final public String UPDOWN_MOTOR_NAME = "updown" ;
     static final public String TILT_MOTOR_NAME = "tilt" ;        
-    
+    // #endregion
    
+    // #region state machine states for controlling the intake/shooter
     private enum State {
         Invalid,
         Idle,
+
         MoveTiltToPosition,
         MoveBothToPosition,
+
         WaitForNote,
         WaitForCapture,
+
         WaitForReverse,
         HoldingTransferPosition,
         WaitingToShoot,
         WaitForShotFinish,
+
+        GoToEjectPosition,
         EjectForward,
         EjectPause,
         EjectReverse,
-        EnableTracking,
+
         HoldForShoot,
-        GoToEjectPosition,
+
         Tuning,
 
         TransferWaitForNoNote,
@@ -65,7 +71,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         WaitingForTunedNoteShot1,
         WaitingForTunedNoteShot2,        
     }
+    // #endregion
 
+    // #region private member variables
     private IntakeShooterIO io_ ;
     private IntakeShooterIOInputsAutoLogged inputs_ ;
 
@@ -109,7 +117,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Trigger transfer_note_trigger_ ;
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
+    // #endregion
 
+    // #region constructor
     public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype) throws Exception {
         super(robot, NAME) ;
 
@@ -138,12 +148,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         state_ = State.Idle ;
         next_state_ = State.Invalid ;
 
-        transfer_note_trigger_ = new Trigger(()-> transferNote()) ;
+        transfer_note_trigger_ = new Trigger(()-> canTransferNote()) ;
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
         need_stop_manipulator_ = false ;
     }
+    // #endregion
 
+    // #region Shooter tuning related
     public String stateString() {
         return state_.toString() ;
     }
@@ -154,6 +166,18 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
+    public void startFeeder() {
+        io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
+        state_ = State.WaitingForTunedNoteShot1 ;
+    }
+
+    public void stopFeeder() {
+        io_.setFeederMotorVoltage(0.0) ;
+        state_ = State.Tuning ;
+    }    
+    // #endregion
+
+    // #region base subsystem code, mostly used for simulation
     public Map<String, TalonFX> getCTREMotors() {
         return io_.getCTREMotors() ;
     }
@@ -161,7 +185,21 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public SettingsValue getProperty(String name) {
         return null ;
     }
+    // #endregion
 
+    // #region public triggers supplied by the subsystem
+
+    public Trigger readyForShoot() {
+        return ready_for_shoot_trigger_ ;
+    }
+
+    public Trigger readyForTransferNote() {
+        return transfer_note_trigger_ ;
+    }
+
+    // #endregion
+
+    // #region public methods to get the state of the subsystem
     public double getShooter1Velocity() {
         return inputs_.shooter1Velocity;
     }
@@ -178,6 +216,57 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return inputs_.updownPosition ;
     }
 
+    public boolean hasNote() {
+        return has_note_ ;
+    }    
+
+    public boolean isIdle() {
+        return state_ == State.Idle ;
+    }
+
+    public boolean isTuning() {
+        return state_ == State.Tuning ;
+    }
+
+    public boolean isInTransferPosition() {
+        return state_ == State.HoldingTransferPosition ;
+    }    
+
+    public boolean isTiltReady() {
+        boolean b =  
+            Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
+            Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
+        return b ;
+    }
+
+    public boolean isUpDownReady() {
+        return 
+            Math.abs(inputs_.updownPosition - target_updown_) < target_updown_tol_ &&
+            Math.abs(inputs_.updownVelocity) < target_updown_vel_ ;
+    }
+
+    public boolean isShooterReady() { 
+        return 
+            Math.abs(inputs_.shooter1Velocity - target_velocity_) < target_velocity_tol_ &&
+            Math.abs(inputs_.shooter2Velocity - target_velocity_) < target_velocity_tol_ ;
+    }    
+
+    public boolean hasShotLeft() {
+        return state_ != State.WaitForShotFinish ;
+    }    
+
+    //
+    // This is a HACK to allow the TrampSubsystem to know its time to stop 
+    // the manipulator.  Stopping the manipulator is a function of the distance
+    // traveled by the shooter wheels.
+    //
+    public boolean needStopManipulator() {
+        return need_stop_manipulator_ ;
+    }
+
+    // #endregion
+
+    // #region public methods to set the state of the subsystem
     public void setTiltToAngle(double t, double tiltpostol, double tiltveltol) {
         setTracking(false) ;
         setTiltTarget(t) ;
@@ -194,42 +283,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         target_updown_tol_ = updownpostol ;
         target_updown_vel_ = updownveltol ;
     }
+    //#endregion
 
-    public Trigger readyForShoot() {
-        return ready_for_shoot_trigger_ ;
-    }
-
-    public Trigger readyForTransferNote() {
-        return transfer_note_trigger_ ;
-    }
-
-    public boolean hasNote() {
-        return has_note_ ;
-    }
-
-    public boolean transferNote() {
-        boolean ret = false ;
-
-        if (!DriverStation.isAutonomous()) {
-            NoteDestination dest = getNoteDestination() ;
-            ret = has_note_ && 
-                     (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
-                     (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
-        }
-        return ret;
-    }
-
-    public boolean needStopManipulator() {
-        return need_stop_manipulator_ ;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Subsystem command factor interface
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+    // #region public commands
     public Command collectCommand() {
         Command cmd = new FunctionalCommand(
                                 ()->collect(),
@@ -274,40 +330,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return runOnce(this::finishShot) ;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // State about the subsystem
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // #endregion
 
-    public boolean isNoteDetected() {
-        return inputs_.noteSensor ^ IntakeShooterConstants.NoteSensor.kInverted ;
-    }
-
-    public boolean isIdle() {
-        return state_ == State.Idle ;
-    }
-
-    public boolean isTuning() {
-        return state_ == State.Tuning ;
-    }
-
-    public boolean isInTransferPosition() {
-        return state_ == State.HoldingTransferPosition ;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Methods that cause the subsystem to take action
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // #region public methods to perform actions
 
     //
-    // If the intake is idle, and does not have a note, this method collects a new note.
+    // If the intake is idle, and does not have a note, this method collects a new note.  This
+    // is used from automodes to directly collect a note without any additional commands.
     //
     public void collect() {
         if (!has_note_ && state_ == State.Idle) {
@@ -329,26 +358,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
+    //
+    // Set the shoot parameters for an upcoming manual shot.  This is used in automodes when we know as soon
+    // as the collect is complete, we want to move to a shoot operation with the positions given below.
+    //
     public void setManualShootParameters(double updown, double tilt) {
         auto_manual_shoot_tilt_ = tilt ;
         auto_manual_shoot_updown_ = updown ;
-    }
-
-    //
-    // If we are collecting, this stops the collect operation.
-    //
-    public void stopCollect() {
-        if (isMoving() || state_ == State.WaitForNote) {
-            //
-            // Turn off the feeder and stop the tilt and updown
-            //
-            io_.setFeederMotorVoltage(0.0) ;
-            io_.setTiltTargetPos(false, inputs_.tiltPosition);
-            io_.setUpDownTargetPos(inputs_.updownPosition);
-            reverse_timer_.start() ;
-
-            state_ = State.WaitForReverse ;
-        }
     }
 
     //
@@ -377,28 +393,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 state_ = State.TransferWaitForNote ;
             }
         }
-    }
-
-    //
-    // If we are in the idle state, this method moves the mechanisms to the stowed position.
-    //
-    public void turtle() {
-        if (state_ == State.Idle) {
-            //
-            // Move the updown and tilt to the collect position
-            //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-            
-            //
-            // And set the state for after we reach the collect position
-            //
-            next_state_ = State.Idle ;
-        }
-    }
-
-    public void tiltToTest(int angle) {
-        setTiltTarget(angle);
     }
 
     //
@@ -449,11 +443,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         state_ = State.WaitingToShoot ;
     }
 
-    public void abortShot() {
-        io_.setShooter1MotorVoltage(0.0);
-        io_.setShooter2MotorVoltage(0.0);
-    }
-
     public void eject() {
         setTracking(false);
         gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, 5.0, 100.0, 
@@ -461,522 +450,37 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         state_ = State.GoToEjectPosition ;
     }
 
+    //
+    // Used by auto modes to tell the intake subsystem it was preloaded with a note.
+    //
     public void setHasNote(boolean b) {
         has_note_ = b ;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Implementation
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private NoteDestination getNoteDestination() {
-        NoteDestination ret = NoteDestination.Speaker ;
-        if (DriverStation.isAutonomous()) {
-            ret = NoteDestination.AutoDefinedSpeaker ;
-        }
-        else if (destsupplier_ != null) {
-            ret = destsupplier_.get() ;
-        }
-
-        return ret ;
-    }
-
-    private ShotType getShotType() {
-        if (shot_type_supplier_ != null)
-            return shot_type_supplier_.get() ;
-
-        return ShotType.Auto ;
-    }
-
-    public void setUpDownTarget(double pos) {
-        target_updown_ = pos ;
-        io_.setUpDownTargetPos(pos);
-    }
-
-    public void setTiltTarget(double pos) {
-        io_.setTiltTargetPos(tracking_, pos);
-        target_tilt_ = pos ;
-    }
+    }    
 
     public void setShooterVelocity(double vel, double veltol) {
-        io_.setShooter1Velocity(vel);
-        io_.setShooter2Velocity(vel);
+
+        if (Math.abs(vel) < 0.1) {
+            //
+            // Setting shooter velocity to zero causes the shooter wheels to 
+            // vibrate.  When we see this really low velocity, we just turn off
+            // the motors by setting the voltage to zero.
+            io_.setShooter1MotorVoltage(0.0) ;
+            io_.setShooter2MotorVoltage(0.0) ;
+        }
+        else {
+            io_.setShooter1Velocity(vel);
+            io_.setShooter2Velocity(vel);
+        }
 
         target_velocity_tol_ = veltol ;
         target_velocity_ = vel ;
     }
+    // #endregion
 
-    private void setShooterVoltage(double v) {
-        target_velocity_ = 0 ;
-        io_.setShooter1MotorVoltage(v);
-        io_.setShooter2MotorVoltage(v);
-    }
-
-    private boolean isMoving() {
-        return state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition ;
-    }
-
-    //
-    // These methods corespond to the the states the subsystem can be in
-    //
-    private void moveTiltToPositionState() {
-        if (isTiltReady()) {
-            setUpDownTarget(next_updown_);
-            setTiltTarget(next_tilt_);
-            state_ = State.MoveBothToPosition ;
-        }
-    }
-
-    //
-    // Wait for the intake and tilt to move to the target position and when there, go to the state given
-    // by next_state_ ;
-    //
-    private void moveBothToPositionState() {
-        if (isTiltReady() && isUpDownReady()) {
-            state_ = next_state_ ;
-            next_state_ = State.Invalid ;
-        }
-        else if (next_state_ == State.WaitForNote && inputs_.fallingEdge) {
-            has_note_ = true ;
-            capture_timer_.start() ;
-            state_ = State.WaitForCapture ;            
-        }
-    }
-
-    private void waitForNoteState() {
-        if (inputs_.fallingEdge) {
-            //
-            // Set the note flag, start moving the intake to the target position, and wait for the feeder to run
-            // until we have the note fully captured.
-            //
-            has_note_ = true ;
-            capture_timer_.start() ;
-            state_ = State.WaitForCapture ;
-        }
-    }
-
-    private void waitForCaptureState() {
-        if (capture_timer_.isExpired()) {
-            //
-            // Turn off the feeder
-            //
-            io_.setFeederMotorVoltage(0.0);
-
-            //
-            // Move the updown and tilt to the stowed position
-            //
-            double updown ;
-            double tilt ;
-            
-            NoteDestination dest = getNoteDestination();
-            switch(dest) {
-                case AutoDefinedSpeaker:
-                    next_state_ = State.Idle ;
-                    gotoPosition(auto_manual_shoot_updown_, Double.NaN, Double.NaN, auto_manual_shoot_tilt_, Double.NaN, Double.NaN) ; 
-                    break ;
-                case Speaker:
-                    {
-                        ShotType type = getShotType() ;
-                        if (type == ShotType.Auto) {
-                            updown = IntakeShooterConstants.UpDown.Positions.kStartTracking ;
-                            tilt = IntakeShooterConstants.Tilt.Positions.kStartTracking;          
-                            gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;                                      
-                            next_state_ = State.EnableTracking ;
-                        }
-                        else if (type == ShotType.Podium) {
-                            manualShoot(IntakeShooterConstants.ManualShotPodium.kUpDownPos, 
-                                        IntakeShooterConstants.ManualShotPodium.kUpDownPosTolerance,
-                                        IntakeShooterConstants.ManualShotPodium.kUpDownVelTolerance,
-                                        IntakeShooterConstants.ManualShotPodium.kTiltPos,
-                                        IntakeShooterConstants.ManualShotPodium.kTiltPosTolerance,
-                                        IntakeShooterConstants.ManualShotPodium.kTiltVelTolerance,
-                                        IntakeShooterConstants.ManualShotPodium.kShooterVel,
-                                        IntakeShooterConstants.ManualShotPodium.kShooterVelTolerance,
-                                        false, false) ;
-                        }
-                        else if (type == ShotType.Subwoofer) {
-                            manualShoot(IntakeShooterConstants.ManualShotSubwoofer.kUpDownPos, 
-                                        IntakeShooterConstants.ManualShotSubwoofer.kUpDownPosTolerance,
-                                        IntakeShooterConstants.ManualShotSubwoofer.kUpDownVelTolerance,
-                                        IntakeShooterConstants.ManualShotSubwoofer.kTiltPos,
-                                        IntakeShooterConstants.ManualShotSubwoofer.kTiltPosTolerance,
-                                        IntakeShooterConstants.ManualShotSubwoofer.kTiltVelTolerance,
-                                        IntakeShooterConstants.ManualShotSubwoofer.kShooterVel,
-                                        IntakeShooterConstants.ManualShotSubwoofer.kShooterVelTolerance,
-                                        false, false) ;
-                        }
-                    }
-                    break ;
-
-                case Trap:
-                case Amp:
-                    updown = IntakeShooterConstants.UpDown.Positions.kTransfer ;
-                    tilt = IntakeShooterConstants.Tilt.Positions.kTransfer ;
-                    next_state_ = State.Idle ;                        
-                    gotoPosition(updown, 3.0, 10.0, tilt, 3.0, 1e32) ;                    
-                    break ;
-
-                default:
-                    updown = IntakeShooterConstants.UpDown.Positions.kStowed ;
-                    tilt = IntakeShooterConstants.Tilt.Positions.kStowed ;
-                    next_state_ = State.Idle ;
-                    gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;                    
-                    break ;
-            }
-
-            //
-            // Start the shooter wheels so that the shooter is up to speed when the updown/tilt reach the
-            // transfer position
-            //
-            if (dest == NoteDestination.Amp) {
-                setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
-            }
-        }
-    }
-
-    public void stopShooterInTransfer() {
-        target_velocity_ = 0 ;
-        has_note_ = false ;
-        setShooterVoltage(0.0);
-        io_.setFeederMotorVoltage(0.0);
-
-        //
-        // Move the updown and tilt to the stowed position
-        //
-        gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                        IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-        //
-        // And set the state for after we reach the stowed position
-        //
-        next_state_ = State.Idle ;
-    }
-
-    public boolean hasShotLeft() {
-        return state_ != State.WaitForShotFinish ;
-    }
-
-    private void waitForReverseState() {
-        if (reverse_timer_.isExpired()) {
-            //
-            // Move the updown and tilt to the stowed position
-            //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-            //
-            // And set the state for after we reach the stowed position
-            //
-            next_state_ = State.Idle ;
-        }
-    }
-
-    public boolean isTiltReady() {
-        boolean b =  
-            Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
-            Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
-        return b ;
-    }
-
-    public boolean isUpDownReady() {
-        return 
-            Math.abs(inputs_.updownPosition - target_updown_) < target_updown_tol_ &&
-            Math.abs(inputs_.updownVelocity) < target_updown_vel_ ;
-    }
-
-    public boolean isShooterReady() { 
-        return 
-            Math.abs(inputs_.shooter1Velocity - target_velocity_) < target_velocity_tol_ &&
-            Math.abs(inputs_.shooter2Velocity - target_velocity_) < target_velocity_tol_ ;
-    }
-
-    public void startFeeder() {
-        io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
-        state_ = State.WaitingForTunedNoteShot1 ;
-    }
-
-    public void stopFeeder() {
-        io_.setFeederMotorVoltage(0.0) ;
-        state_ = State.Tuning ;
-    }
-
-    public void stopShooter() {
-        io_.setShooter1MotorVoltage(0.0) ;
-        io_.setShooter2MotorVoltage(0.0) ;
-    }
-
-    public void waitingToShootState() {
-        if (isTiltReady() && isUpDownReady() && isShooterReady()) {
-            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
-            shoot_timer_.start() ;
-            state_ = State.WaitForShotFinish ;
-        }
-    }
-
-    private void waitForShotFinishState() {
-        if (shoot_timer_.isExpired()) {
-            //
-            // Indicate the note has left the robot
-            //
-            has_note_ = false ;
-
-            //
-            // Turn off the feeder
-            //
-            io_.setFeederMotorVoltage(0.0);
-            io_.setShooter1MotorVoltage(0.0);
-            io_.setShooter2MotorVoltage(0.0);
-
-            setTracking(false) ;
-
-            if (!collect_after_manual_) {
-                //
-                // Move the updown and tilt to the stowed position
-                //
-                gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                             IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-                //
-                // And set the state for after we reach the stowed position
-                //
-                next_state_ = State.Idle ;                             
-            }
-            else {
-                //
-                // Force the intake to the idle state, so impose a collect operation
-                // as soon after shot is complete as possible
-                //
-                state_ = State.Idle ;
-                collect() ;
-                collect_after_manual_ = false ;
-            }
-        }
-    }
-
-    private void ejectForwardState() {
-        if (eject_forward_timer_.isExpired()) {
-            setShooterVoltage(0.0);
-            io_.setFeederMotorVoltage(0.0) ;
-            eject_pause_timer_.start() ;
-            state_ = State.EjectPause ;
-        }
-    }
-
-    private void ejectPauseState() {
-        if (eject_pause_timer_.isExpired()) {
-            setShooterVoltage(-IntakeShooterConstants.Shooter.kEjectVoltage) ;
-            io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
-            eject_reverse_timer_.start() ;
-            state_ = State.EjectReverse ;
-        }
-    }
-
-    private void ejectReverseState() {
-        if (eject_reverse_timer_.isExpired()) {
-            setShooterVoltage(0.0);
-            io_.setFeederMotorVoltage(0.0);
-            state_ = State.Idle ;
-        }
-    }
-
-    private void trackTargetDistance() {
-        double dist = distsupplier_.getAsDouble() ;
-
-        double updown = updown_pwl_.getValue(dist) ;
-        double tilt = tilt_pwl_.getValue(dist) ;
-        double velocity = velocity_pwl_.getValue(dist) ;
-
-        setUpDownTarget(updown);
-        setTiltTarget(tilt) ;
-        setShooterVelocity(velocity, IntakeShooterConstants.Shooter.kAutoShootVelocityTol) ;
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        io_.simulate(getRobot().getPeriod()) ;
-    }
-
-    @Override
-    public void periodic() {
-        periodicStart();
-
-        io_.updateInputs(inputs_);
-        Logger.processInputs("intake-shooter", inputs_);
-
-        switch(state_) {
-            case Idle:
-            case Invalid:
-                break ;
-
-            case MoveTiltToPosition:
-                moveTiltToPositionState() ;
-                break ;
-
-            case MoveBothToPosition:
-                moveBothToPositionState() ;
-                break ;
-
-            case WaitForNote:
-                waitForNoteState() ;
-                break ;
-
-            case WaitForCapture:
-                waitForCaptureState() ;
-                break ;
-
-            case WaitForReverse:
-                waitForReverseState() ;
-                break ;
-
-            case HoldingTransferPosition:
-                break ;
-
-            case WaitingToShoot:
-                waitingToShootState() ;
-                break ;
-
-            case WaitForShotFinish:
-                waitForShotFinishState() ;
-                break ;
-
-            case EjectForward:
-                ejectForwardState() ;
-                break ;
-
-            case EjectPause:
-                ejectPauseState() ;
-                break ;
-
-            case EjectReverse:
-                ejectReverseState() ;
-                break ;
-
-            case TransferWaitForNote:
-                if (inputs_.risingEdge && inputs_.fallingEdge) {
-                    //
-                    // The note completely passed the sensor since the last robot loop
-                    //
-                    state_ = State.TransferRunToManiulatorStop ;
-                    transfer_start_pos_ = inputs_.shooter1Position ;                    
-                }
-                else if (inputs_.fallingEdge) {
-                    //
-                    // The leading edge of the note passed the sensor, wait for the trailing edge
-                    //
-                    state_ = State.TransferWaitForNoNote ;
-                }
-                break ;
-
-            case TransferWaitForNoNote:
-                if (inputs_.risingEdge) {
-                    state_ = State.TransferRunToManiulatorStop ;
-                    transfer_start_pos_ = inputs_.shooter1Position ;
-                }                
-                break ;
-
-            case TransferRunToManiulatorStop:
-                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {                
-                    need_stop_manipulator_ = true ;
-                    has_note_ = false ;                    
-                    state_ = State.TransferRunToShooterStop ;
-                }
-                break ;
-
-            case TransferRunToShooterStop:
-                if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
-                    io_.setFeederMotorVoltage(0.0);
-                    setShooterVoltage(0.0);
-                    next_state_ = State.Idle ;                    
-                    gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                                 IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-                }
-                break ;
-                
-            case EnableTracking:
-                setTracking(true);
-                state_ = State.HoldForShoot ;
-                break ;
-
-            case GoToEjectPosition:
-                if (isTiltReady() && isUpDownReady()) {
-                    setShooterVoltage(IntakeShooterConstants.Shooter.kEjectVoltage);
-                    io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
-                    eject_forward_timer_.start() ;
-                    has_note_ = false ;
-                    state_ = State.EjectForward ;
-                }
-                break ;
-            
-            case HoldForShoot:
-                break ;
-
-            case Tuning:
-                break ;
-
-            case WaitingForTunedNoteShot1:
-                if (inputs_.risingEdge || inputs_.fallingEdge) {
-                    shoot_timer_.start() ;
-                    state_ = State.WaitingForTunedNoteShot2 ;
-                }
-                break ;
-
-            case WaitingForTunedNoteShot2:
-                if (shoot_timer_.isExpired()) {
-                    state_ = State.Tuning ;
-                }
-                break ;
-        }
-
-        if (tracking_ && distsupplier_ != null) {
-            trackTargetDistance() ;
-        }
-
-        String ststr = state_.toString() ;
-
-        if (state_ == State.MoveTiltToPosition) {
-            ststr += ":" + target_tilt_ ;
-        }
-        else if (state_ == State.MoveBothToPosition) {
-            ststr += ":" + target_updown_ + ":" + target_tilt_ ;
-        }
-
-        if (getVerbose()) {
-            Logger.recordOutput("intake:state", ststr);
-            Logger.recordOutput("intake:next-state", next_state_) ;
-            Logger.recordOutput("intake:updown-target", target_updown_) ;
-            Logger.recordOutput("intake:updown-vel", inputs_.updownVelocity) ;
-            Logger.recordOutput("intake:tilt-target", target_tilt_) ;
-            Logger.recordOutput("intake:shooter-target", target_velocity_) ;
-            Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
-            Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
-            Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
-            Logger.recordOutput("intake:has-note", has_note_);
-            Logger.recordOutput("intake:tracking", tracking_);
-            Logger.recordOutput("intake:note-dest", getNoteDestination()) ;
-            Logger.recordOutput("intake:shot-type", getShotType()) ;
-            Logger.recordOutput("intake:feederVoltage", io_.getFeederMotorVoltage()) ;
-            Logger.recordOutput("intake:readyForShoot", readyForShoot().getAsBoolean()) ;
-            Logger.recordOutput("intake:tracking", tracking_) ;
-            Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
-        }
-        periodicEnd();
-    }
+    // #region private implementation methods
 
     private void setTracking(boolean b) {
-        try {
-            tracking_ = b ;
-            io_.setTiltMovementPID();
-        }
-        catch(Exception ex) {
-            MessageLogger logger = getRobot().getMessageLogger() ;
-            logger.startMessage(MessageType.Error).add("exception setting tracking mode - ").add(ex.getMessage()).endMessage();
-            logger.logStackTrace(ex.getStackTrace());
-        }
+        tracking_ = b ;
     }
 
     private double computeTiltFromUpdown(double updown) {
@@ -1054,6 +558,484 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             state_ = State.MoveBothToPosition ;            
         }
     }
+
+
+    //
+    // If we are in the idle state, this method moves the mechanisms to the stowed position.
+    //
+    private void turtle() {
+        if (state_ == State.Idle) {
+            //
+            // Move the updown and tilt to the collect position
+            //
+            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
+                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
+            
+            //
+            // And set the state for after we reach the collect position
+            //
+            next_state_ = State.Idle ;
+        }
+    }    
+
+    //
+    // If we are collecting, this stops the collect operation.
+    //
+    private void stopCollect() {
+        if (state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.WaitForNote) {
+            //
+            // Turn off the feeder and stop the tilt and updown
+            //
+            io_.setFeederMotorVoltage(0.0) ;
+            io_.setTiltTargetPos(false, inputs_.tiltPosition);
+            io_.setUpDownTargetPos(inputs_.updownPosition);
+            reverse_timer_.start() ;
+
+            state_ = State.WaitForReverse ;
+        }
+    }    
+
+    private boolean isNoteDetected() {
+        return inputs_.noteSensor ^ IntakeShooterConstants.NoteSensor.kInverted ;
+    }
+
+    private boolean canTransferNote() {
+        boolean ret = false ;
+
+        if (!DriverStation.isAutonomous()) {
+            NoteDestination dest = getNoteDestination() ;
+            ret = has_note_ && 
+                     (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
+                     (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
+        }
+        return ret;
+    }
+
+    private NoteDestination getNoteDestination() {
+        NoteDestination ret = NoteDestination.Speaker ;
+        if (DriverStation.isAutonomous()) {
+            ret = NoteDestination.AutoDefinedSpeaker ;
+        }
+        else if (destsupplier_ != null) {
+            ret = destsupplier_.get() ;
+        }
+
+        return ret ;
+    }
+
+    private ShotType getShotType() {
+        if (shot_type_supplier_ != null)
+            return shot_type_supplier_.get() ;
+
+        return ShotType.Auto ;
+    }
+
+    private void setUpDownTarget(double pos) {
+        target_updown_ = pos ;
+        io_.setUpDownTargetPos(pos);
+    }
+
+    private void setTiltTarget(double pos) {
+        io_.setTiltTargetPos(tracking_, pos);
+        target_tilt_ = pos ;
+    }
+
+
+
+    private void trackTargetDistance() {
+        double dist = distsupplier_.getAsDouble() ;
+
+        double updown = updown_pwl_.getValue(dist) ;
+        double tilt = tilt_pwl_.getValue(dist) ;
+        double velocity = velocity_pwl_.getValue(dist) ;
+
+        setUpDownTarget(updown);
+        setTiltTarget(tilt) ;
+        setShooterVelocity(velocity, IntakeShooterConstants.Shooter.kAutoShootVelocityTol) ;
+    }    
+
+    // #endregion
+
+    // #region methods that implement states in the state machine
+
+
+    //
+    // These methods corespond to the the states the subsystem can be in
+    //
+    private void moveTiltToPositionState() {
+        if (isTiltReady()) {
+            setUpDownTarget(next_updown_);
+            setTiltTarget(next_tilt_);
+            state_ = State.MoveBothToPosition ;
+        }
+    }
+
+    //
+    // Wait for the intake and tilt to move to the target position and when there, go to the state given
+    // by next_state_ ;
+    //
+    private void moveBothToPositionState() {
+        if (next_state_ == State.WaitForNote && inputs_.fallingEdge) {
+            has_note_ = true ;
+            capture_timer_.start() ;
+            state_ = State.WaitForCapture ;
+        }
+
+        if (isTiltReady() && isUpDownReady()) {
+            state_ = next_state_ ;
+            next_state_ = State.Invalid ;
+        }
+    }    
+
+    private void waitForNoteState() {
+        if (inputs_.fallingEdge) {
+            //
+            // Set the note flag, start moving the intake to the target position, and wait for the feeder to run
+            // until we have the note fully captured.
+            //
+            has_note_ = true ;
+            capture_timer_.start() ;
+            state_ = State.WaitForCapture ;
+        }
+    }    
+
+    private void waitForReverseState() {
+        if (reverse_timer_.isExpired()) {
+            //
+            // Move the updown and tilt to the stowed position
+            //
+            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
+                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
+
+            //
+            // And set the state for after we reach the stowed position
+            //
+            next_state_ = State.Idle ;
+        }
+    }    
+
+    private void waitForCaptureState() {
+        if (capture_timer_.isExpired()) {
+            //
+            // Turn off the feeder
+            //
+            io_.setFeederMotorVoltage(0.0);
+
+            //
+            // Move the updown and tilt to the stowed position
+            //
+            double updown ;
+            double tilt ;
+            
+            NoteDestination dest = getNoteDestination();
+            switch(dest) {
+                case AutoDefinedSpeaker:
+                    next_state_ = State.Idle ;
+                    gotoPosition(auto_manual_shoot_updown_, Double.NaN, Double.NaN, auto_manual_shoot_tilt_, Double.NaN, Double.NaN) ; 
+                    break ;
+                case Speaker:
+                    {
+                        ShotType type = getShotType() ;
+                        if (type == ShotType.Auto) {
+                            updown = IntakeShooterConstants.UpDown.Positions.kStartTracking ;
+                            tilt = IntakeShooterConstants.Tilt.Positions.kStartTracking;          
+                            gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
+                            setTracking(true) ;
+                            next_state_ = State.HoldForShoot ;
+                        }
+                        else if (type == ShotType.Podium) {
+                            manualShoot(IntakeShooterConstants.ManualShotPodium.kUpDownPos, 
+                                        IntakeShooterConstants.ManualShotPodium.kUpDownPosTolerance,
+                                        IntakeShooterConstants.ManualShotPodium.kUpDownVelTolerance,
+                                        IntakeShooterConstants.ManualShotPodium.kTiltPos,
+                                        IntakeShooterConstants.ManualShotPodium.kTiltPosTolerance,
+                                        IntakeShooterConstants.ManualShotPodium.kTiltVelTolerance,
+                                        IntakeShooterConstants.ManualShotPodium.kShooterVel,
+                                        IntakeShooterConstants.ManualShotPodium.kShooterVelTolerance,
+                                        false, false) ;
+                        }
+                        else if (type == ShotType.Subwoofer) {
+                            manualShoot(IntakeShooterConstants.ManualShotSubwoofer.kUpDownPos, 
+                                        IntakeShooterConstants.ManualShotSubwoofer.kUpDownPosTolerance,
+                                        IntakeShooterConstants.ManualShotSubwoofer.kUpDownVelTolerance,
+                                        IntakeShooterConstants.ManualShotSubwoofer.kTiltPos,
+                                        IntakeShooterConstants.ManualShotSubwoofer.kTiltPosTolerance,
+                                        IntakeShooterConstants.ManualShotSubwoofer.kTiltVelTolerance,
+                                        IntakeShooterConstants.ManualShotSubwoofer.kShooterVel,
+                                        IntakeShooterConstants.ManualShotSubwoofer.kShooterVelTolerance,
+                                        false, false) ;
+                        }
+                    }
+                    break ;
+
+                case Trap:
+                case Amp:
+                    updown = IntakeShooterConstants.UpDown.Positions.kTransfer ;
+                    tilt = IntakeShooterConstants.Tilt.Positions.kTransfer ;
+                    next_state_ = State.Idle ;                        
+                    gotoPosition(updown, 3.0, 10.0, tilt, 3.0, 1e32) ;                    
+                    break ;
+
+                default:
+                    updown = IntakeShooterConstants.UpDown.Positions.kStowed ;
+                    tilt = IntakeShooterConstants.Tilt.Positions.kStowed ;
+                    next_state_ = State.Idle ;
+                    gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;                    
+                    break ;
+            }
+
+            //
+            // Start the shooter wheels so that the shooter is up to speed when the updown/tilt reach the
+            // transfer position
+            //
+            if (dest == NoteDestination.Amp) {
+                setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
+            }
+        }
+    }
+
+
+    public void waitingToShootState() {
+        if (isTiltReady() && isUpDownReady() && isShooterReady()) {
+            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
+            shoot_timer_.start() ;
+            state_ = State.WaitForShotFinish ;
+        }
+    }
+
+    private void waitForShotFinishState() {
+        if (shoot_timer_.isExpired()) {
+            //
+            // Indicate the note has left the robot
+            //
+            has_note_ = false ;
+
+            //
+            // Turn off the feeder
+            //
+            io_.setFeederMotorVoltage(0.0);
+            io_.setShooter1MotorVoltage(0.0);
+            io_.setShooter2MotorVoltage(0.0);
+
+            setTracking(false) ;
+
+            if (!collect_after_manual_) {
+                //
+                // Move the updown and tilt to the stowed position
+                //
+                gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
+                             IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
+
+                //
+                // And set the state for after we reach the stowed position
+                //
+                next_state_ = State.Idle ;                             
+            }
+            else {
+                //
+                // Force the intake to the idle state, so impose a collect operation
+                // as soon after shot is complete as possible
+                //
+                state_ = State.Idle ;
+                collect() ;
+                collect_after_manual_ = false ;
+            }
+        }
+    }
+
+    private void ejectForwardState() {
+        if (eject_forward_timer_.isExpired()) {
+            setShooterVelocity(0.0, 0.0);
+            io_.setFeederMotorVoltage(0.0) ;
+            eject_pause_timer_.start() ;
+            state_ = State.EjectPause ;
+        }
+    }
+
+    private void ejectPauseState() {
+        if (eject_pause_timer_.isExpired()) {
+            setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+            io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
+            eject_reverse_timer_.start() ;
+            state_ = State.EjectReverse ;
+        }
+    }
+
+    private void ejectReverseState() {
+        if (eject_reverse_timer_.isExpired()) {
+            setShooterVelocity(0.0, 0.0);
+            io_.setFeederMotorVoltage(0.0);
+            state_ = State.Idle ;
+        }
+    }
+    // #endregion
+
+    // #region periodic method that evaluates the state machine each robot loop
+    @Override
+    public void periodic() {
+        periodicStart();
+
+        io_.updateInputs(inputs_);
+        Logger.processInputs("intake-shooter", inputs_);
+
+        switch(state_) {
+            case Idle:
+            case Invalid:
+                break ;
+
+            case MoveTiltToPosition:
+                moveTiltToPositionState() ;
+                break ;
+
+            case MoveBothToPosition:
+                moveBothToPositionState() ;
+                break ;
+
+            case WaitForNote:
+                waitForNoteState() ;
+                break ;
+
+            case WaitForCapture:
+                waitForCaptureState() ;
+                break ;
+
+            case WaitForReverse:
+                waitForReverseState() ;
+                break ;
+
+            case HoldingTransferPosition:
+                // We leave this state when the TransferCommand asks us to directly.
+                break ;
+
+            case WaitingToShoot:
+                waitingToShootState() ;
+                break ;
+
+            case WaitForShotFinish:
+                waitForShotFinishState() ;
+                break ;
+
+            case EjectForward:
+                ejectForwardState() ;
+                break ;
+
+            case EjectPause:
+                ejectPauseState() ;
+                break ;
+
+            case EjectReverse:
+                ejectReverseState() ;
+                break ;
+
+            case TransferWaitForNote:
+                if (inputs_.risingEdge && inputs_.fallingEdge) {
+                    //
+                    // The note completely passed the sensor since the last robot loop
+                    //
+                    state_ = State.TransferRunToManiulatorStop ;
+                    transfer_start_pos_ = inputs_.shooter1Position ;                    
+                }
+                else if (inputs_.fallingEdge) {
+                    //
+                    // The leading edge of the note passed the sensor, wait for the trailing edge
+                    //
+                    state_ = State.TransferWaitForNoNote ;
+                }
+                break ;
+
+            case TransferWaitForNoNote:
+                if (inputs_.risingEdge) {
+                    state_ = State.TransferRunToManiulatorStop ;
+                    transfer_start_pos_ = inputs_.shooter1Position ;
+                }                
+                break ;
+
+            case TransferRunToManiulatorStop:
+                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {                
+                    need_stop_manipulator_ = true ;
+                    has_note_ = false ;                    
+                    state_ = State.TransferRunToShooterStop ;
+                }
+                break ;
+
+            case TransferRunToShooterStop:
+                if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
+                    io_.setFeederMotorVoltage(0.0);
+                    setShooterVelocity(0.0, 0.0);
+                    next_state_ = State.Idle ;                    
+                    gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
+                                 IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
+                }
+                break ;
+                
+            case GoToEjectPosition:
+                if (isTiltReady() && isUpDownReady()) {
+                    setShooterVelocity(IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+                    io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
+                    eject_forward_timer_.start() ;
+                    has_note_ = false ;
+                    state_ = State.EjectForward ;
+                }
+                break ;
+            
+            case HoldForShoot:
+                break ;
+
+            case Tuning:
+                break ;
+
+            case WaitingForTunedNoteShot1:
+                if (inputs_.risingEdge || inputs_.fallingEdge) {
+                    shoot_timer_.start() ;
+                    state_ = State.WaitingForTunedNoteShot2 ;
+                }
+                break ;
+
+            case WaitingForTunedNoteShot2:
+                if (shoot_timer_.isExpired()) {
+                    state_ = State.Tuning ;
+                }
+                break ;
+        }
+
+        if (tracking_ && distsupplier_ != null) {
+            trackTargetDistance() ;
+        }
+
+        String ststr = state_.toString() ;
+
+        if (state_ == State.MoveTiltToPosition) {
+            ststr += ":" + target_tilt_ ;
+        }
+        else if (state_ == State.MoveBothToPosition) {
+            ststr += ":" + target_updown_ + ":" + target_tilt_ ;
+        }
+
+        if (getVerbose()) {
+            Logger.recordOutput("intake:state", ststr);
+            Logger.recordOutput("intake:next-state", next_state_) ;
+            Logger.recordOutput("intake:updown-target", target_updown_) ;
+            Logger.recordOutput("intake:updown-vel", inputs_.updownVelocity) ;
+            Logger.recordOutput("intake:tilt-target", target_tilt_) ;
+            Logger.recordOutput("intake:shooter-target", target_velocity_) ;
+            Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
+            Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
+            Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
+            Logger.recordOutput("intake:has-note", has_note_);
+            Logger.recordOutput("intake:tracking", tracking_);
+            Logger.recordOutput("intake:note-dest", getNoteDestination()) ;
+            Logger.recordOutput("intake:shot-type", getShotType()) ;
+            Logger.recordOutput("intake:feederVoltage", io_.getFeederMotorVoltage()) ;
+            Logger.recordOutput("intake:readyForShoot", readyForShoot().getAsBoolean()) ;
+            Logger.recordOutput("intake:tracking", tracking_) ;
+            Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
+        }
+        periodicEnd();
+    }
+
+    // #endregion
+
+    // #region methods assocaited with characterization of the subsytsems
 
     private SysIdRoutine tiltSysIdRoutine() {
         Measure<Voltage> step = Units.Volts.of(7) ;
@@ -1144,5 +1126,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public Command shooter2SysIdDynamic(SysIdRoutine.Direction dir) {
         return shooter2SysIdRoutine().dynamic(dir) ;
     }
+
+    // #endregion
 }
 

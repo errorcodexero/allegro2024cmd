@@ -66,12 +66,6 @@ public interface IntakeShooterIO {
         return 0.0;
     }    
 
-    public default void setTiltMovementPID() throws Exception{
-    }
-
-    public default void setTiltTrackingPID() throws Exception{
-    }
-
     public default void logTiltMotor(SysIdRoutineLog log) {
     }
 

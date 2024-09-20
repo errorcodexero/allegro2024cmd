@@ -44,8 +44,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
         container_ = container ;
         state_ = State.Start ;
 
-        addRequirements(container.getDriveTrain(), container.getIntakeShooter(), container.getTramp());
-
         collect_delay_timer_ = new XeroTimer("four-note-collect-delay", FourNoteDynamicConstants.kDelayForIntakeDownTime) ;
     }
 
