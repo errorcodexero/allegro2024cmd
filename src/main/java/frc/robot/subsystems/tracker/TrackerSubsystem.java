@@ -136,8 +136,10 @@ public class TrackerSubsystem extends XeroSubsystem {
         //
         // When do we say its ok to shoot just based on pose?
         //
+        boolean ready_distance_to_target = true; 
         if (distance_to_target_ >= TrackerConstants.kMaximumShotDistance) {
             ok_to_shoot_ = false ;
+            ready_distance_to_target = false;
         }
 
         Translation2d diff = target_pose_.getTranslation().minus(robot.getTranslation()) ;
@@ -152,8 +154,10 @@ public class TrackerSubsystem extends XeroSubsystem {
         //
         Rotation2d rheading = robot2target.plus(Rotation2d.fromDegrees(180.0)) ;
 
+        boolean ready_heading = true;
         if (Math.abs(rheading.getDegrees()) > TrackerConstants.kMaximumShotAngle) {
             ok_to_shoot_ = false ;
+            ready_heading = false ;
         }
 
         //
@@ -166,8 +170,12 @@ public class TrackerSubsystem extends XeroSubsystem {
         //
         angle_to_target_  = rfinal.getDegrees() ;
 
+        boolean ready_time_and_distance = true;
         if (ok_to_shoot_) {
             ok_to_shoot_ = checkTimeAndDistance() ;
+            if (!ok_to_shoot_) {
+                ready_time_and_distance = false ;
+            }
         }
 
         if (getVerbose()) {
@@ -175,6 +183,9 @@ public class TrackerSubsystem extends XeroSubsystem {
             Logger.recordOutput("tracker:distance-to-target", distance_to_target_) ;
             Logger.recordOutput("tracker:frozen", pose_frozen_) ;
             Logger.recordOutput("tracker:ready", isOkToShoot()) ;
+            Logger.recordOutput("tracker:ready_distance_to_target", ready_distance_to_target) ;
+            Logger.recordOutput("tracker:ready_heading", ready_heading) ;
+            Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance) ;
             Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;         
         }
 
