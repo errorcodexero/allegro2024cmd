@@ -7,6 +7,7 @@ import java.util.OptionalInt;
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.misc.MessageDestination;
 import org.xero1425.misc.MessageDestinationThumbFile;
 import org.xero1425.misc.MessageLogger;
@@ -89,21 +90,21 @@ public abstract class XeroRobot extends LoggedRobot {
 
         subsystems_ = new HashMap<>() ;
 
-        if (RobotBase.isSimulation()) {
-            String str = SimArgs.InputFileName;
-            if (str == null)
-                str = getSimulationFileName() ;
+        // if (RobotBase.isSimulation()) {
+        //     String str = SimArgs.InputFileName;
+        //     if (str == null)
+        //         str = getSimulationFileName() ;
                             
-            if (str == null) {
-                System.out.println("The code is setup to simulate, but the derived robot class did not provide a stimulus file") ;
-                System.out.println("Not initializing the Xero1425 Simulation engine - assuming Romi robot") ;
-            }
-            else {
-                SimulationEngine.initializeSimulator(this, logger_);
-                addRobotSimulationModels() ;
-                SimulationEngine.getInstance().initAll(str) ;
-            }
-        }        
+        //     if (str == null) {
+        //         System.out.println("The code is setup to simulate, but the derived robot class did not provide a stimulus file") ;
+        //         System.out.println("Not initializing the Xero1425 Simulation engine - assuming Romi robot") ;
+        //     }
+        //     else {
+        //         SimulationEngine.initializeSimulator(this, logger_);
+        //         addRobotSimulationModels() ;
+        //         SimulationEngine.getInstance().initAll(str) ;
+        //     }
+        // }        
     }
 
     public ISubsystemSim getSubsystemByName(String name) {
@@ -128,39 +129,16 @@ public abstract class XeroRobot extends LoggedRobot {
         connected_callbacks_.add(cb) ;
     }
    
-    private void commandInitialized(Command cmd) {
-        logger_.startMessage(MessageType.Info) ;
-        logger_.add("started command '" + cmd.getName() + "'") ;
-        logger_.endMessage();
-    }
-
-    private void commandFinished(Command cmd) {
-        logger_.startMessage(MessageType.Info) ;
-        logger_.add("finished command '" + cmd.getName() + "'") ;
-        logger_.endMessage();
-    }
-
-    private void commandInterrupted(Command cmd) {
-        logger_.startMessage(MessageType.Info) ;
-        logger_.add("interrupted command '" + cmd.getName() + "'") ;
-        logger_.endMessage();
-    }
-
     public void robotInit() {
         super.robotInit() ;
 
-        if (RobotBase.isSimulation() && SimulationEngine.getInstance() != null)
-        {
-            //
-            // If we are simulating, create the simulation modules required
-            //
-            SimulationEngine.getInstance().createModels() ;
-        }        
-
-        CommandScheduler.getInstance().onCommandInitialize((cmd) -> commandInitialized(cmd)) ;
-        CommandScheduler.getInstance().onCommandFinish((cmd) -> commandFinished(cmd)) ;
-        CommandScheduler.getInstance().onCommandInterrupt((cmd) -> commandInterrupted(cmd)) ;
-
+        // if (RobotBase.isSimulation() && SimulationEngine.getInstance() != null)
+        // {
+        //     //
+        //     // If we are simulating, create the simulation modules required
+        //     //
+        //     SimulationEngine.getInstance().createModels() ;
+        // }
     }
 
     public AprilTagFieldLayout getFieldLayout() {
@@ -240,20 +218,11 @@ public abstract class XeroRobot extends LoggedRobot {
         //
         // Runs the Scheduler.
         //
+        double start = Timer.getFPGATimestamp() ;
         CommandScheduler.getInstance().run();   
+        double delta = Timer.getFPGATimestamp() - start ;
 
-        if (DriverStation.isDSAttached() && !connected_callback_processed_) {
-            connected_callback_processed_ = true ;
-            for (Function<Boolean,Void> cb : connected_callbacks_) {
-                cb.apply(true) ;
-            }
-        }
-        else if (!DriverStation.isDSAttached() && connected_callback_processed_) {
-            connected_callback_processed_ = false ;
-            for (Function<Boolean,Void> cb : connected_callbacks_) {
-                cb.apply(false) ;
-            }
-        }
+        Logger.recordOutput("looptime", delta) ;
 
         if (isSimulation()) {
             SimulationEngine engine = SimulationEngine.getInstance() ;
@@ -356,49 +325,4 @@ public abstract class XeroRobot extends LoggedRobot {
             }
         }
     }
-    private void initSubsystemTiming(String name) {
-        if (!periodic_count_.containsKey(name)) {
-            periodic_count_.put(name, 0) ;
-            periodic_count_total_.put(name, 0) ;
-            periodic_time_.put(name, 0.0) ;
-            periodic_time_total_.put(name, 0.0) ;
-        }
-    }
-
-    public void periodicStart(String name) {
-        if (log_subsystem_cycle_count_ == 0)
-            return ;
-
-        initSubsystemTiming(name) ;
-        periodic_start_.put(name, Timer.getFPGATimestamp() * 1000.0) ;
-    }
-
-    public void periodicEnd(String name) {
-        if (log_subsystem_cycle_count_ == 0)
-            return ;
-
-        MessageLogger logger = MessageLogger.getTheMessageLogger() ;
-
-        periodic_count_.put(name, periodic_count_.get(name) + 1) ;
-        periodic_count_total_.put(name, periodic_count_total_.get(name) + 1) ;
-        
-        double elapsed = Timer.getFPGATimestamp() * 1000.0 - periodic_start_.get(name) ;
-        periodic_time_.put(name, periodic_time_.get(name) + elapsed) ;
-        periodic_time_total_.put(name, periodic_time_total_.get(name) + elapsed) ;
-
-        if (periodic_count_.get(name) == log_subsystem_cycle_count_) {
-            double curavg = periodic_time_.get(name) / periodic_count_.get(name)  ;
-            double totavg = periodic_time_total_.get(name) / periodic_count_total_.get(name) ;
-
-            logger.startMessage(MessageType.Info) ;
-            logger.add("Subsystem Timing ") ;
-            logger.add("name", getName()) ;
-            logger.add("current", curavg, "%.6f") ;
-            logger.add("total", totavg, "%.6f") ;
-            logger.endMessage();
-
-            periodic_count_.put(name, 0) ;
-            periodic_time_.put(name, 0.0) ;
-        }
-    }      
 }

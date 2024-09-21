@@ -327,41 +327,41 @@ public class AllegroContainer extends XeroContainer {
         //
         // Collect command, bound to OI and the gamepad
         //
-        driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand()) ;
+        // driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand()) ;
 
-        //
-        // Eject command, bound to the eject button on the OI
-        //
-        oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), tramp_.ejectCommand())) ;
+        // //
+        // // Eject command, bound to the eject button on the OI
+        // //
+        // oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), tramp_.ejectCommand())) ;
 
-        //
-        // Turtle command, bound to the turtle button on the OI
-        //
-        oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), tramp_.turtleCommand())) ;
+        // //
+        // // Turtle command, bound to the turtle button on the OI
+        // //
+        // oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), tramp_.turtleCommand())) ;
 
-        //
-        // Shoot command, bound to the shoot button on the OI and only targeting the intake
-        //
-        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        // //
+        // // Shoot command, bound to the shoot button on the OI and only targeting the intake
+        // //
+        // oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
-        //
-        // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
-        //
-        driver_controller_.a().or(oi_.shoot()).and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
+        // //
+        // // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
+        // //
+        // driver_controller_.a().or(oi_.shoot()).and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
 
-        //
-        // Climb Up Exec, bound to complete the trap sequence
-        //
-        oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
+        // //
+        // // Climb Up Exec, bound to complete the trap sequence
+        // //
+        // oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
 
-        //
-        // If a note is collected and the target is the trap or amp, this trigger is fired to complete
-        // the transfer action.  The transfer action moves the note from the intake to the manipulator.
-        //
-        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
+        // //
+        // // If a note is collected and the target is the trap or amp, this trigger is fired to complete
+        // // the transfer action.  The transfer action moves the note from the intake to the manipulator.
+        // //
+        // intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
 
-        oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
-        oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
+        // oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
+        // oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
     }
     // #endregion
 

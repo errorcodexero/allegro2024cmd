@@ -890,8 +890,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #region periodic method that evaluates the state machine each robot loop
     @Override
     public void periodic() {
-        periodicStart();
-
         io_.updateInputs(inputs_);
         Logger.processInputs("intake-shooter", inputs_);
 
@@ -1061,7 +1059,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
             counter++ ;
         }
-        periodicEnd();
     }
 
     // #endregion

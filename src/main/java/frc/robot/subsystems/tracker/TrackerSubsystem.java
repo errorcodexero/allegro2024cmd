@@ -108,8 +108,6 @@ public class TrackerSubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
-        periodicStart();
-
         if (!has_target_info_) {
             has_target_info_ = getTargetPose() ;
             if (!has_target_info_) {
@@ -197,8 +195,6 @@ public class TrackerSubsystem extends XeroSubsystem {
             Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance) ;
             Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;         
         }
-
-        periodicEnd();
     }
 
     public double distance() {

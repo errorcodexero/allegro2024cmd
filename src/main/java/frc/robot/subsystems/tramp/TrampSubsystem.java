@@ -311,8 +311,6 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
 
     @Override
     public void periodic() {
-        periodicStart();
-
         io_.updateInputs(inputs_) ;
         Logger.processInputs("tramp", inputs_);
 
@@ -502,8 +500,6 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
             Logger.recordOutput("tramp:readyForAmp", readyForAmp().getAsBoolean());
             Logger.recordOutput("tramp:hasnote", hasNote()) ;     
         }
-
-        periodicEnd();
     }
 
     private void climberUp() {
