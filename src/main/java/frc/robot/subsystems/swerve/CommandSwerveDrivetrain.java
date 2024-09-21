@@ -222,7 +222,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-        dumpOutput() ;
+        // dumpOutput() ;
 
         robot_.periodicEnd(getName());
     }

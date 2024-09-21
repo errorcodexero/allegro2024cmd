@@ -19,6 +19,7 @@ import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -692,8 +693,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             capture_timer_.start() ;
             state_ = State.WaitForCapture ;
         }
-
-        if (isTiltReady() && isUpDownReady()) {
+        else if (isTiltReady() && isUpDownReady()) {
             state_ = next_state_ ;
             next_state_ = State.Invalid ;
         }
@@ -727,7 +727,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }    
 
     private void waitForCaptureState() {
-        if (capture_timer_.isExpired()) {
+        if (true) {
+            // if (capture_timer_.isExpired()) {
             //
             // Turn off the feeder
             //
@@ -881,6 +882,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
     // #endregion
+
+    int counter = 0 ;
+    double lasttime = 0.0 ;
+    boolean lastone = false ;
 
     // #region periodic method that evaluates the state machine each robot loop
     @Override
@@ -1044,6 +1049,17 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:readyForShoot", readyToShoot().getAsBoolean()) ;
             Logger.recordOutput("intake:tracking", tracking_) ;
             Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
+            Logger.recordOutput("intake:counter", Integer.toString(counter)) ;
+
+            double nowtime = Timer.getFPGATimestamp() ;
+            if (lastone) {
+                Logger.recordOutput("intake:loop", nowtime - lasttime) ;
+            }
+
+            lastone = true ;
+            lasttime = nowtime ;
+
+            counter++ ;
         }
         periodicEnd();
     }

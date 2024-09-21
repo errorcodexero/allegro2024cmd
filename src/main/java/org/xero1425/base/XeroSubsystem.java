@@ -9,7 +9,7 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
 
     private XeroRobot robot_ ;
     private int logger_id_ ;
-    private boolean verbose_ = true ;
+    private boolean verbose_ = false ;
 
     public XeroSubsystem(XeroRobot robot, String name) {
         super(name) ;
