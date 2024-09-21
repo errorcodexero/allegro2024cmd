@@ -81,7 +81,7 @@ public class TrampConstants {
         };        
 
         public class MotionMagic {
-            public static final double kMaxVelocity = 24.0 ;
+            public static final double kMaxVelocity = 24.0 ;     // 24.0
             public static final double kMaxAcceleration = 180.0 ;
             public static final double kJerk = 10000 ;
         }
@@ -93,7 +93,7 @@ public class TrampConstants {
         public static final double kCurrentLimit = 60.0 ;        
         public static final double kEjectVoltage = 6.0 ;
         public static final double kEjectTime = 0.5 ;
-        public static final double kTransferVoltage = -1.2;
+        public static final double kTransferVoltage = 1.2;
         public static final double kShootTime = 1.5 ;
         public static final double kShootPower = -5.0 ;
         public static final double kTrapMoveNoteDistance = 0.7 ;

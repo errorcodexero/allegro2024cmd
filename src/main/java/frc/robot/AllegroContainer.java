@@ -342,7 +342,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).and(tracker_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)

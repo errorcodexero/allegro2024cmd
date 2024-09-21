@@ -386,7 +386,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     //
     public void doTransferNote() {
         if (has_note_ && state_ == State.HoldingTransferPosition) {
-            io_.setFeederMotorVoltage(0.3);
+            io_.setFeederMotorVoltage(3);
             setShooterVelocity(58.0, 10.0);
             need_stop_manipulator_ = false ;
 
