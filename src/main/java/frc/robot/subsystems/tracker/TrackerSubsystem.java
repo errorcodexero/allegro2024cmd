@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AprilTags;
 
@@ -38,6 +39,8 @@ public class TrackerSubsystem extends XeroSubsystem {
     private double angle_to_target_ ;
     private double distance_to_target_ ;
 
+    private Trigger ready_for_shoot_trigger_ ;
+
     public TrackerSubsystem(XeroRobot robot, SwerveDrivetrain db, String name) {
         super(robot, "tracker") ;
 
@@ -50,6 +53,12 @@ public class TrackerSubsystem extends XeroSubsystem {
         inputs_ = new TrackerInputsAutoLogged() ;
         pose_frozen_ = false ;
         last_april_tag_time_ = 0 ;
+
+        ready_for_shoot_trigger_ = new Trigger(()-> isOkToShoot()) ;
+    }
+
+    public Trigger readyToShoot() {
+        return ready_for_shoot_trigger_ ;
     }
 
     public boolean isOkToShoot() {

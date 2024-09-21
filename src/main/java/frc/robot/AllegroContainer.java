@@ -121,6 +121,9 @@ public class AllegroContainer extends XeroContainer {
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
 
+        // Tie the two together for the purposes of transferring notes
+        intake_shooter_.setStopNoteInterface(tramp_) ;
+
         //
         // Create OI devices
         //
@@ -339,7 +342,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyForShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).and(tracker_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)

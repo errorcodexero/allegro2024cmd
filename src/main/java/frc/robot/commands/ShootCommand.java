@@ -78,7 +78,7 @@ public class ShootCommand extends Command {
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
-        else if (tracker_.isOkToShoot()) {
+        else {
             logger.startMessage(MessageType.Debug).add("Running auto shoot command").endMessage();            
             rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(rotatePositionTolerence())

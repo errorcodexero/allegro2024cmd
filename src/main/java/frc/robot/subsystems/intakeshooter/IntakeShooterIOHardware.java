@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import org.xero1425.base.TalonFXFactory;
@@ -47,6 +48,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private EncoderMapper encoder_mapper_ ;
     private AtomicBoolean rising_seen_ ;
     private AtomicBoolean falling_seen_ ;
+    private AtomicInteger shooter_position_ ;
 
     private double updown_voltage_ ;
     private double tilt_voltage_ ;
@@ -120,7 +122,11 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         checkError("shooter1-optimize-bus", () -> shooter1_motor_.optimizeBusUtilization()) ;
         checkError("shooter2-optimize-bus", () -> shooter2_motor_.optimizeBusUtilization()) ;
         checkError("feeder-optimize-bus", () -> feeder_motor_.optimizeBusUtilization()) ;      
-    }    
+    }
+
+    public double getShooterPositionAtRisingEdge() {
+        return shooter_position_.get() / 10000.0 ;
+    }
 
     public void updateInputs(IntakeShooterIOInputs inputs) {
         inputs.updownEncoder = updown_position_signal_.refresh().getValueAsDouble() ;
@@ -264,6 +270,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                 rising_seen_.set(true) ;
             else
                 falling_seen_.set(true) ;
+
+            shooter_position_.set((int)(shooter1_position_signal_.refresh().getValueAsDouble() * 10000)) ;
         }
 
         if (falling) {
@@ -496,6 +504,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
         rising_seen_ = new AtomicBoolean() ;
         falling_seen_ = new AtomicBoolean() ;
+        shooter_position_ = new AtomicInteger() ;
     }
 
     private void initAbsoluteEncoder(XeroRobot robot) {

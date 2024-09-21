@@ -77,6 +77,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private IntakeShooterIO io_ ;
     private IntakeShooterIOInputsAutoLogged inputs_ ;
 
+    private StopNoteInterface stop_note_ ;
+
     private double target_tilt_ ;
     private double target_tilt_tol_ ;
     private double target_tilt_vel_ ;
@@ -155,6 +157,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
     // #endregion
 
+    public void setStopNoteInterface(StopNoteInterface stop) {
+        stop_note_ = stop ;
+    }
+
     // #region Shooter tuning related
     public String stateString() {
         return state_.toString() ;
@@ -195,7 +201,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     // #region public triggers supplied by the subsystem
 
-    public Trigger readyForShoot() {
+    public Trigger readyToShoot() {
         return ready_for_shoot_trigger_ ;
     }
 
@@ -952,12 +958,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             case TransferWaitForNoNote:
                 if (inputs_.risingEdge) {
                     state_ = State.TransferRunToManiulatorStop ;
-                    transfer_start_pos_ = inputs_.shooter1Position ;
+                    transfer_start_pos_ = io_.getShooterPositionAtRisingEdge() ;
                 }                
                 break ;
 
             case TransferRunToManiulatorStop:
-                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {                
+                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {
+                    stop_note_.stopNote() ;               
                     need_stop_manipulator_ = true ;
                     has_note_ = false ;                    
                     state_ = State.TransferRunToShooterStop ;
@@ -1034,7 +1041,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:note-dest", getNoteDestination()) ;
             Logger.recordOutput("intake:shot-type", getShotType()) ;
             Logger.recordOutput("intake:feederVoltage", io_.getFeederMotorVoltage()) ;
-            Logger.recordOutput("intake:readyForShoot", readyForShoot().getAsBoolean()) ;
+            Logger.recordOutput("intake:readyForShoot", readyToShoot().getAsBoolean()) ;
             Logger.recordOutput("intake:tracking", tracking_) ;
             Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
         }

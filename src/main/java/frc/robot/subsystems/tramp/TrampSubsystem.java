@@ -19,8 +19,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
+import frc.robot.subsystems.intakeshooter.StopNoteInterface;
 
-public class TrampSubsystem extends XeroSubsystem {
+public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
 
     static final public String NAME = "TrampSubsystem" ;
     static final public String ELEVATOR_MOTOR_NAME = "feeder" ;
@@ -118,6 +119,10 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.Idle ;
         climber_dir_ = ClimberDir.None ;
         climber_target_ = 0.0 ;
+    }
+
+    public void stopNote() {
+        io_.setManipulatorVoltage(0.0);
     }
 
     public void endNoteTransfer() {

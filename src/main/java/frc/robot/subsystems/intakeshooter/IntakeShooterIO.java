@@ -38,6 +38,10 @@ public interface IntakeShooterIO {
         public boolean noteSensor = false ;
     }
 
+    public default double getShooterPositionAtRisingEdge() {
+        return 0.0 ;
+    }
+
     public default void updateInputs(IntakeShooterIOInputs inputs) {
     }
 
