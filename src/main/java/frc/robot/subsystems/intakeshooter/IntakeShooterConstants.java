@@ -27,9 +27,9 @@ public class IntakeShooterConstants {
         public static final double kUpDownPosTolerance = 5.0 ;
         public static final double kUpDownVelTolerance = 5.0 ;
         public static final double kTiltPos = -65.0 ;
-        public static final double kTiltPosTolerance = 1.0 ;
-        public static final double kTiltVelTolerance = 5.0 ;
-        public static final double kShooterVel = 65.0 ;
+        public static final double kTiltPosTolerance = 3.0 ;
+        public static final double kTiltVelTolerance = 1e32 ;
+        public static final double kShooterVel = 75.0 ;
         public static final double kShooterVelTolerance = 5.0 ;
     }
 

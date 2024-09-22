@@ -35,8 +35,6 @@ public class AllegroRobot extends XeroRobot {
     public AllegroRobot() {
         super(OIConstants.kDriverControllerPort, OIConstants.kOIControllerPort) ;
         setFieldLayout(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()) ;
-
-        logSubsystemCycles(0) ;
     }  
 
     protected void addRobotSimulationModels() {
@@ -52,7 +50,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "trap";
+        return "disabled";
     }
 
     @Override
@@ -81,8 +79,10 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public void createCompetitionAutoModes() {
-        addAutoMode(new FourNoteDynamicCommand(this, container_));
-        addAutoMode(new DriveStraight(this, container_));
+        if (container_ != null && container_.getDriveTrain() != null) {
+            addAutoMode(new FourNoteDynamicCommand(this, container_));
+            addAutoMode(new DriveStraight(this, container_));
+        }
     }
 
     @Override
@@ -151,6 +151,5 @@ public class AllegroRobot extends XeroRobot {
         if (!RobotConstants.kCharMode) { 
             Logger.recordOutput("driver", container_.getDriveControllerOIString()) ;
         }
-   
     }
 }

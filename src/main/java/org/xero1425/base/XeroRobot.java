@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.function.Function;
 
 import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
 import org.xero1425.misc.MessageDestination;
 import org.xero1425.misc.MessageDestinationThumbFile;
 import org.xero1425.misc.MessageLogger;
-import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SimArgs;
 import org.xero1425.simulator.engine.SimulationEngine;
 
@@ -25,7 +22,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public abstract class XeroRobot extends LoggedRobot {
@@ -53,16 +49,6 @@ public abstract class XeroRobot extends LoggedRobot {
     private AprilTagFieldLayout layout_ ;
     private boolean auto_modes_created_ ;
 
-    private boolean connected_callback_processed_ ;
-    private List<Function<Boolean,Void>> connected_callbacks_ ;
-
-    static private int log_subsystem_cycle_count_ = 250 ;    
-    private HashMap<String, Integer> periodic_count_ ;
-    private HashMap<String, Integer> periodic_count_total_ ;
-    private HashMap<String, Double> periodic_time_ ;
-    private HashMap<String, Double> periodic_time_total_ ;
-    private HashMap<String, Double> periodic_start_ ;
-
     private HashMap<String, ISubsystemSim> subsystems_ ;
 
     public XeroRobot(int gp, int oi) {
@@ -79,32 +65,24 @@ public abstract class XeroRobot extends LoggedRobot {
         robot_paths_ = new RobotPaths(RobotBase.isSimulation(), getName());
         enableMessageLogger();
         auto_mode_ = null;
-        connected_callback_processed_ = false ;
-        connected_callbacks_ = new ArrayList<>() ;
-
-        periodic_count_ = new HashMap<>() ;
-        periodic_count_total_ = new HashMap<>() ;
-        periodic_time_ = new HashMap<>() ;
-        periodic_time_total_ = new HashMap<>() ;
-        periodic_start_ = new HashMap<>() ;
 
         subsystems_ = new HashMap<>() ;
 
-        // if (RobotBase.isSimulation()) {
-        //     String str = SimArgs.InputFileName;
-        //     if (str == null)
-        //         str = getSimulationFileName() ;
+        if (RobotBase.isSimulation()) {
+            String str = SimArgs.InputFileName;
+            if (str == null)
+                str = getSimulationFileName() ;
                             
-        //     if (str == null) {
-        //         System.out.println("The code is setup to simulate, but the derived robot class did not provide a stimulus file") ;
-        //         System.out.println("Not initializing the Xero1425 Simulation engine - assuming Romi robot") ;
-        //     }
-        //     else {
-        //         SimulationEngine.initializeSimulator(this, logger_);
-        //         addRobotSimulationModels() ;
-        //         SimulationEngine.getInstance().initAll(str) ;
-        //     }
-        // }        
+            if (str == null) {
+                System.out.println("The code is setup to simulate, but the derived robot class did not provide a stimulus file") ;
+                System.out.println("Not initializing the Xero1425 Simulation engine - assuming Romi robot") ;
+            }
+            else {
+                SimulationEngine.initializeSimulator(this, logger_);
+                addRobotSimulationModels() ;
+                SimulationEngine.getInstance().initAll(str) ;
+            }
+        }        
     }
 
     public ISubsystemSim getSubsystemByName(String name) {
@@ -121,24 +99,16 @@ public abstract class XeroRobot extends LoggedRobot {
     protected abstract void createTestAutoModes() ;
     protected abstract void addRobotSimulationModels() ;
 
-    protected void logSubsystemCycles(int cycles) {
-        log_subsystem_cycle_count_ = cycles ;
-    }
-
-    public void addConnectedCallback(Function<Boolean,Void> cb) {
-        connected_callbacks_.add(cb) ;
-    }
-   
     public void robotInit() {
         super.robotInit() ;
 
-        // if (RobotBase.isSimulation() && SimulationEngine.getInstance() != null)
-        // {
-        //     //
-        //     // If we are simulating, create the simulation modules required
-        //     //
-        //     SimulationEngine.getInstance().createModels() ;
-        // }
+        if (RobotBase.isSimulation() && SimulationEngine.getInstance() != null)
+        {
+            //
+            // If we are simulating, create the simulation modules required
+            //
+            SimulationEngine.getInstance().createModels() ;
+        }
     }
 
     public AprilTagFieldLayout getFieldLayout() {
@@ -213,16 +183,11 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     @Override
-    public void robotPeriodic() {
-          
+    public void robotPeriodic() {          
         //
         // Runs the Scheduler.
         //
-        double start = Timer.getFPGATimestamp() ;
         CommandScheduler.getInstance().run();   
-        double delta = Timer.getFPGATimestamp() - start ;
-
-        Logger.recordOutput("looptime", delta) ;
 
         if (isSimulation()) {
             SimulationEngine engine = SimulationEngine.getInstance() ;

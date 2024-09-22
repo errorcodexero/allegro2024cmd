@@ -16,6 +16,9 @@ import frc.robot.NoteDestination;
 import frc.robot.ShotType;
 
 public class OISubsystem extends XeroSubsystem {
+
+    private static final String NAME = "oi" ;
+
     public enum OILed {
         DBReady(1),
         ShooterReady(2),
@@ -48,7 +51,7 @@ public class OISubsystem extends XeroSubsystem {
     private OIIosInputsAutoLogged inputs_ ;
 
     public OISubsystem(XeroRobot robot, int port) {
-        super(robot, "oi");
+        super(robot, NAME);
 
         ios_ = new OIIosHID(port) ;
         inputs_ = new OIIosInputsAutoLogged() ;

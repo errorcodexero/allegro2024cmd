@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AprilTags;
 
 public class TrackerSubsystem extends XeroSubsystem {
+
+    private static final String NAME = "tracker" ;
+
     private SwerveDrivetrain db_ ;
     private boolean has_target_info_ ;
     private int target_number_ ;
@@ -42,7 +45,7 @@ public class TrackerSubsystem extends XeroSubsystem {
     private Trigger ready_for_shoot_trigger_ ;
 
     public TrackerSubsystem(XeroRobot robot, SwerveDrivetrain db, String name) {
-        super(robot, "tracker") ;
+        super(robot, NAME) ;
 
         db_ = db ;
         target_pose_ = null ;

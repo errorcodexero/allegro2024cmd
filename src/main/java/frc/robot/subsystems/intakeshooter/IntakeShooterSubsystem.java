@@ -19,7 +19,6 @@ import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -1047,18 +1046,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:readyForShoot", readyToShoot().getAsBoolean()) ;
             Logger.recordOutput("intake:tracking", tracking_) ;
             Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
-            Logger.recordOutput("intake:counter", Integer.toString(counter)) ;
-
-            double nowtime = Timer.getFPGATimestamp() ;
-            if (lastone) {
-                Logger.recordOutput("intake:loop", nowtime - lasttime) ;
-            }
-
-            lastone = true ;
-            lasttime = nowtime ;
-
-            counter++ ;
-        }
+        }        
     }
 
     // #endregion

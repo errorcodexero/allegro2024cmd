@@ -31,20 +31,20 @@ public class CmdTuneRotateDb extends Command {
             boolean newcmd = false ;
 
             if (ctrl_.getHID().getAButtonPressed()) {
-                target_ = XeroMath.normalizeAngleDegrees(target_ + 45.0) ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ + 15.0) ;
                 newcmd = true ;
             }
             else if (ctrl_.getHID().getBButtonPressed()) {
-                target_ = XeroMath.normalizeAngleDegrees(target_ + 180.0); 
+                target_ = XeroMath.normalizeAngleDegrees(target_ - 15.0); 
                 newcmd = true ;
             }
             else if (ctrl_.getHID().getXButtonPressed()) {
-                target_ = XeroMath.normalizeAngleDegrees(target_ + 5.0) ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ + 60.0) ;
                 newcmd = true ;                
 
             }
             else if (ctrl_.getHID().getYButtonPressed()) {
-                target_ = XeroMath.normalizeAngleDegrees(target_ - 5.0) ;
+                target_ = XeroMath.normalizeAngleDegrees(target_ - 60.0) ;
                 newcmd = true ;                
             }
 
@@ -54,8 +54,9 @@ public class CmdTuneRotateDb extends Command {
             }
         }
 
-        Logger.recordOutput("tunedb-target", target_) ;
-        Logger.recordOutput("tunedb-current", db_.getState().Pose.getRotation().getDegrees()) ;
+        Logger.recordOutput("tunedb:target", target_) ;
+        Logger.recordOutput("tunedb:current", db_.getState().Pose.getRotation().getDegrees()) ;
+        Logger.recordOutput("tunedb:finished", isFinished()) ;
     }
 
     @Override

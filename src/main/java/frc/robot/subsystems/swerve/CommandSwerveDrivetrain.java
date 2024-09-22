@@ -45,6 +45,8 @@ import frc.robot.constants.RobotConstants;
  */
 public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem, ISubsystemSim  {
 
+    private static final String NAME = "swerve" ;
+
     private static final int kRecordModuleStates = (1  << 0) ;
     private static final int kDisplayAcquisition = (1 << 1) ;
     private static final int kRecordGyroYaw = (1 << 2) ;
@@ -82,8 +84,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private final SwerveRequest.SysIdSwerveTranslation TranslationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     // private final SwerveRequest.SysIdSwerveRotation RotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     // private final SwerveRequest.SysIdSwerveSteerGains SteerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-
-    private XeroRobot robot_ ;
 
     /* Use one of these sysidroutines for your particular test */
     private SysIdRoutine SysIdRoutineTranslation = new SysIdRoutine(
@@ -124,12 +124,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private final SysIdRoutine RoutineToApply = SysIdRoutineTranslation;
 
     public CommandSwerveDrivetrain(XeroRobot robot, SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
-        super(driveTrainConstants, modules);
-
-        robot_ = robot ;
+        super(driveTrainConstants, 250, modules);
 
         CommandScheduler.getInstance().registerSubsystem(this);
-        robot.registerSubsystem("swerve", this);
+        robot.registerSubsystem(NAME
+        , this);
 
         tareEverything();
         seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));
@@ -185,6 +184,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
+
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
         /* This allows us to correct the perspective in case the robot code restarts mid-match */
@@ -199,15 +199,15 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
 
-        //
-        // Feed the robot heading (e.g. gyro angle) to the limelight megatag2 algorithm
-        //
+        // //
+        // // Feed the robot heading (e.g. gyro angle) to the limelight megatag2 algorithm
+        // //
         Rotation2d robotHeading = getState().Pose.getRotation();
         LimelightHelpers.SetRobotOrientation(limelight_name_, robotHeading.getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0) ;
 
-        //
-        // Now, feed the limelight pose to the pose estimator to update our pose accuracy
-        //
+        // //
+        // // Now, feed the limelight pose to the pose estimator to update our pose accuracy
+        // //
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
         if (estimate != null && estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
             addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
@@ -220,7 +220,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
-        // dumpOutput() ;
+        dumpOutput() ;
     }
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {

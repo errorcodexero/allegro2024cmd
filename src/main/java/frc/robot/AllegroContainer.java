@@ -45,11 +45,11 @@ public class AllegroContainer extends XeroContainer {
     //
     // Subsystems
     //
-    private final CommandSwerveDrivetrain db_ ;
-    private final IntakeShooterSubsystem intake_shooter_ ;
-    private final TrampSubsystem tramp_  ;
-    private final TrackerSubsystem tracker_ ;
-    private final OISubsystem oi_ ;
+    private CommandSwerveDrivetrain db_ ;
+    private IntakeShooterSubsystem intake_shooter_ ;
+    private TrampSubsystem tramp_  ;
+    private TrackerSubsystem tracker_ ;
+    private OISubsystem oi_ ;
 
     //
     // Limelight name
@@ -256,7 +256,7 @@ public class AllegroContainer extends XeroContainer {
     private double getLeftX() {
         double y = -driver_controller_.getLeftX() ;
 
-        if (driver_controller_.x().getAsBoolean()) {
+        if (driver_controller_.getHID().getXButton()) {
             y = y * SlowFactor ;
         }
         else { 
@@ -269,7 +269,7 @@ public class AllegroContainer extends XeroContainer {
     private double getLeftY() {
         double x = -driver_controller_.getLeftY() ;
 
-        if (driver_controller_.x().getAsBoolean()) {
+        if (driver_controller_.getHID().getXButton()) {
             x = x * SlowFactor ;
         }
         else {
@@ -282,7 +282,7 @@ public class AllegroContainer extends XeroContainer {
     private double getRightX() {
         double x = -driver_controller_.getRightX() ;
 
-        if (driver_controller_.x().getAsBoolean()) {
+        if (driver_controller_.getHID().getXButton()) {
             x = x * SlowFactor ;
         }
         else {
@@ -327,41 +327,41 @@ public class AllegroContainer extends XeroContainer {
         //
         // Collect command, bound to OI and the gamepad
         //
-        // driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand()) ;
+        driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand()) ;
 
-        // //
-        // // Eject command, bound to the eject button on the OI
-        // //
-        // oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), tramp_.ejectCommand())) ;
+        //
+        // Eject command, bound to the eject button on the OI
+        //
+        oi_.eject().onTrue(new ParallelCommandGroup(intake_shooter_.ejectCommand(), tramp_.ejectCommand())) ;
 
-        // //
-        // // Turtle command, bound to the turtle button on the OI
-        // //
-        // oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), tramp_.turtleCommand())) ;
+        //
+        // Turtle command, bound to the turtle button on the OI
+        //
+        oi_.turtle().onTrue(new ParallelCommandGroup(intake_shooter_.turtleCommand(), tramp_.turtleCommand())) ;
 
-        // //
-        // // Shoot command, bound to the shoot button on the OI and only targeting the intake
-        // //
-        // oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        //
+        // Shoot command, bound to the shoot button on the OI and only targeting the intake
+        //
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
 
-        // //
-        // // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
-        // //
-        // driver_controller_.a().or(oi_.shoot()).and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
+        //
+        // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
+        //
+        driver_controller_.a().or(oi_.shoot()).and(tramp_.readyForAmp()).onTrue(tramp_.shootCommand()) ;
 
-        // //
-        // // Climb Up Exec, bound to complete the trap sequence
-        // //
-        // oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
+        //
+        // Climb Up Exec, bound to complete the trap sequence
+        //
+        oi_.climbUpExec().and(tramp_.readyForTrap()).onTrue(tramp_.trapCommand()) ;
 
-        // //
-        // // If a note is collected and the target is the trap or amp, this trigger is fired to complete
-        // // the transfer action.  The transfer action moves the note from the intake to the manipulator.
-        // //
-        // intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
+        //
+        // If a note is collected and the target is the trap or amp, this trigger is fired to complete
+        // the transfer action.  The transfer action moves the note from the intake to the manipulator.
+        //
+        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
 
-        // oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
-        // oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
+        oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
+        oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
     }
     // #endregion
 
@@ -383,61 +383,61 @@ public class AllegroContainer extends XeroContainer {
     private String getDriveControllerString() {
         String str = "" ;
 
-        if (driver_controller_.a().getAsBoolean()) {
+        if (driver_controller_.getHID().getAButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "a" ;
         }
 
-        if (driver_controller_.b().getAsBoolean()) {
+        if (driver_controller_.getHID().getBButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "b" ;
         }        
 
-        if (driver_controller_.x().getAsBoolean()) {
+        if (driver_controller_.getHID().getXButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "x" ;
         }    
         
-        if (driver_controller_.y().getAsBoolean()) {
+        if (driver_controller_.getHID().getYButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "y" ;
         }   
         
-        if (driver_controller_.back().getAsBoolean()) {
+        if (driver_controller_.getHID().getBackButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "back" ;
         }      
         
-        if (driver_controller_.start().getAsBoolean()) {
+        if (driver_controller_.getHID().getStartButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "start" ;
         }   
         
-        if (driver_controller_.leftBumper().getAsBoolean()) {
+        if (driver_controller_.getHID().getLeftBumper()) {
             if (str.length() > 0)
                 str += "," ;
             str += "lb" ;
         }     
         
-        if (driver_controller_.rightBumper().getAsBoolean()) {
+        if (driver_controller_.getHID().getRightBumper()) {
             if (str.length() > 0)
                 str += "," ;
             str += "rb" ;
         }          
 
-        if (driver_controller_.leftStick().getAsBoolean()) {
+        if (driver_controller_.getHID().getLeftStickButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "ls" ;
         }     
         
-        if (driver_controller_.rightStick().getAsBoolean()) {
+        if (driver_controller_.getHID().getRightStickButton()) {
             if (str.length() > 0)
                 str += "," ;
             str += "rs" ;
