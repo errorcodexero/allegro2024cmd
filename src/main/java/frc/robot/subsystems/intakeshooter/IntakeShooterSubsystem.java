@@ -236,6 +236,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return state_ == State.Idle ;
     }
 
+    public boolean finishedShooterOnTransfer() {
+        return state_ != State.TransferRunToShooterStop ;
+    }
+
     public boolean isTuning() {
         return state_ == State.Tuning ;
     }

@@ -8,6 +8,7 @@ public class TransferNoteCommand extends Command {
     private enum State {
         MoveToPosition,
         TransferringNote,
+        WaitForShooterIdle,
         MoveTrampToDestination,
         Done
     }
@@ -47,6 +48,13 @@ public class TransferNoteCommand extends Command {
             case TransferringNote:
                 if (intake_shooter_.needStopManipulator())  {
                     tramp_.endNoteTransfer() ;
+                    state_ = State.WaitForShooterIdle ;
+                }
+                break ;
+
+            case WaitForShooterIdle:
+                if (intake_shooter_.finishedShooterOnTransfer()) {
+                    tramp_.moveToDestinationPosition();
                     state_ = State.MoveTrampToDestination ;
                 }
                 break ;

@@ -131,8 +131,7 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
         //
         io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
         has_note_ = true ;
-
-        moveToDestinationPosition() ;
+        state_ = State.Idle ;
     }
 
     public SettingsValue getProperty(String name) {
@@ -271,7 +270,7 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
         next_state_ = State.HoldingTransferPosition ;
     }
 
-    private  void moveToDestinationPosition() {
+    public void moveToDestinationPosition() {
         NoteDestination dest = destsupplier_.get() ;
         if (dest == NoteDestination.Trap) {
             gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
