@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
@@ -50,7 +51,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "disabled";
+        return "trap";
     }
 
     @Override
@@ -108,7 +109,8 @@ public class AllegroRobot extends XeroRobot {
 
         Logger.disableDeterministicTimestamps();
 
-        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables         
+        Logger.addDataReceiver(new NT4Publisher());
+        Logger.addDataReceiver(new WPILOGWriter()) ;
         Logger.start() ;
 
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -148,8 +150,8 @@ public class AllegroRobot extends XeroRobot {
     public void robotPeriodic() {
         super.robotPeriodic();      
 
-        if (!RobotConstants.kCharMode) { 
-            Logger.recordOutput("driver", container_.getDriveControllerOIString()) ;
+        if (!RobotConstants.kCharMode) {
+            Logger.recordOutput("oi:buttons", container_.getDriveControllerOIString()) ;
         }
     }
 }

@@ -13,7 +13,7 @@
                         "start" : 0,
                         "autonomous" : 0.0,
                         "between" : 0.0,
-                        "teleop" : 16.0,
+                        "teleop" : 100.0,
                         "fms" : false,
                         "alliance" : "blue1"
                     }
@@ -21,7 +21,7 @@
             ]
         },
         {
-            "time" : 6.1,
+            "time" : 1.0,
             "events" :
             [
                 {
@@ -29,14 +29,14 @@
                     "instance" : "1",
                     "values" : 
                     {
-                        "comment" : "Set target to the amp",
+                        "comment" : "Set target to the trap",
                         "note-target" : "trap"
                     }
                 }
             ]
         },
         {
-            "time" : 6.2,
+            "time" : 4.0,
             "events" :
             [
                 {
@@ -51,7 +51,7 @@
             ]
         },
         {
-            "time" : 7.0,
+            "time" : 5.0,
             "events" :
             [
                 {
@@ -66,7 +66,7 @@
             ]
         },
         {
-            "time" : 7.04,
+            "time" : 5.04,
             "events" :
             [
                 {
@@ -81,7 +81,7 @@
             ]
         },        
         {
-            "time" : 7.4,
+            "time" : 5.1,
             "events" :
             [
                 {
@@ -96,7 +96,7 @@
             ]
         },
         {
-            "time" : 8.4,
+            "time" : 6.3,
             "events" :
             [
                 {
@@ -111,7 +111,7 @@
             ]
         },
         {
-            "time" : 8.5,
+            "time" : 6.31,
             "events" :
             [
                 {

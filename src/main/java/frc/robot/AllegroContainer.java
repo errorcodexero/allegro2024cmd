@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
  */
 public class AllegroContainer extends XeroContainer {
 
+    // #region private member variables
     //
     // Subsystems
     //
@@ -78,7 +79,9 @@ public class AllegroContainer extends XeroContainer {
 
     final private double SlowFactor = 0.1 ;
 
-    // #region constructor - create subsystems, OI devices, and commands
+    // #endregion
+
+    // #region constructor
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      * @throws Exception
@@ -380,6 +383,7 @@ public class AllegroContainer extends XeroContainer {
     }
     // #endregion
 
+    // #region misc methods
     private String getDriveControllerString() {
         String str = "" ;
 
@@ -457,4 +461,6 @@ public class AllegroContainer extends XeroContainer {
         str = "[" + str + "]";
         return str ;
     }    
+
+    // #endregion
 }

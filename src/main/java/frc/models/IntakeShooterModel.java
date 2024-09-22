@@ -178,8 +178,6 @@ public class IntakeShooterModel extends SimulationModel {
             updown_sim_.setInputVoltage(mv) ;
             updown_sim_.update(dt) ;
 
-            Logger.recordOutput("updown-mv", mv) ;
-
             st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
             st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;            
         }
