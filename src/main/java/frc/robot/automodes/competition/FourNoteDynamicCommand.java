@@ -113,7 +113,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         //
                         // We have the second note in the robot, drive to the subwoofer to shoot it.
                         //           
-                        container_.getDriveTrain().driveTo("C2-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C2-Shoot", null, shootpose_, 3.0, 2.5, 0, 0.2, 0.2) ;
                         state_ = State.DriveToShootSecond ;
                     }
                     else 
@@ -121,7 +121,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         //
                         // We missed the second note, skip stright to the third node
                         //
-                        container_.getDriveTrain().driveTo("C2-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C2-C3", null, collect2pose_, 3.0, 2.5, 0, 0.2, 0.2) ;
                         state_ = State.DriveToThirdNote ;
                     }
                 }
@@ -155,15 +155,14 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         //
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
-                        container_.getDriveTrain().driveTo("C3-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
-                        state_ = State.DriveToShootThirdNote ;                                   
-
+                        container_.getDriveTrain().driveTo("C3-Shoot", null, shootpose_, 3.0, 2.5, 0, 0.2, 0.2) ;
+                        state_ = State.DriveToShootThirdNote ;
                     }
                     else {
                         //
                         // Missed the third note, skip to the fourth note
                         //
-                        container_.getDriveTrain().driveTo("C3-C4", null, collect3pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C3-C4", null, collect3pose_, 3.0, 2.5, 0, 0.2, 0.2) ;
                         state_ = State.DriveToFourthNote ;
                     }
                 }
@@ -197,7 +196,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         //
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
-                        container_.getDriveTrain().driveTo("C4-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
+                        container_.getDriveTrain().driveTo("C4-Shoot", null, shootpose_, 3.0, 2.5, 0, 0.2, 0.2) ;
                         state_ = State.DriveToShootFourth ;                                   
 
                     }
