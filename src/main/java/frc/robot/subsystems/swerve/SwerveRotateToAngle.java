@@ -85,6 +85,7 @@ public class SwerveRotateToAngle extends Command {
         Logger.recordOutput("rotdb:tarvel", rotvel) ;
         Logger.recordOutput("rotdb:position", db_.getState().Pose.getRotation().getDegrees())  ;
         Logger.recordOutput("rotdb:velocity", current_angular_velocity) ;
+        Logger.recordOutput("rotdb:postol", postol_) ;
         Logger.recordOutput("rotdb:is-finished", is_finished_) ;
     }
 

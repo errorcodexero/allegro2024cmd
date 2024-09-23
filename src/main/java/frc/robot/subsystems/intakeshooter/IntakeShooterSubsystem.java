@@ -24,8 +24,11 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.AllegroContainer;
 import frc.robot.NoteDestination;
 import frc.robot.ShotType;
+import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
 
@@ -656,8 +659,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         target_tilt_ = pos ;
     }
 
-
-
     private void trackTargetDistance() {
         double dist = distsupplier_.getAsDouble() ;
 
@@ -881,7 +882,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (eject_reverse_timer_.isExpired()) {
             setShooterVelocity(0.0, 0.0);
             io_.setFeederMotorVoltage(0.0);
-            state_ = State.Idle ;
+            next_state_ = State.Idle ;
+            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
+                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
         }
     }
     // #endregion
@@ -1030,6 +1033,14 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             ststr += ":" + target_updown_ + ":" + target_tilt_ ;
         }
 
+        AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
+        OISubsystem oi = container.getOI() ;
+
+
+        oi.setLEDState(OILed.ShooterReady, isShooterReady()) ;
+        oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
+      
+
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);
             Logger.recordOutput("intake:next-state", next_state_) ;
@@ -1038,16 +1049,18 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 Logger.recordOutput("intake:updown-target", target_updown_) ;
             if (state_ == State.MoveBothToPosition || state_ == State.MoveTiltToPosition)
                 Logger.recordOutput("intake:tilt-target", target_tilt_) ;
+
             Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
             Logger.recordOutput("intake:is-updown-ready", isUpDownReady());
-
             Logger.recordOutput("intake:is-shooter-ready", isShooterReady());
+            Logger.recordOutput("intake:shooter_target", target_velocity_) ;
+            Logger.recordOutput("intake:readyForShoot", isShooterReady() && isTiltReady() && isUpDownReady()) ;
+
             Logger.recordOutput("intake:has-note", has_note_);
             Logger.recordOutput("intake:tracking", tracking_);
             Logger.recordOutput("intake:note-dest", getNoteDestination()) ;
             Logger.recordOutput("intake:shot-type", getShotType()) ;
             Logger.recordOutput("intake:feederVoltage", io_.getFeederMotorVoltage()) ;
-            Logger.recordOutput("intake:readyForShoot", readyToShoot().getAsBoolean()) ;
             Logger.recordOutput("intake:tracking", tracking_) ;
             Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
         }        

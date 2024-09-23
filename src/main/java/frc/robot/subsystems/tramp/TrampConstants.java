@@ -91,13 +91,13 @@ public class TrampConstants {
         public static final int kMotorId = 9 ;
         public static final boolean kInverted = true ;
         public static final double kCurrentLimit = 60.0 ;        
-        public static final double kEjectVoltage = 6.0 ;
+        public static final double kEjectVoltage = -6.0 ;
         public static final double kEjectTime = 0.5 ;
         public static final double kTransferVoltage = 1.2;
         public static final double kShootTime = 1.5 ;
         public static final double kShootPower = -5.0 ;
         public static final double kTrapMoveNoteDistance = 0.7 ;
-        public static final double kTrapMoveNotePower = 0.05 ;
+        public static final double kTrapMoveNotePower = 3.0 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositPower = -1.0 ;
         public static final double kTransferTime = 0.2;
@@ -115,13 +115,14 @@ public class TrampConstants {
 
     public class Climber {
         public static final int kMotorId = 10 ;
-        public static final boolean kInverted = true ;        
+        public static final boolean kInverted = false ;        
         public static final double kCurrentLimit = 60.0 ;
         public static final double kSimGearRatio = 2.0 ;      
         public static final double kSimMotorLoad = 0.00001 ;  
         public static final double kMoveClimberVoltage = 12.0 ;
         public static final double kClimberUpPosition = 0.5746 ;
         public static final double kClimberDownPosition = 0.0 ;
+        public static final double kMetersPerRev = 0.00000134301757813 * 2048.0 ;
     }
 
     public class NoteSensor {

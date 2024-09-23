@@ -143,8 +143,8 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                     // We finished shooting the second note, so now we go collect the third note (the second note we collect)
                     //
                     container_.getIntakeShooter().setManualShootParameters(FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualTilt) ;
-                    container_.getIntakeShooter().collect() ;  
-                    container_.getDriveTrain().driveTo("Shoot-C3", null, collect2pose_, 3.0, 2.5, 0, 0, 0.2) ;
+                    container_.getIntakeShooter().collect() ;
+                    container_.getDriveTrain().driveTo("Shoot-C3", null, collect2pose_, 3.0, 2.5, 0, 0.4, 0.2) ;
                     state_ = State.DriveToThirdNote ;
                 }
                 break ;
@@ -156,10 +156,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
                         container_.getDriveTrain().driveTo("C3-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
-                        container_.getIntakeShooter().manualShoot(
-                                FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
-                                FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, true) ;
                         state_ = State.DriveToShootThirdNote ;                                   
 
                     }
@@ -174,7 +170,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case DriveToShootThirdNote:
-                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
+                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot3) {
                     container_.getIntakeShooter().manualShoot(
                             FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                             FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
@@ -202,10 +198,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                         // We have the third note in the robot, drive to the subwoofer to shoot it.
                         //       
                         container_.getDriveTrain().driveTo("C4-Shoot", null, shootpose_, 3.0, 2.5, 0, 0, 0.2) ;
-                        container_.getIntakeShooter().manualShoot(
-                                FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
-                                FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol, true, true);
                         state_ = State.DriveToShootFourth ;                                   
 
                     }
@@ -216,7 +208,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case DriveToShootFourth:
-                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot2) {
+                if (container_.getDriveTrain().getPathDistance() > FourNoteDynamicConstants.kDistanceShoot4) {
                         container_.getIntakeShooter().manualShoot(
                                 FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
                                 FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,

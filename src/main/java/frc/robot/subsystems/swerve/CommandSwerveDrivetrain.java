@@ -220,6 +220,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             }
         }
 
+        Logger.recordOutput("pathdist", getPathDistance()) ;
+
         dumpOutput() ;
     }
 

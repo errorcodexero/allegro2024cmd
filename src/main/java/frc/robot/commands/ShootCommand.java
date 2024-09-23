@@ -16,11 +16,12 @@ import frc.robot.subsystems.swerve.SwerveRotateToAngle;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 
 public class ShootCommand extends Command {
+    
     private final static double kShootPositionDistanceNear = 1.0 ;
     private final static double kShootPositionDistanceFar = 4.0 ;
-    private final static double kShootPositionToleranceAtFar = 2.0 ;
-    private final static double kShootPositionToleranceAtNear = 10.0 ;
-    private final static double kShootVelocityTolerance = 10.0 ;
+    private final static double kShootPositionToleranceAtFar = 3.0 ;
+    private final static double kShootPositionToleranceAtNear = 3.0 ;
+    private final static double kShootVelocityTolerance = 5.0 ;
  
 
     private OISubsystem oi_ ;
@@ -78,7 +79,7 @@ public class ShootCommand extends Command {
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
-        else if (tracker_.isOkToShoot()) {
+        else if (tracker_.isOkToShootAngleDistance()) {
             logger.startMessage(MessageType.Debug).add("Running auto shoot command").endMessage();            
             rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(rotatePositionTolerence())
@@ -115,7 +116,8 @@ public class ShootCommand extends Command {
                     str = "rfinished" ;
                 }
                 else {
-                    str = "waitfortracker" ;
+                    str = "exittracker" ;
+                    shoot_ = null ;
                 }
             }
             else {
@@ -136,9 +138,6 @@ public class ShootCommand extends Command {
 
         Logger.recordOutput("scmd-st", str) ;
         oi_.setLEDState(OILed.DBReady, dbready);
-        oi_.setLEDState(OILed.ShooterReady, intake_.isShooterReady()) ;
-        oi_.setLEDState(OILed.TiltReady, intake_.isTiltReady()) ;
-        oi_.setLEDState(OILed.TrackerReady, tracker_.isOkToShoot()) ;
     }
 
     @Override

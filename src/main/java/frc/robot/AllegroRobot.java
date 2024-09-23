@@ -51,7 +51,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "trap";
+        return "autofour";
     }
 
     @Override

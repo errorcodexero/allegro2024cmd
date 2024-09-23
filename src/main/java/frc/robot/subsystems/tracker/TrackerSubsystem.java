@@ -21,7 +21,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.AllegroContainer;
 import frc.robot.AprilTags;
+import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 public class TrackerSubsystem extends XeroSubsystem {
 
@@ -38,7 +41,9 @@ public class TrackerSubsystem extends XeroSubsystem {
     private double last_april_tag_time_ ;               // The time the last april tag (of any kind) was seen
     private Pose2d last_april_tag_pose_ ;               // THe pose from the DRIVEBASE when the last april tag was seen
 
-    private boolean ok_to_shoot_ ;
+    private boolean ready_distance_to_target_ ;
+    private boolean ready_angle_to_target_ ;
+    private boolean ready_time_and_distance_ ;
     private double angle_to_target_ ;
     private double distance_to_target_ ;
 
@@ -49,8 +54,6 @@ public class TrackerSubsystem extends XeroSubsystem {
 
         db_ = db ;
         target_pose_ = null ;
-
-        ok_to_shoot_ = false ;
 
         io_ = new TrackerIOLimelight(name);
         inputs_ = new TrackerInputsAutoLogged() ;
@@ -65,7 +68,11 @@ public class TrackerSubsystem extends XeroSubsystem {
     }
 
     public boolean isOkToShoot() {
-        return ok_to_shoot_ ;
+        return ready_distance_to_target_ && ready_angle_to_target_ && ready_time_and_distance_ ;
+    }
+
+    public boolean isOkToShootAngleDistance() {
+        return ready_distance_to_target_ && ready_angle_to_target_ ;
     }
 
     public void freezePose(boolean v) {
@@ -139,17 +146,14 @@ public class TrackerSubsystem extends XeroSubsystem {
         //
         // We do not see the april tag of interest, use the pose of the robot
         // to aim at the target.
-        ok_to_shoot_ = true ;
-
         distance_to_target_ = robot.getTranslation().getDistance(target_pose_.getTranslation()) ;
 
         //
         // When do we say its ok to shoot just based on pose?
         //
-        boolean ready_distance_to_target = true; 
+        ready_distance_to_target_ = true; 
         if (distance_to_target_ >= TrackerConstants.kMaximumShotDistance) {
-            ok_to_shoot_ = false ;
-            ready_distance_to_target = false;
+            ready_distance_to_target_ = false;
         }
 
         Translation2d diff = target_pose_.getTranslation().minus(robot.getTranslation()) ;
@@ -164,10 +168,9 @@ public class TrackerSubsystem extends XeroSubsystem {
         //
         Rotation2d rheading = robot2target.plus(Rotation2d.fromDegrees(180.0)) ;
 
-        boolean ready_heading = true;
+        ready_angle_to_target_ = true;
         if (Math.abs(rheading.getDegrees()) > TrackerConstants.kMaximumShotAngle) {
-            ok_to_shoot_ = false ;
-            ready_heading = false ;
+            ready_angle_to_target_ = false ;
         }
 
         //
@@ -180,24 +183,22 @@ public class TrackerSubsystem extends XeroSubsystem {
         //
         angle_to_target_  = rfinal.getDegrees() ;
 
-        boolean ready_time_and_distance = true;
-        if (ok_to_shoot_) {
-            ok_to_shoot_ = checkTimeAndDistance() ;
-            if (!ok_to_shoot_) {
-                ready_time_and_distance = false ;
-            }
-        }
+        ready_time_and_distance_ = checkTimeAndDistance() ;
 
         if (getVerbose()) {
             Logger.recordOutput("tracker:angle-to-target", angle_to_target_) ;
             Logger.recordOutput("tracker:distance-to-target", distance_to_target_) ;
             Logger.recordOutput("tracker:frozen", pose_frozen_) ;
             Logger.recordOutput("tracker:ready", isOkToShoot()) ;
-            Logger.recordOutput("tracker:ready_distance_to_target", ready_distance_to_target) ;
-            Logger.recordOutput("tracker:ready_heading", ready_heading) ;
-            Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance) ;
+            Logger.recordOutput("tracker:ready_distance_to_target", ready_distance_to_target_) ;
+            Logger.recordOutput("tracker:ready_heading", ready_angle_to_target_) ;
+            Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance_) ;
             Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;         
         }
+
+        AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
+        OISubsystem oi = container.getOI() ;
+        oi.setLEDState(OILed.TrackerReady, isOkToShoot()) ;  
     }
 
     public double distance() {
@@ -206,10 +207,6 @@ public class TrackerSubsystem extends XeroSubsystem {
 
     public double angle() {
         return angle_to_target_ ;
-    }
-
-    public boolean okToShoot() {
-        return ok_to_shoot_ ;
     }
 
     private boolean getTargetPose() {

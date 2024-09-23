@@ -249,6 +249,12 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
+        if (RobotConstants.WhichSubsystem.kCharClimberAlone) {
+            driver_controller_.x().whileTrue(tramp_.climberDownCharCommand()) ;
+            driver_controller_.y().whileTrue(tramp_.climberUpCharCommand()) ;
+            total++ ;
+        }
+
         if (total > 1) {
             throw new Exception("Only one subsystem can be characterized at a time") ;
         }

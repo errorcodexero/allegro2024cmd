@@ -238,6 +238,26 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
         return cmd ;
     }
 
+    public Command climberUpCharCommand() {
+        Command cmd = new FunctionalCommand(
+                                    () -> trap(),
+                                    () -> { io_.setClimberMotorVoltage(4.0);},
+                                    (Boolean b) -> { io_.setClimberMotorVoltage(0.0);},
+                                    () -> { return false ;} ) ;
+        cmd.setName("climber-up") ;
+        return cmd ;        
+    }
+
+    public Command climberDownCharCommand() {
+        Command cmd = new FunctionalCommand(
+                                    () -> trap(),
+                                    () -> { io_.setClimberMotorVoltage(-4.0);},
+                                    (Boolean b) -> { io_.setClimberMotorVoltage(0.0);},
+                                    () -> { return false ;} ) ;
+        cmd.setName("climber-down") ;
+        return cmd ;        
+    }    
+
     private void basicClimbPrep() {
         gotoPosition(TrampConstants.Elevator.Positions.kBasicClimb, Double.NaN, Double.NaN, 
                      TrampConstants.Arm.Positions.kBasicClimb, Double.NaN, Double.NaN);
@@ -305,6 +325,7 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
     public void turtle() {
         gotoPosition(TrampConstants.Elevator.Positions.kStowed, Double.NaN, Double.NaN, 
                      TrampConstants.Arm.Positions.kStowed, Double.NaN, Double.NaN);
+        climberDown() ;
         next_state_ = State.Idle ;
     }
 
@@ -497,7 +518,8 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
             Logger.recordOutput("tramp:is-elev-ready", isElevatorReady());
             Logger.recordOutput("tramp:is-arm-ready", isArmReady());
             Logger.recordOutput("tramp:readyForAmp", readyForAmp().getAsBoolean());
-            Logger.recordOutput("tramp:hasnote", hasNote()) ;     
+            Logger.recordOutput("tramp:hasnote", hasNote()) ;  
+            Logger.recordOutput("tramp:mantarget", manipulator_target_) ;   
         }
     }
 

@@ -60,7 +60,7 @@ public class IntakeShooterConstants {
         public class Positions {
             public static final double kStowed = 118.0 ;
             public static final double kStartTracking = 118.0 ;
-            public static final double kCollect = -11.0 ;
+            public static final double kCollect = -6.0 ;
             public static final double kTransfer = 90.0 ;
             public static final double kShootNominal = 118.0 ;
             public static final double kEject = 118.0 ;
@@ -115,7 +115,7 @@ public class IntakeShooterConstants {
         public static final boolean kInvert = true ;            
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 5.0 ;
-        public static final double kTargetVelTolerance = 5.0 ;
+        public static final double kTargetVelTolerance = 10.0 ;
         public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
@@ -135,7 +135,7 @@ public class IntakeShooterConstants {
 
         public class Real {
             public class MovementPIDSlot0 {
-                public static final double kP = 16.0 ;
+                public static final double kP = 20.0 ;
                 public static final double kI = 0.0 ;
                 public static final double kD = 0.35 ;
                 public static final double kV = 0.1 ;
@@ -198,16 +198,20 @@ public class IntakeShooterConstants {
         }
 
         public static final double[] kPwlValues = new double[] {
-            1.42, -55.0,
-            1.72, -53,
-            2.02, -50,
+            1.37, -61.0,
+            1.42, -59.0,
+            1.72, -56.0,
+            2.02, -53.0,
             2.319, -49.0,
             2.32, -68.0,
-            2.62, -64.0,
-            2.93, -62.0,
-            3.23, -61.0,
-            3.5, -58.0,
-            3.9, -57.0
+            2.62, -66.0,
+            2.93, -64.0,
+            3.23, -63.0,
+            3.495, -60.0,
+            3.5, -60.0,
+            3.9, -57.5,
+            4.2, -56.5,
+            4.5, -55.5
         } ;            
     }
 
@@ -252,7 +256,9 @@ public class IntakeShooterConstants {
             2.62, 75,
             2.93, 75,
             3.23, 75,
+            3.495, 75,
             3.5, 80,
+            4.5, 80
         } ;            
     }
 

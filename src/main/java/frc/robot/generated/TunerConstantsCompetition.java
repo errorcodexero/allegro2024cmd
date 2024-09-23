@@ -46,9 +46,9 @@ public class TunerConstantsCompetition {
         .withCurrentLimits(
             new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(40.0)
-                .withStatorCurrentLimitEnable(true)
-                .withSupplyCurrentThreshold(60.0)
-                .withSupplyCurrentThreshold(0.2)) ;
+                .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentThreshold(40.0)
+                .withSupplyTimeThreshold(0.04)) ;
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()

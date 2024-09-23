@@ -154,8 +154,8 @@ public class TrampIOHardware implements TrampIO {
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
         manipulator_encoder_ = manipulator_motor_.getEncoder() ;
-        manipulator_encoder_.setPositionConversionFactor(1.0 / (double)manipulator_encoder_.getCountsPerRevolution()) ;
-        manipulator_encoder_.setVelocityConversionFactor(1.0 / (double)manipulator_encoder_.getCountsPerRevolution()) ;        
+        manipulator_encoder_.setPositionConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;
+        manipulator_encoder_.setVelocityConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;        
         manipulator_voltage_ = 0.0 ;
         manipulator_pid_ = manipulator_motor_.getPIDController() ;
         manipulator_pid_.setP(TrampConstants.Manipulator.PID.kP, 0) ;
@@ -207,7 +207,7 @@ public class TrampIOHardware implements TrampIO {
         inputs.armEncoder = enc ;
 
         enc = climber_pos_sig_.refresh().getValueAsDouble() ;
-        inputs.climberPosition = enc ;        
+        inputs.climberPosition = enc * TrampConstants.Climber.kMetersPerRev ;      
         inputs.climberCurrent = climber_current_sig_.refresh().getValueAsDouble() ;
         inputs.climberOutput = climber_output_sig_.refresh().getValueAsDouble() ;
         inputs.climberVelocity = climber_velocity_sig_.refresh().getValueAsDouble() ;
