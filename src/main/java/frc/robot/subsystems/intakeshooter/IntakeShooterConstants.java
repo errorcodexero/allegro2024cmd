@@ -11,6 +11,17 @@ public class IntakeShooterConstants {
     public static final double kReverseDelayTime = 0.3 ;
     public static final double kTransferFeederToShooterDelay = 0.4 ;
 
+    public class ManualShotFerry {
+        public static final double kUpDownPos = 118.0 ;
+        public static final double kUpDownPosTolerance = 5.0 ;
+        public static final double kUpDownVelTolerance = 5.0 ;
+        public static final double kTiltPos = -64.0 ;
+        public static final double kTiltPosTolerance = 1.0 ;
+        public static final double kTiltVelTolerance = 5.0 ;
+        public static final double kShooterVel = 60.0 ;
+        public static final double kShooterVelTolerance = 5.0 ;
+    }    
+
     public class ManualShotPodium {
         public static final double kUpDownPos = 118.0 ;
         public static final double kUpDownPosTolerance = 5.0 ;
