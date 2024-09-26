@@ -93,20 +93,32 @@ public class TrampConstants {
         public static final double kCurrentLimit = 60.0 ;        
         public static final double kEjectVoltage = -6.0 ;
         public static final double kEjectTime = 0.5 ;
-        public static final double kTransferVoltage = 1.2;
         public static final double kShootTime = 1.5 ;
         public static final double kShootPower = -5.0 ;
         public static final double kTrapMoveNoteDistance = 0.7 ;
         public static final double kTrapMoveNotePower = 3.0 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositPower = -1.0 ;
+
+        public static final double kTransferVoltage = 1.2;
+        public static final double kTransferVelocity = 40.0 ;
         public static final double kTransferTime = 0.2;
 
-        public class PID {
+        public class PositionPID {
             public static final double kP = 300 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
             public static final double kV = 0.0 ;
+            public static final double kA = 0.0;
+            public static final double kG = 0.0 ;
+            public static final double kS = 0.0 ;
+        };   
+        
+        public class VelocityPID {
+            public static final double kP = 0 ;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.20 ;
             public static final double kA = 0.0;
             public static final double kG = 0.0 ;
             public static final double kS = 0.0 ;

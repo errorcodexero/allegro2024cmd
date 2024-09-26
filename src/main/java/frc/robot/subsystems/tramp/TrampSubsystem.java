@@ -123,6 +123,7 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
 
     public void stopNote() {
         io_.setManipulatorVoltage(0.0);
+        io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
     }
 
     public void endNoteTransfer() {
@@ -318,7 +319,8 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
     public void transferNote() {
         if (state_ == State.HoldingTransferPosition) {
             state_ = State.TransferStartManipulator ;
-            io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
+            io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
+            // io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
         }
     }
 

@@ -67,6 +67,9 @@ public interface TrampIO {
     public default void setManipulatorTargetPosition(double pos) {
     }
 
+    public default void setManipulatorTargetVelocity(double vel) {
+    }
+
     public default void setManipulatorVoltage(double volts) {
     }
 

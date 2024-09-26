@@ -159,10 +159,16 @@ public class TrampIOHardware implements TrampIO {
         manipulator_encoder_.setVelocityConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;        
         manipulator_voltage_ = 0.0 ;
         manipulator_pid_ = manipulator_motor_.getPIDController() ;
-        manipulator_pid_.setP(TrampConstants.Manipulator.PID.kP, 0) ;
-        manipulator_pid_.setI(TrampConstants.Manipulator.PID.kI, 0) ;
-        manipulator_pid_.setD(TrampConstants.Manipulator.PID.kD, 0) ;
-        manipulator_pid_.setFF(TrampConstants.Manipulator.PID.kV, 0) ;
+        
+        manipulator_pid_.setP(TrampConstants.Manipulator.PositionPID.kP, 0) ;
+        manipulator_pid_.setI(TrampConstants.Manipulator.PositionPID.kI, 0) ;
+        manipulator_pid_.setD(TrampConstants.Manipulator.PositionPID.kD, 0) ;
+        manipulator_pid_.setFF(TrampConstants.Manipulator.PositionPID.kV, 0) ;
+
+        manipulator_pid_.setP(TrampConstants.Manipulator.VelocityPID.kP, 1) ;
+        manipulator_pid_.setI(TrampConstants.Manipulator.VelocityPID.kI, 1) ;
+        manipulator_pid_.setD(TrampConstants.Manipulator.VelocityPID.kD, 1) ;
+        manipulator_pid_.setFF(TrampConstants.Manipulator.VelocityPID.kV, 1) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
@@ -290,6 +296,11 @@ public class TrampIOHardware implements TrampIO {
 
     public void setManipulatorTargetPosition(double pos) {
         manipulator_pid_.setReference(pos, CANSparkBase.ControlType.kPosition, 0) ;
+        manipulator_voltage_ = 0.0 ;
+    }
+
+    public void setManipulatorTargetVelocity(double vel) {
+        manipulator_pid_.setReference(vel, CANSparkBase.ControlType.kVelocity, 1) ;
         manipulator_voltage_ = 0.0 ;
     }
 
