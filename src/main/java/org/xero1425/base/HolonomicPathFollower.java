@@ -87,10 +87,23 @@ public class HolonomicPathFollower {
         return distance_ ;
     }
 
+    private Rotation2d getInitialHeading(Translation2d target) {
+        double dy = target.getY() - pose_.get().getY() ;
+        double dx = target.getX()  - pose_.get().getX() ;
+        double angle = Math.atan2(dy, dx) ;
+        return Rotation2d.fromRadians(angle) ;
+    }
+
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
         path_name_ = pathname ;
         Pose2d st = pose_.get() ;
-        start_pose_ = new Pose2dWithRotation(st, st.getRotation());
+        Rotation2d heading ;
+        if (imd != null && imd.length > 0) {
+            heading = getInitialHeading(imd[0].getTranslation());
+        } else {
+            heading = getInitialHeading(dest.getTranslation()) ;
+        }
+        start_pose_ = new Pose2dWithRotation(st.getTranslation(), heading, st.getRotation()) ;
         start_time_ = Timer.getFPGATimestamp() ;
         end_pose_ = dest ;
         timeout_ = to ;
@@ -142,10 +155,12 @@ public class HolonomicPathFollower {
         if (elapsed >= traj_.getTotalTimeSeconds()) {
             if (controller_.atReference()) {
                 driving_ = false ;
+                output_.accept(new ChassisSpeeds()) ;
             }
             else if (elapsed > start_time_ + traj_.getTotalTimeSeconds() + timeout_) {
                 did_timeout_ = true ;
                 driving_ = false ;
+                output_.accept(new ChassisSpeeds()) ;                
             }
         }
         

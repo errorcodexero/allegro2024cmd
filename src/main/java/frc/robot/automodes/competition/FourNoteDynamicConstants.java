@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class FourNoteDynamicConstants extends AutoModeConstants {
 
-    public static final double kLowManualTilt = 3.0 ;
-    public static final double kLowManualTiltPosTol = 2.0 ;
-    public static final double kLowManualTiltVelTol = 2.0 ;
+    public static final double kLowManualTilt = 6.0 ;
+    public static final double kLowManualTiltPosTol = 5.0 ;
+    public static final double kLowManualTiltVelTol = 32.0 ;
     public static final double kLowManualUpDown = 35.0 ;
     public static final double kLowManualUpDownPosTol = 5.0 ;
     public static final double kLowManualUpDownVelTol = 5.0 ;
@@ -21,7 +21,7 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
     public static final double kLowManualShooterVelTol = 10.0 ;
     public static final double kDelayForIntakeDownTime = 0.1 ;
     public static final double kDistanceShoot2 = 0.2 ;
-    public static final double kDistanceShoot3 = 0.95 ;
+    public static final double kDistanceShoot3 = 1.05 ;
     public static final double kDistanceShoot4 = 0.7 ;
 
     public static final double kPath1Velocity = 3.0 ;

@@ -7,18 +7,17 @@ public class IntakeShooterConstants {
     public static final double kafactor = 80.0 ;
     public static final double kjfactor = 500.0;
 
-    public static final double kCollectDelayTime = 0 ;
+    public static final double kCollectDelayTime = 0.5 ;
     public static final double kReverseDelayTime = 0.3 ;
-    public static final double kTransferFeederToShooterDelay = 0.4 ;
 
     public class ManualShotFerry {
-        public static final double kUpDownPos = 118.0 ;
+        public static final double kUpDownPos = 110.0 ;
         public static final double kUpDownPosTolerance = 5.0 ;
         public static final double kUpDownVelTolerance = 5.0 ;
-        public static final double kTiltPos = -64.0 ;
-        public static final double kTiltPosTolerance = 1.0 ;
-        public static final double kTiltVelTolerance = 5.0 ;
-        public static final double kShooterVel = 60.0 ;
+        public static final double kTiltPos = -70.0 ;
+        public static final double kTiltPosTolerance = 4.0 ;
+        public static final double kTiltVelTolerance = 16.0 ;
+        public static final double kShooterVel = 75.0 ;
         public static final double kShooterVelTolerance = 5.0 ;
     }    
 
@@ -27,7 +26,7 @@ public class IntakeShooterConstants {
         public static final double kUpDownPosTolerance = 5.0 ;
         public static final double kUpDownVelTolerance = 5.0 ;
         public static final double kTiltPos = -64.0 ;
-        public static final double kTiltPosTolerance = 1.0 ;
+        public static final double kTiltPosTolerance = 4.0 ;
         public static final double kTiltVelTolerance = 5.0 ;
         public static final double kShooterVel = 75.0 ;
         public static final double kShooterVelTolerance = 5.0 ;
@@ -238,7 +237,7 @@ public class IntakeShooterConstants {
         public static final double kTransferVelocity = 20.0 ;
         public static final double kTransferRunShooterDuration = 2.5 ;
         public static final double kTransferVelocityTol = 5.0 ;
-        public static final double kTransferLength = 0.4 ;
+        public static final double kTransferLength = 5.0;
         public static final double kTransferContLength = 8.0 ;     
 
         public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;

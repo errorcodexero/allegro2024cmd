@@ -153,6 +153,7 @@ public class TrampIOHardware implements TrampIO {
         manipulator_motor_.setInverted(TrampConstants.Manipulator.kInverted);
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
+        manipulator_motor_.enableVoltageCompensation(11.0) ;
         manipulator_encoder_ = manipulator_motor_.getEncoder() ;
         manipulator_encoder_.setPositionConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;
         manipulator_encoder_.setVelocityConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;        

@@ -15,7 +15,12 @@ public class Pose2dWithRotation extends Pose2d {
     public Pose2dWithRotation(Pose2d pose, Rotation2d rotation) {
         super(pose.getTranslation(), pose.getRotation()) ;
         rotation_ = rotation ;
-    }    
+    }   
+    
+    public Pose2dWithRotation(Translation2d pos, Rotation2d heading, Rotation2d rotation) {
+        super(pos, heading) ;
+        rotation_ = rotation ;
+    }   
 
     public Rotation2d getRobotRotation() {
         return rotation_ ;
