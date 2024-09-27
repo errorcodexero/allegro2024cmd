@@ -99,8 +99,9 @@ public class TrampConstants {
         public static final double kTrapMoveNotePower = 3.0 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositPower = -1.0 ;
+        public static final double kStopNoteTime = 0.0 ;
 
-        public static final double kTransferVoltage = 1.2;
+        public static final double kTransferVoltage = 1.0 ;
         public static final double kTransferVelocity = 40.0 ;
         public static final double kTransferTime = 0.2;
 
@@ -139,6 +140,5 @@ public class TrampConstants {
 
     public class NoteSensor {
         public static final int kChannel = 2 ;
-        public static final boolean kInverted = true ;
     }
 }

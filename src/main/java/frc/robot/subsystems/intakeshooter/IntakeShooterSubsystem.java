@@ -81,8 +81,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private IntakeShooterIO io_ ;
     private IntakeShooterIOInputsAutoLogged inputs_ ;
 
-    private StopNoteInterface stop_note_ ;
-
     private double target_tilt_ ;
     private double target_tilt_tol_ ;
     private double target_tilt_vel_ ;
@@ -160,10 +158,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         need_stop_manipulator_ = false ;
     }
     // #endregion
-
-    public void setStopNoteInterface(StopNoteInterface stop) {
-        stop_note_ = stop ;
-    }
 
     // #region Shooter tuning related
     public String stateString() {
@@ -341,7 +335,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             ()->manualShoot(updown, updownpostol, updownveltol, tilt, tiltpostol, tiltveltol, shooter, shooterveltol, true, false),
             ()-> {},
             (Boolean b) -> { },
-            () -> isIdle());
+            () -> hasShotLeft());
         ret.setName("manual-shoot");
         return ret ;
     }
@@ -982,7 +976,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
             case TransferRunToManipulatorStop:
                 if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {
-                    stop_note_.stopNote() ;               
                     need_stop_manipulator_ = true ;
                     has_note_ = false ;                    
                     state_ = State.TransferRunToShooterStop ;

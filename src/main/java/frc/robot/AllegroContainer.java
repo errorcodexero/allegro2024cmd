@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import org.xero1425.base.XeroContainer;
 import org.xero1425.base.XeroRobot;
+import org.xero1425.math.Pose2dWithRotation;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
@@ -125,9 +126,6 @@ public class AllegroContainer extends XeroContainer {
 
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
-
-        // Tie the two together for the purposes of transferring notes
-        intake_shooter_.setStopNoteInterface(tramp_) ;
 
         //
         // Create OI devices

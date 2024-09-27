@@ -47,6 +47,8 @@ public class TrackerSubsystem extends XeroSubsystem {
     private double angle_to_target_ ;
     private double distance_to_target_ ;
 
+    private Optional<Alliance> alliance_ ;
+
     private Trigger ready_for_shoot_trigger_ ;
 
     public TrackerSubsystem(XeroRobot robot, SwerveDrivetrain db, String name) {
@@ -169,9 +171,26 @@ public class TrackerSubsystem extends XeroSubsystem {
         Rotation2d rheading = robot2target.plus(Rotation2d.fromDegrees(180.0)) ;
 
         ready_angle_to_target_ = true;
-        if (Math.abs(rheading.getDegrees()) > TrackerConstants.kMaximumShotAngle) {
+        if (alliance_.isPresent()) {
+            if (alliance_.get() == Alliance.Blue) {
+                if (Math.abs(rheading.getDegrees()) > TrackerConstants.kMaximumShotAngle) {
+                    ready_angle_to_target_ = false ;
+                }
+            }
+            else {
+                //
+                // On the red end, we are facing the other way to shoot, so the conditions for shooting
+                // are different.
+                //
+                if (Math.abs(rheading.getDegrees()) < 180.0 - TrackerConstants.kMaximumShotAngle) {
+                    ready_angle_to_target_ = false ;
+                }
+            }
+        }
+        else {
             ready_angle_to_target_ = false ;
         }
+        
 
         //
         // Now, find the adjustment based on the original
@@ -210,11 +229,11 @@ public class TrackerSubsystem extends XeroSubsystem {
     }
 
     private boolean getTargetPose() {
-        Optional<Alliance> alliance = DriverStation.getAlliance() ;
-        if (alliance.isEmpty())
+        alliance_ = DriverStation.getAlliance() ;
+        if (alliance_.isEmpty())
             return false ;
 
-        if (alliance.get() == Alliance.Red) {
+        if (alliance_.get() == Alliance.Red) {
             target_number_ = AprilTags.RED_SPEAKER_CENTER ;
         }
         else {

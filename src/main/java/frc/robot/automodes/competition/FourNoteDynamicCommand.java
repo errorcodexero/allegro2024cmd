@@ -52,10 +52,10 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
     @Override
     public void initialize() {
         try {
-            shootpose_ = FourNoteDynamicConstants.getShootPose(getRobot().getFieldLayout().getFieldWidth()) ;
-            collect1pose_ = FourNoteDynamicConstants.getCollect1Pose(getRobot().getFieldLayout().getFieldWidth()) ;
-            collect2pose_ = FourNoteDynamicConstants.getCollect2Pose(getRobot().getFieldLayout().getFieldWidth()) ;
-            collect3pose_ = FourNoteDynamicConstants.getCollect3Pose(getRobot().getFieldLayout().getFieldWidth()) ;
+            shootpose_ = FourNoteDynamicConstants.getShootPose(getRobot().getFieldLayout().getFieldLength()) ;
+            collect1pose_ = FourNoteDynamicConstants.getCollect1Pose(getRobot().getFieldLayout().getFieldLength()) ;
+            collect2pose_ = FourNoteDynamicConstants.getCollect2Pose(getRobot().getFieldLayout().getFieldLength()) ;
+            collect3pose_ = FourNoteDynamicConstants.getCollect3Pose(getRobot().getFieldLayout().getFieldLength()) ;
         }
         catch(Exception ex) {
             state_ = State.Error ;

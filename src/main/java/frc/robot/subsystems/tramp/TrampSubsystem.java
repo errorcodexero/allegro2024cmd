@@ -19,9 +19,8 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
-import frc.robot.subsystems.intakeshooter.StopNoteInterface;
 
-public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
+public class TrampSubsystem extends XeroSubsystem {
 
     static final public String NAME = "TrampSubsystem" ;
     static final public String ELEVATOR_MOTOR_NAME = "feeder" ;
@@ -123,14 +122,14 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
 
     public void stopNote() {
         io_.setManipulatorVoltage(0.0);
-        io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+        // io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
     }
 
     public void endNoteTransfer() {
         //
         // Enable a PID controller to hold the note in place.
         //
-        io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+        stopNote() ;
         has_note_ = true ;
         state_ = State.Idle ;
     }
@@ -319,8 +318,8 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
     public void transferNote() {
         if (state_ == State.HoldingTransferPosition) {
             state_ = State.TransferStartManipulator ;
-            io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
-            // io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
+            // io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
+            io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
         }
     }
 
@@ -354,6 +353,7 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
                 break;
 
             case TransferStartManipulator:
+                transferStartManipulator() ;
                 break ;
 
             case Eject:
@@ -523,6 +523,9 @@ public class TrampSubsystem extends XeroSubsystem implements StopNoteInterface {
             Logger.recordOutput("tramp:hasnote", hasNote()) ;  
             Logger.recordOutput("tramp:mantarget", manipulator_target_) ;   
         }
+    }
+
+    private void transferStartManipulator() {
     }
 
     private void climberUp() {

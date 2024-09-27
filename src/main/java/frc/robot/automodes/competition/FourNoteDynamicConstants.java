@@ -27,22 +27,17 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
     public static final double kPath1Velocity = 3.0 ;
     public static final double kPath1Accel = 2.0 ;
 
-    private static final Pose2dWithRotation kShootPoseConstBlue = new Pose2dWithRotation(new Pose2d(1.50, 5.55, Rotation2d.fromDegrees(180.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kCollect1PoseConstBlue = new Pose2dWithRotation(new Pose2d(2.40, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kCollect2PoseConstBlue = new Pose2dWithRotation(new Pose2d(2.40, 6.52, Rotation2d.fromDegrees(45.0)), Rotation2d.fromDegrees(45.0)) ;
-    private static final Pose2dWithRotation kCollect3PoseConstBlue = new Pose2dWithRotation(new Pose2d(2.30, 4.55, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;        
-
-    private static final Pose2dWithRotation kShootPoseConstRed = new Pose2dWithRotation(new Pose2d(1.50, 5.55, Rotation2d.fromDegrees(180.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kCollect1PoseConstRed = new Pose2dWithRotation(new Pose2d(2.40, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;        
-    private static final Pose2dWithRotation kCollect2PoseConstRed = new Pose2dWithRotation(new Pose2d(2.50, 6.32, Rotation2d.fromDegrees(45.0)), Rotation2d.fromDegrees(45.0)) ;
-    private static final Pose2dWithRotation kCollect3PoseConstRed = new Pose2dWithRotation(new Pose2d(2.30, 4.55, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;
+    private static final Pose2dWithRotation kShootPoseConst = new Pose2dWithRotation(new Pose2d(1.50, 5.55, Rotation2d.fromDegrees(180.0)), Rotation2d.fromDegrees(0.0)) ;
+    private static final Pose2dWithRotation kCollect1PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
+    private static final Pose2dWithRotation kCollect2PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 6.52, Rotation2d.fromDegrees(45.0)), Rotation2d.fromDegrees(45.0)) ;
+    private static final Pose2dWithRotation kCollect3PoseConst = new Pose2dWithRotation(new Pose2d(2.30, 4.55, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;        
 
     public static Pose2dWithRotation getShootPose(double width) throws Exception {
         Optional<Alliance> alliance = DriverStation.getAlliance();
         if (alliance.isEmpty())
             throw new Exception("Trying to initialize an automode before alliance is known") ;
 
-        return (alliance.get() == Alliance.Blue) ? kShootPoseConstBlue : mirror(kShootPoseConstRed, width) ;
+        return (alliance.get() == Alliance.Blue) ? kShootPoseConst : mirror(kShootPoseConst, width) ;
     }
 
     public static Pose2dWithRotation getCollect1Pose(double width) throws Exception {
@@ -50,7 +45,7 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
         if (alliance.isEmpty())
             throw new Exception("Trying to initialize an automode before alliance is known") ;
 
-        return (alliance.get() == Alliance.Blue) ? kCollect1PoseConstBlue : mirror(kCollect1PoseConstRed, width) ;
+        return (alliance.get() == Alliance.Blue) ? kCollect1PoseConst : mirror(kCollect1PoseConst, width) ;
     }
 
     public static Pose2dWithRotation getCollect2Pose(double width) throws Exception {
@@ -58,7 +53,7 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
         if (alliance.isEmpty())
             throw new Exception("Trying to initialize an automode before alliance is known") ;
 
-        return (alliance.get() == Alliance.Blue) ? kCollect2PoseConstBlue : mirror(kCollect2PoseConstRed, width) ;
+        return (alliance.get() == Alliance.Blue) ? kCollect2PoseConst : mirror(kCollect2PoseConst, width) ;
     }
 
     public static Pose2dWithRotation getCollect3Pose(double width) throws Exception {
@@ -66,6 +61,6 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
         if (alliance.isEmpty())
             throw new Exception("Trying to initialize an automode before alliance is known") ;
 
-        return (alliance.get() == Alliance.Blue) ? kCollect3PoseConstBlue : mirror(kCollect3PoseConstRed, width) ;
+        return (alliance.get() == Alliance.Blue) ? kCollect3PoseConst : mirror(kCollect3PoseConst, width) ;
     }
 }

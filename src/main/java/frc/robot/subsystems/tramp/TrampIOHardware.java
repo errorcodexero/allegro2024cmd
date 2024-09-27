@@ -2,6 +2,7 @@ package frc.robot.subsystems.tramp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.xero1425.base.TalonFXFactory;
@@ -22,6 +23,9 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.units.Units ;
+import edu.wpi.first.wpilibj.AsynchronousInterrupt;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -190,10 +194,6 @@ public class TrampIOHardware implements TrampIO {
         checkError("elevator-bus-optimization", () -> elevator_motor_.optimizeBusUtilization()) ;
         checkError("arm-bus-optimization", () -> arm_motor_.optimizeBusUtilization()) ;
         checkError("climber-bus-optimization", () -> climber_motor_.optimizeBusUtilization()) ;
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        // Simulation initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////  
     }
 
     public void updateInputs(TrampIOInputs inputs) {
@@ -341,7 +341,7 @@ public class TrampIOHardware implements TrampIO {
             .angularPosition(Units.Revolutions.of(climber_pos_sig_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(climber_velocity_sig_.refresh().getValueAsDouble())) ;
     }    
-     
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // Utility methods
