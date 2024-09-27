@@ -21,7 +21,9 @@ public class ThreeNoteConstants extends AutoModeConstants {
 
     private static final Pose2dWithRotation kStartPosition = new Pose2dWithRotation(new Pose2d(0.621, 4.44, Rotation2d.fromDegrees(-58.6)), Rotation2d.fromDegrees(-58.6)) ;
     private static final Pose2dWithRotation kCollect2PoseConst = new Pose2dWithRotation(new Pose2d(8.2296, 0.911, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kShoot2PoseConst = new Pose2dWithRotation(new Pose2d(3.0734, 3.111, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(-50.0)) ;
+    private static final Pose2dWithRotation kShoot2PoseConst = new Pose2dWithRotation(new Pose2d(2.0734, 3.111, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(-50.0)) ;
+    private static final Pose2dWithRotation kCollect3PoseConst = new Pose2dWithRotation(new Pose2d(8.2296, 2.508, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
+    private static final Pose2dWithRotation kShoot3PoseConst = new Pose2dWithRotation(new Pose2d(3.0734, 3.111, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(-50.0)) ;    
 
     public static Pose2dWithRotation getStartPosition(double width) throws Exception {
         Optional<Alliance> alliance = DriverStation.getAlliance();
@@ -46,4 +48,20 @@ public class ThreeNoteConstants extends AutoModeConstants {
 
         return (alliance.get() == Alliance.Blue) ? kShoot2PoseConst : mirror(kShoot2PoseConst, width) ;
     }    
+
+    public static Pose2dWithRotation getCollect3Pose(double width) throws Exception {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty())
+            throw new Exception("Trying to initialize an automode before alliance is known") ;
+
+        return (alliance.get() == Alliance.Blue) ? kCollect3PoseConst : mirror(kCollect3PoseConst, width) ;
+    }  
+    
+    public static Pose2dWithRotation getShoot3Pose(double width) throws Exception {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty())
+            throw new Exception("Trying to initialize an automode before alliance is known") ;
+
+        return (alliance.get() == Alliance.Blue) ? kShoot3PoseConst : mirror(kShoot3PoseConst, width) ;
+    }        
 }

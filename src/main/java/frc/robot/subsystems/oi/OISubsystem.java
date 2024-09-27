@@ -68,6 +68,10 @@ public class OISubsystem extends XeroSubsystem {
         auto_trap_trigger_ = new Trigger(() -> inputs_.autoTrap) ;
     }
 
+    public boolean isAbortPressed() {
+        return inputs_.abort ;
+    }
+
     public void setLEDState(OILed led, boolean b) {
         ios_.setLED(led.value, b) ;
     }
@@ -75,49 +79,49 @@ public class OISubsystem extends XeroSubsystem {
     public String getPressedString() {
         String str = "" ;
 
-        if (eject_trigger_.getAsBoolean()) {
+        if (inputs_.eject) {
             if (str.length() > 0)
                 str += "," ;
             str += "eject" ;
         }
 
-        if (abort_trigger_.getAsBoolean()) {
+        if (inputs_.abort) {
             if (str.length() > 0)
                 str += "," ;
             str += "abort" ;
         }
         
-        if (turtle_trigger_.getAsBoolean()) {
+        if (inputs_.turtle) {
             if (str.length() > 0)
                 str += "," ;
             str += "turtle" ;
         }
         
-        if (shoot_trigger_.getAsBoolean()) {
+        if (inputs_.shoot) {
             if (str.length() > 0)
                 str += "," ;
             str += "shoot" ;
         }
         
-        if (collect_trigger_.getAsBoolean()) {
+        if (inputs_.collect) {
             if (str.length() > 0)
                 str += "," ;
             str += "collect" ;
         }
         
-        if (climb_up_prep_trigger_.getAsBoolean()) {
+        if (inputs_.climbUpPrep) {
             if (str.length() > 0)
                 str += "," ;
             str += "climbprep" ;
         }
         
-        if (climb_up_exec_trigger_.getAsBoolean()) {
+        if (inputs_.climbUpExec) {
             if (str.length() > 0)
                 str += "," ;
             str += "climbexec" ;
         }
         
-        if (auto_trap_trigger_.getAsBoolean()) {
+        if (inputs_.autoTrap) {
             if (str.length() > 0)
                 str += "," ;
             str += "autotrap" ;

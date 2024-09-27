@@ -114,6 +114,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private State state_ ;
     private State next_state_ ;
+    private boolean auto_mode_auto_shoot_ ;
 
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
@@ -132,6 +133,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         destsupplier_ = destsupplier ;
         shot_type_supplier_ = shottype ;
+        auto_mode_auto_shoot_ = false ;
 
         capture_timer_ = new XeroTimer("collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
         reverse_timer_ = new XeroTimer("reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
@@ -158,6 +160,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         need_stop_manipulator_ = false ;
     }
     // #endregion
+
+    public void setAutoModeAutoShoot(boolean b) {
+        auto_mode_auto_shoot_ = b ;
+    }
 
     // #region Shooter tuning related
     public String stateString() {
@@ -629,7 +635,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private NoteDestination getNoteDestination() {
         NoteDestination ret = NoteDestination.Speaker ;
         if (DriverStation.isAutonomous()) {
-            ret = NoteDestination.AutoDefinedSpeaker ;
+            if (auto_mode_auto_shoot_)
+                ret = NoteDestination.Speaker ;
+            else 
+                ret = NoteDestination.AutoDefinedSpeaker ;
         }
         else if (destsupplier_ != null) {
             ret = destsupplier_.get() ;

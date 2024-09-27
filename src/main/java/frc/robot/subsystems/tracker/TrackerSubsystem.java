@@ -99,19 +99,24 @@ public class TrackerSubsystem extends XeroSubsystem {
     private boolean checkTimeAndDistance() {
         boolean ret = true ;
 
-        if (TrackerConstants.kDoAprilTagDistanceCheck) {
-            if (last_april_tag_pose_ != null) {
-                double dist = last_april_tag_pose_.getTranslation().getDistance(db_.getState().Pose.getTranslation()) ;
-                if (dist > TrackerConstants.kAprilTagMaxDistance) {
-                    ret = false ;
+        //
+        // Note: we are always ready in a simluation
+        //
+        if (XeroRobot.isReal()) {
+            if (TrackerConstants.kDoAprilTagDistanceCheck) {
+                if (last_april_tag_pose_ != null) {
+                    double dist = last_april_tag_pose_.getTranslation().getDistance(db_.getState().Pose.getTranslation()) ;
+                    if (dist > TrackerConstants.kAprilTagMaxDistance) {
+                        ret = false ;
+                    }
                 }
             }
-        }
 
-        if (TrackerConstants.kDoAprilTagTimeCheck) {
-            double now = Timer.getFPGATimestamp() ;
-            if (now - last_april_tag_time_ > TrackerConstants.kAprilTagMaxTime) {
-                ret = false ;
+            if (TrackerConstants.kDoAprilTagTimeCheck) {
+                double now = Timer.getFPGATimestamp() ;
+                if (now - last_april_tag_time_ > TrackerConstants.kAprilTagMaxTime) {
+                    ret = false ;
+                }
             }
         }
 

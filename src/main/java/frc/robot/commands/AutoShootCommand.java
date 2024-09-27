@@ -1,18 +1,17 @@
 package frc.robot.commands;
 
 import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.ShotType;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
-import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.swerve.SwerveRotateToAngle;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 
-public class ShootCommand extends Command {
+public class AutoShootCommand extends Command {
     
     private final static double kShootPositionDistanceNear = 1.0 ;
     private final static double kShootPositionDistanceFar = 4.0 ;
@@ -29,7 +28,7 @@ public class ShootCommand extends Command {
     private SwerveRotateToAngle rotate_ ;
     private Command shoot_ ;
 
-    public ShootCommand(OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake) {
+    public AutoShootCommand(OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake) {
         oi_ = oi ;
         tracker_ = tracker ;
 
@@ -44,45 +43,15 @@ public class ShootCommand extends Command {
 
     @Override
     public void initialize() {
-
         shoot_ = null ;
         rotate_ = null ;
 
-        if (oi_.getShotType() == ShotType.Podium) {
-            shoot_ = intake_.manualShootCommand(
-                                IntakeShooterConstants.ManualShotPodium.kUpDownPos,
-                                IntakeShooterConstants.ManualShotPodium.kUpDownPosTolerance,
-                                IntakeShooterConstants.ManualShotPodium.kUpDownVelTolerance,
-                                IntakeShooterConstants.ManualShotPodium.kTiltPos,
-                                IntakeShooterConstants.ManualShotPodium.kTiltPosTolerance,
-                                IntakeShooterConstants.ManualShotPodium.kTiltVelTolerance,
-                                IntakeShooterConstants.ManualShotPodium.kShooterVel,
-                                IntakeShooterConstants.ManualShotPodium.kShooterVelTolerance) ;
-            CommandScheduler.getInstance().schedule(shoot_);
-            rotate_ = null ;
-        }
-        else if (oi_.getShotType() == ShotType.Subwoofer) {
-            shoot_ = intake_.manualShootCommand(
-                                IntakeShooterConstants.ManualShotSubwoofer.kUpDownPos,
-                                IntakeShooterConstants.ManualShotSubwoofer.kUpDownPosTolerance,
-                                IntakeShooterConstants.ManualShotSubwoofer.kUpDownVelTolerance,
-                                IntakeShooterConstants.ManualShotSubwoofer.kTiltPos,
-                                IntakeShooterConstants.ManualShotSubwoofer.kTiltPosTolerance,
-                                IntakeShooterConstants.ManualShotSubwoofer.kTiltVelTolerance,
-                                IntakeShooterConstants.ManualShotSubwoofer.kShooterVel,
-                                IntakeShooterConstants.ManualShotSubwoofer.kShooterVelTolerance) ;
-            CommandScheduler.getInstance().schedule(shoot_);
-            rotate_ = null ;
-        }
-        else if (tracker_.isOkToShootAngleDistance()) {
-            rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
+        rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(rotatePositionTolerence())
                             .withVelocityTolerance(kShootVelocityTolerance) ;
-            shoot_ = null ;
-            CommandScheduler.getInstance().schedule(rotate_);
-        }
+        shoot_ = null ;
+        CommandScheduler.getInstance().schedule(rotate_);
     }
-
 
     @Override
     public void execute() {
@@ -91,13 +60,7 @@ public class ShootCommand extends Command {
         boolean dbready = false ;
 
         if (rotate_ != null) {
-            if (oi_.isAbortPressed()) {
-                tracker_.freezePose(false);
-                rotate_.cancel();
-                rotate_ = null ;
-                str = "aborted" ;
-            }
-            else if (rotate_.isFinished()) {
+            if (rotate_.isFinished()) {
                 if (!tracker_.isFrozen()) {
                     tracker_.freezePose(true);                
                 }
@@ -128,7 +91,7 @@ public class ShootCommand extends Command {
             }
         }
 
-        Logger.recordOutput("state:shoot", str) ;
+        Logger.recordOutput("states:autoshoot", str) ;
         oi_.setLEDState(OILed.DBReady, dbready);
     }
 

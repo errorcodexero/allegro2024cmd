@@ -17,7 +17,7 @@
                     "values" : 
                     {
                         "start" : 1.0,
-                        "autonomous" : 17.0,
+                        "autonomous" : 100.0,
                         "between" : 1.0,
                         "teleop" : 10000.0,
                         "fms" : false
@@ -26,7 +26,7 @@
             ]
         },
         {
-            "time" : 6.0,
+            "time" : 10.0,
             "asserts" : [
                 {
                     "subsystem" : "IntakeShooterSubsystem",
@@ -36,7 +36,7 @@
             ]
         },        
         {
-            "time" : 6.8,
+            "time" : 10.5,
             "events" :
             [
                 {
@@ -45,48 +45,13 @@
                     "values" : 
                     {
                         "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : true
+                        "note-sensor" : false
                     }
                 }
             ]
         },      
         {
-            "time" : 6.9,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : false
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 7.0,
-            "asserts" : [
-                {
-                    "subsystem" : "IntakeShooterSubsystem",
-                    "property" : "has-note",
-                    "value": true
-                }
-            ]
-        },          
-        {
-            "time" : 8.8,
-            "asserts" : [
-                {
-                    "subsystem" : "IntakeShooterSubsystem",
-                    "property" : "has-note",
-                    "value": false
-                }
-            ]
-        },         
-        {
-            "time" : 9.2,
+            "time" : 10.6,
             "events" :
             [
                 {
@@ -101,22 +66,7 @@
             ]
         },
         {
-            "time" : 9.3,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : false
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 9.4,
+            "time" : 11.0,
             "asserts" : [
                 {
                     "subsystem" : "IntakeShooterSubsystem",
@@ -124,66 +74,6 @@
                     "value": true
                 }
             ]
-        },
-        {
-            "time" : 11.5,
-            "asserts" : [
-                {
-                    "subsystem" : "IntakeShooterSubsystem",
-                    "property" : "has-note",
-                    "value": false
-                }
-            ]
-        }, 
-        {
-            "time" : 13.4,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : true
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 13.5,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - triggered sensor",
-                        "note-sensor" : false
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 13.6,
-            "asserts" : [
-                {
-                    "subsystem" : "IntakeShooterSubsystem",
-                    "property" : "has-note",
-                    "value": true
-                }
-            ]
-        },
-        {
-            "time" : 16.0,
-            "asserts" : [
-                {
-                    "subsystem" : "IntakeShooterSubsystem",
-                    "property" : "has-note",
-                    "value": false
-                }
-            ]
-        }         
+        }
     ]
 }
