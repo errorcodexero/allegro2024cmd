@@ -44,7 +44,8 @@ public class TrampSubsystem extends XeroSubsystem {
         HoldingTransferPosition,
         HoldingAmpPosition,
         MoveNote,
-        MovingNote,
+        MovingNoteForward,
+        MovingNoteBackward,
         HoldingTrapPosition,
         Climbing,
         Trap1,
@@ -53,6 +54,7 @@ public class TrampSubsystem extends XeroSubsystem {
         Trap3,
 
         TransferStartManipulator,
+        TransferWaitForHoldPosition,
 
         Shooting,
         BasicClimbMovingElevatorArm,
@@ -84,6 +86,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer eject_timer_ ;
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
+    private XeroTimer hold_note_timer_ ;
 
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
@@ -108,6 +111,7 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_ = new XeroTimer("tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
         shoot_timer_ = new XeroTimer("tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer("tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
+        hold_note_timer_ = new XeroTimer("hold-note-timer", TrampConstants.Manipulator.kHoldNoteTime) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
@@ -120,18 +124,21 @@ public class TrampSubsystem extends XeroSubsystem {
         climber_target_ = 0.0 ;
     }
 
-    public void stopNote() {
-        io_.setManipulatorVoltage(0.0);
-        // io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
-    }
-
     public void endNoteTransfer() {
         //
         // Enable a PID controller to hold the note in place.
         //
-        stopNote() ;
+        state_ = State.TransferWaitForHoldPosition ;
+        hold_note_timer_.start() ;
+        io_.setManipulatorVoltage(0.0);
         has_note_ = true ;
-        state_ = State.Idle ;
+    }
+
+    private void transferWaitForHoldPosition() {
+        if (hold_note_timer_.isExpired()) {
+            io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+            state_ = State.Idle ;
+        }
     }
 
     public SettingsValue getProperty(String name) {
@@ -256,7 +263,17 @@ public class TrampSubsystem extends XeroSubsystem {
                                     () -> { return false ;} ) ;
         cmd.setName("climber-down") ;
         return cmd ;        
-    }    
+    }
+
+    public Command manipulatorVelocity(int velocity) {
+        Command cmd = new FunctionalCommand(
+                                    () -> io_.setManipulatorTargetVelocity(velocity),
+                                    () -> {},
+                                    (Boolean b) -> { io_.setManipulatorVoltage(0.0);},
+                                    () -> { return false ;} ) ;
+                            
+        return cmd;
+    }
 
     private void basicClimbPrep() {
         gotoPosition(TrampConstants.Elevator.Positions.kBasicClimb, Double.NaN, Double.NaN, 
@@ -299,6 +316,7 @@ public class TrampSubsystem extends XeroSubsystem {
             next_state_ = State.MoveNote ;
         }
         else if (dest == NoteDestination.Amp) {
+            climberDown() ;
             gotoPosition(TrampConstants.Elevator.Positions.kAmp, Double.NaN, Double.NaN, 
                          TrampConstants.Arm.Positions.kAmp, Double.NaN, Double.NaN);
             next_state_ = State.HoldingAmpPosition ;                         
@@ -318,8 +336,7 @@ public class TrampSubsystem extends XeroSubsystem {
     public void transferNote() {
         if (state_ == State.HoldingTransferPosition) {
             state_ = State.TransferStartManipulator ;
-            // io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
-            io_.setManipulatorVoltage(TrampConstants.Manipulator.kTransferVoltage);
+            io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
         }
     }
 
@@ -348,9 +365,21 @@ public class TrampSubsystem extends XeroSubsystem {
             }
         }
 
+        NoteDestination dest = destsupplier_.get() ;
+        if (state_ == State.HoldingAmpPosition && dest == NoteDestination.Trap) {
+            moveToDestinationPosition() ;
+        }
+        else if (state_ == State.HoldingTrapPosition && dest == NoteDestination.Amp) {
+            moveToDestinationPosition() ;            
+        }
+
         switch(state_) {
             case Idle:
                 break;
+
+            case TransferWaitForHoldPosition:
+                transferWaitForHoldPosition();
+                break ;
 
             case TransferStartManipulator:
                 transferStartManipulator() ;
@@ -420,16 +449,29 @@ public class TrampSubsystem extends XeroSubsystem {
 
             case MoveNote:
                 manipulator_target_ = inputs_.manipulatorPosition + TrampConstants.Manipulator.kTrapMoveNoteDistance ;
-                io_.setManipulatorVoltage(TrampConstants.Manipulator.kTrapMoveNotePower);
-                state_ = State.MovingNote ;
+                io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTrapMoveNoteVelocity) ;
+
+                if ( manipulator_target_ > inputs_.manipulatorPosition) {
+                    state_ = State.MovingNoteForward ;
+                }
+                else {
+                    state_ = State.MovingNoteBackward ;
+                }
                 break ;
 
-            case MovingNote:                
+            case MovingNoteForward:
                 if (inputs_.manipulatorPosition >= manipulator_target_) {
-                    io_.setManipulatorVoltage(0.0);
+                    io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
                     state_ = State.HoldingTrapPosition ;
                 }
                 break ;
+
+            case MovingNoteBackward:
+                if (inputs_.manipulatorPosition <= manipulator_target_) {
+                    io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+                    state_ = State.HoldingTrapPosition ;
+                }
+                break ;            
 
             case HoldingTrapPosition:
                 break ;

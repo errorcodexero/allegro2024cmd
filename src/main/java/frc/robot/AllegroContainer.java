@@ -21,7 +21,6 @@ import java.util.function.Supplier;
 
 import org.xero1425.base.XeroContainer;
 import org.xero1425.base.XeroRobot;
-import org.xero1425.math.Pose2dWithRotation;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
@@ -255,6 +254,11 @@ public class AllegroContainer extends XeroContainer {
             total++ ;
         }
 
+        if (RobotConstants.WhichSubsystem.kCharManipulatorRunVelocity) {
+            driver_controller_.x().whileTrue(tramp_.manipulatorVelocity(25)) ;
+            total++ ;
+        }
+
         if (total > 1) {
             throw new Exception("Only one subsystem can be characterized at a time") ;
         }
@@ -327,6 +331,7 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
 
         driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_).ignoringDisable(true)) ;
+        driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(db_.getAmpAlign()) ;
         db_.registerTelemetry(logger_::telemeterize) ;
     }
     // #endregion

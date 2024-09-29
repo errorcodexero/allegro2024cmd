@@ -116,6 +116,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private State next_state_ ;
     private boolean auto_mode_auto_shoot_ ;
 
+    private Command xfercmd_ ;
+
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
 
@@ -160,6 +162,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         need_stop_manipulator_ = false ;
     }
     // #endregion
+
+    public void setTransferCmd(Command cmd) {
+        xfercmd_ = cmd ;
+    }
 
     public void setAutoModeAutoShoot(boolean b) {
         auto_mode_auto_shoot_ = b ;
@@ -465,6 +471,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public void eject() {
+        if (xfercmd_ != null) {
+            xfercmd_.cancel() ;
+        }
         setTracking(false);
         gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, 5.0, 100.0, 
                      IntakeShooterConstants.Tilt.Positions.kEject, 8.0, 100.0) ;
@@ -1047,19 +1056,22 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
         OISubsystem oi = container.getOI() ;
 
-
-        oi.setLEDState(OILed.ShooterReady, isShooterReady()) ;
-        oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
-      
+        if (oi != null) {
+            oi.setLEDState(OILed.ShooterReady, isShooterReady()) ;
+            oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
+        }
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);
             Logger.recordOutput("intake:next-state", next_state_) ;
 
-            if (state_ == State.MoveBothToPosition)
+            if (state_ == State.MoveBothToPosition || tracking_) {
                 Logger.recordOutput("intake:updown-target", target_updown_) ;
-            if (state_ == State.MoveBothToPosition || state_ == State.MoveTiltToPosition)
+            }
+
+            if (state_ == State.MoveBothToPosition || state_ == State.MoveTiltToPosition || tracking_) {
                 Logger.recordOutput("intake:tilt-target", target_tilt_) ;
+            }
 
             Logger.recordOutput("intake:is-tilt-ready", isTiltReady());
             Logger.recordOutput("intake:is-updown-ready", isUpDownReady());

@@ -14,8 +14,4 @@ public class TrackerIOLimelight implements TrackerIO {
         PoseEstimate est = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
         inputs.tag_count_ = est != null ? est.tagCount : 0 ;
     }
-
-    public void setTarget(int tag) {
-        LimelightHelpers.setPriorityTagID(limelight_name_, tag) ;
-    }
 }

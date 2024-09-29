@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
@@ -24,6 +26,8 @@ public class TransferNoteCommand extends Command {
         tramp_ = tramp ;
 
         setName("transfer-note") ;
+
+        intake_shooter_.setTransferCmd(this) ;
     }
 
     @Override
@@ -61,6 +65,7 @@ public class TransferNoteCommand extends Command {
 
             case MoveTrampToDestination:
                 if (tramp_.isIdle()) {
+                    intake_shooter_.setTransferCmd(null) ;
                     state_ = State.Done ;
                 }
                 break ;
@@ -68,6 +73,8 @@ public class TransferNoteCommand extends Command {
             case Done:
                 break ;
         }
+
+        Logger.recordOutput("xfer", state_) ;
     }
 
     @Override

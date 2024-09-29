@@ -81,6 +81,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean hasAppliedOperatorPerspective = false;
 
+    private XeroRobot robot_ ;
+
     private final SwerveRequest.SysIdSwerveTranslation TranslationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     // private final SwerveRequest.SysIdSwerveRotation RotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     // private final SwerveRequest.SysIdSwerveSteerGains SteerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
@@ -126,9 +128,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public CommandSwerveDrivetrain(XeroRobot robot, SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, 250, modules);
 
+        robot_ = robot ;
+
         CommandScheduler.getInstance().registerSubsystem(this);
-        robot.registerSubsystem(NAME
-        , this);
+        robot.registerSubsystem(NAME, this);
 
         tareEverything();
         seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));
@@ -149,6 +152,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    public Command getAmpAlign() {
+        return new AlignWithAmpCmd(robot_.getFieldLayout(), this) ;
     }
 
     /*

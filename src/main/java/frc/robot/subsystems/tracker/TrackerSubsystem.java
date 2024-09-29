@@ -222,7 +222,9 @@ public class TrackerSubsystem extends XeroSubsystem {
 
         AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
         OISubsystem oi = container.getOI() ;
-        oi.setLEDState(OILed.TrackerReady, isOkToShoot()) ;  
+        if (oi != null) {
+            oi.setLEDState(OILed.TrackerReady, isOkToShoot()) ;  
+        }
     }
 
     public double distance() {
@@ -251,13 +253,7 @@ public class TrackerSubsystem extends XeroSubsystem {
         }
 
         target_pose_ = pose.get().toPose2d() ;
-
-        //
-        // This will cause TX, TY, TA, and TV to be about the target_number_
-        // april tag.
-        //
-        io_.setTarget(target_number_) ;
-
+        
         return true ;
     }
 

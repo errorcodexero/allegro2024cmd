@@ -2,7 +2,6 @@ package frc.robot.subsystems.tramp;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.xero1425.base.TalonFXFactory;
@@ -23,9 +22,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.units.Units ;
-import edu.wpi.first.wpilibj.AsynchronousInterrupt;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -159,8 +155,7 @@ public class TrampIOHardware implements TrampIO {
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
         manipulator_motor_.enableVoltageCompensation(11.0) ;
         manipulator_encoder_ = manipulator_motor_.getEncoder() ;
-        manipulator_encoder_.setPositionConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;
-        manipulator_encoder_.setVelocityConversionFactor((double)manipulator_encoder_.getCountsPerRevolution()) ;        
+        manipulator_encoder_.setVelocityConversionFactor(1.0 / 60.0) ;  // Convert from RPM to RPS  
         manipulator_voltage_ = 0.0 ;
         manipulator_pid_ = manipulator_motor_.getPIDController() ;
         
