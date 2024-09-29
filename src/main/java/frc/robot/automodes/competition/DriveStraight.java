@@ -31,7 +31,6 @@ public class DriveStraight extends XeroAutoCommand {
     private double timer_ ;
     private double velocity_ = 1.0 ;
     private double accel_ = 1.0 ;
-    private double dist_ = 3.94 ;
 
     private static final Pose2dWithRotation kStartPosition = new Pose2dWithRotation(new Pose2d(0.621, 4.44, Rotation2d.fromDegrees(-121.4)), Rotation2d.fromDegrees(-121.4)) ;
     private static final Pose2dWithRotation kCollect2PoseConst = new Pose2dWithRotation(new Pose2d(8.2296, 7.3, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(30.0)) ;

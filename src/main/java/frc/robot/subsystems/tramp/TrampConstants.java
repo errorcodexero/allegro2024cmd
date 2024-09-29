@@ -65,7 +65,7 @@ public class TrampConstants {
             public static final double kTrap = 180 ;
             public static final double kTrap1 = 121 ;
             public static final double kTrap2 = 121 ;
-            public static final double kTrap3 = 150 ;
+            public static final double kTrap3 = 149.6 ;
             public static final double kTrap4 = 225 ;  
             public static final double kBasicClimb = 180.0 ;          
         }     
@@ -95,10 +95,11 @@ public class TrampConstants {
         public static final double kEjectTime = 0.5 ;
         public static final double kShootTime = 1.5 ;
         public static final double kShootPower = -5.0 ;
-        public static final double kTrapMoveNoteDistance = -1.0 ;
-        public static final double kTrapMoveNoteVelocity = -6.0 ;
+        public static final double kTrapMoveNoteDistance = -0.5 ;
+        public static final double kTrapMoveNoteVelocity = -5.0 ;
         public static final double kDepositTime = 1.5 ;
-        public static final double kDepositPower = -1.0 ;
+        public static final double kDepositVelocity = 10 
+        ;
         public static final double kHoldNoteTime = 0.2 ;
 
         public static final double kTransferVoltage = 1.2 ;

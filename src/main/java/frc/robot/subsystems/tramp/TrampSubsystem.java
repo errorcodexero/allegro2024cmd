@@ -504,7 +504,7 @@ public class TrampSubsystem extends XeroSubsystem {
                 //
                 // Ok, trap 2 is done, need to deposit the note
                 //
-                io_.setManipulatorVoltage(TrampConstants.Manipulator.kDepositPower);
+                io_.setManipulatorVoltage(TrampConstants.Manipulator.kDepositVelocity);
                 deposit_trap_timer_.start();
                 state_ = State.DepositingNote ;
                 break ;

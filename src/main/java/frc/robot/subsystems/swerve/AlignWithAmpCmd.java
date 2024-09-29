@@ -4,8 +4,6 @@ import java.util.Optional;
 
 import org.xero1425.math.Pose2dWithRotation;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,6 +54,6 @@ public class AlignWithAmpCmd extends Command {
 
     @Override
     public boolean isFinished() {
-        return !dt_.isFollowingPath() ;
+        return !dt_.isFollowingPath() || !has_target_ ;
     }
 }
