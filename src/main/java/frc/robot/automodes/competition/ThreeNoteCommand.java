@@ -73,7 +73,7 @@ public class ThreeNoteCommand extends XeroAutoCommand {
                 ThreeNoteConstants.kLowManualUpDown, ThreeNoteConstants.kLowManualUpDownPosTol, ThreeNoteConstants.kLowManualUpDownVelTol, 
                 ThreeNoteConstants.kLowManualTilt, ThreeNoteConstants.kLowManualTiltPosTol, ThreeNoteConstants.kLowManualTiltVelTol,
                 ThreeNoteConstants.kLowManualShooter, ThreeNoteConstants.kLowManualShooterVelTol,
-                true, true) ;
+                true, false) ;
         state_ = State.ShootFirstNote ;
     }
 

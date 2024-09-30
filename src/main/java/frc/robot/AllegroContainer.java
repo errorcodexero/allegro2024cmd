@@ -54,6 +54,8 @@ public class AllegroContainer extends XeroContainer {
     private TrackerSubsystem tracker_ ;
     private OISubsystem oi_ ;
 
+    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
     //
     // Limelight name
     //
@@ -325,13 +327,19 @@ public class AllegroContainer extends XeroContainer {
         db_.setDefaultCommand(
             db_.applyRequest(() -> drive_.withVelocityX(getLeftY() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
                                          .withVelocityY(getLeftX() * TunerConstantsCompetition.kSpeedAt12VoltsMps)
-                                         .withRotationalRate(getRightX() * SwerveConstants.kMaxRotationalSpeed)
+                                         .withRotationalRate(getRightX() * SwerveConstants.kMaxRotationalSpeed), "drive"
                             ).ignoringDisable(true));
 
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
 
-        driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_).ignoringDisable(true)) ;
+        driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_, "brake").ignoringDisable(true)) ;
         driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(db_.getAmpAlign()) ;
+
+        driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
+        driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(0.5), "pov90")) ;        
+        driver_controller_.pov(180).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0), "pov180")) ;
+        driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(-0.5), "pov270")) ;          
+
         db_.registerTelemetry(logger_::telemeterize) ;
     }
     // #endregion

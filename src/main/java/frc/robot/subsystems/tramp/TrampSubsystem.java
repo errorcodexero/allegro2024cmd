@@ -55,6 +55,7 @@ public class TrampSubsystem extends XeroSubsystem {
 
         TransferStartManipulator,
         TransferWaitForHoldPosition,
+        TransferringTrapToAmp,
 
         Shooting,
         BasicClimbMovingElevatorArm,
@@ -347,6 +348,20 @@ public class TrampSubsystem extends XeroSubsystem {
         next_state_ = State.Idle ;
     }
 
+    private void moveNote(boolean toTrap, State next) {
+        double dir = (toTrap ? -1.0 : 1.0) ;
+        next_state_ = next ;
+        manipulator_target_ = inputs_.manipulatorPosition + dir * TrampConstants.Manipulator.kTrapMoveNoteDistance ;
+        io_.setManipulatorTargetVelocity(dir * TrampConstants.Manipulator.kTrapMoveNoteVelocity) ;
+
+        if ( manipulator_target_ > inputs_.manipulatorPosition) {
+            state_ = State.MovingNoteForward ;
+        }
+        else {
+            state_ = State.MovingNoteBackward ;
+        }
+    }
+
     @Override
     public void periodic() {
         io_.updateInputs(inputs_) ;
@@ -371,13 +386,17 @@ public class TrampSubsystem extends XeroSubsystem {
                 moveToDestinationPosition() ;
             }
             else if (state_ == State.HoldingTrapPosition && dest == NoteDestination.Amp) {
-                moveToDestinationPosition() ;            
+                moveNote(false, State.TransferringTrapToAmp) ;
             }
         }
 
         switch(state_) {
             case Idle:
                 break;
+
+            case TransferringTrapToAmp:
+                moveToDestinationPosition() ;
+                break ;
 
             case TransferWaitForHoldPosition:
                 transferWaitForHoldPosition();
@@ -451,28 +470,20 @@ public class TrampSubsystem extends XeroSubsystem {
                 break ;
 
             case MoveNote:
-                manipulator_target_ = inputs_.manipulatorPosition + TrampConstants.Manipulator.kTrapMoveNoteDistance ;
-                io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTrapMoveNoteVelocity) ;
-
-                if ( manipulator_target_ > inputs_.manipulatorPosition) {
-                    state_ = State.MovingNoteForward ;
-                }
-                else {
-                    state_ = State.MovingNoteBackward ;
-                }
+                moveNote(true, State.HoldingTrapPosition) ;
                 break ;
 
             case MovingNoteForward:
                 if (inputs_.manipulatorPosition >= manipulator_target_) {
                     io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
-                    state_ = State.HoldingTrapPosition ;
+                    state_ = next_state_ ;
                 }
                 break ;
 
             case MovingNoteBackward:
                 if (inputs_.manipulatorPosition <= manipulator_target_) {
                     io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
-                    state_ = State.HoldingTrapPosition ;
+                    state_ = next_state_ ;
                 }
                 break ;            
 

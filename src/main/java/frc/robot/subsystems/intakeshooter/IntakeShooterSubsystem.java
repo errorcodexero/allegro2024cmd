@@ -842,7 +842,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             has_note_ = false ;
 
             //
-            // Turn off the feeder
+            // Turn off the feeder and shooter
             //
             io_.setFeederMotorVoltage(0.0);
             io_.setShooter1MotorVoltage(0.0);

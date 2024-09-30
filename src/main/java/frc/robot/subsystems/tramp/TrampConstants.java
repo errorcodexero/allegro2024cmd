@@ -95,9 +95,9 @@ public class TrampConstants {
         public static final double kEjectTime = 0.5 ;
         public static final double kShootTime = 1.5 ;
         public static final double kShootPower = -5.0 ;
-        public static final double kTrapMoveNoteDistance = -0.1
+        public static final double kTrapMoveNoteDistance = 0.1
          ;
-        public static final double kTrapMoveNoteVelocity = -5.0 ;
+        public static final double kTrapMoveNoteVelocity = 5.0 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositVelocity = 10 
         ;

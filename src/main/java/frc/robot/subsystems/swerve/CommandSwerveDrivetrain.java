@@ -136,7 +136,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         tareEverything();
         seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));
         setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-                
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -150,8 +150,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         limelight_name_ = name ;
     }
 
-    public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+    public Command applyRequest(Supplier<SwerveRequest> requestSupplier, String name) {
+        Command cmd = run(() -> this.setControl(requestSupplier.get()));
+        cmd.setName(name) ;
+        return cmd ;
     }
 
     public Command getAmpAlign() {
@@ -192,6 +194,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     @Override
     public void periodic() {
 
+        Command cmd = CommandScheduler.getInstance().requiring(this) ;
+        if (cmd != null) {
+            String str = cmd.getName() ;
+            Logger.recordOutput("Command", str) ;
+        }
+
         /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
         /* This allows us to correct the perspective in case the robot code restarts mid-match */
@@ -226,8 +234,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                 follower_ = null ;
             }
         }
-
-        Logger.recordOutput("pathdist", getPathDistance()) ;
 
         dumpOutput() ;
     }
@@ -333,7 +339,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         cfg.rot_tolerance = Rotation2d.fromDegrees(RobotConstants.PathFollowing.kAngleTolerance) ;
 
         cfg.pose_supplier = () -> getState().Pose ;
-        cfg.output_consumer = (ChassisSpeeds spd) -> setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ;
+        cfg.output_consumer = (ChassisSpeeds spd) -> { setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ; } ;
 
         return cfg ;
     }    

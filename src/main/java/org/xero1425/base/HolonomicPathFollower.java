@@ -152,6 +152,10 @@ public class HolonomicPathFollower {
         ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
         output_.accept(spd);
 
+        Logger.recordOutput("swerve:vx", spd.vxMetersPerSecond) ;
+        Logger.recordOutput("swerve:vy", spd.vyMetersPerSecond) ;
+        Logger.recordOutput("swerve:rot", spd.omegaRadiansPerSecond) ;
+
         if (elapsed >= traj_.getTotalTimeSeconds()) {
             if (controller_.atReference()) {
                 driving_ = false ;
@@ -166,8 +170,6 @@ public class HolonomicPathFollower {
         
         distance_ += here.getTranslation().getDistance(last_pos_) ;
         last_pos_ = here.getTranslation() ;
-
-        Logger.recordOutput("path-distance", distance_) ;
     }
 
     private Rotation2d rotatationValue(double elapsed) {
