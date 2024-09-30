@@ -90,7 +90,7 @@ public class ThreeNoteCommand extends XeroAutoCommand {
                     // Delay for the intake to go down enough that is sure to be
                     // down when the robot arrives at the first note
                     //
-                    container_.getIntakeShooter().collect() ;
+                    // container_.getIntakeShooter().collect() ;
                     container_.getDriveTrain().driveTo("Collect2", null, collect2pose_, 
                                                     kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
                     state_ = State.DriveToSecondNote ;

@@ -365,12 +365,14 @@ public class TrampSubsystem extends XeroSubsystem {
             }
         }
 
-        NoteDestination dest = destsupplier_.get() ;
-        if (state_ == State.HoldingAmpPosition && dest == NoteDestination.Trap) {
-            moveToDestinationPosition() ;
-        }
-        else if (state_ == State.HoldingTrapPosition && dest == NoteDestination.Amp) {
-            moveToDestinationPosition() ;            
+        if (destsupplier_ != null) {
+            NoteDestination dest = destsupplier_.get() ;
+            if (state_ == State.HoldingAmpPosition && dest == NoteDestination.Trap) {
+                moveToDestinationPosition() ;
+            }
+            else if (state_ == State.HoldingTrapPosition && dest == NoteDestination.Amp) {
+                moveToDestinationPosition() ;            
+            }
         }
 
         switch(state_) {
@@ -442,6 +444,7 @@ public class TrampSubsystem extends XeroSubsystem {
                 break ;
 
             case HoldingTransferPosition:
+                io_.setArmMotorVoltage(-0.75);
                 break ;
 
             case HoldingAmpPosition:
