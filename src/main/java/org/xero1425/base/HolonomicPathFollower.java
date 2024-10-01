@@ -160,7 +160,7 @@ public class HolonomicPathFollower {
 
     private void executeDrivePath() {
         if (driving_) {
-            Logger.recordOutput("driving-path", path_.getName()) ;
+            Logger.recordOutput("paths:name", path_.getName()) ;
 
             double elapsed = Timer.getFPGATimestamp() - start_time_ ;            
 
@@ -169,10 +169,14 @@ public class HolonomicPathFollower {
             Pose2d pathpose = new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getHeading())) ;
             Rotation2d rot = Rotation2d.fromDegrees(seg.getRotation()) ;
 
+            Logger.recordOutput("paths:elapsed", Double.toString(elapsed)) ;
+            Logger.recordOutput("paths:index", Integer.toString(index_)) ;
+            Logger.recordOutput("paths:target", pathpose) ;
+
             ChassisSpeeds spd = controller_.calculate(here, pathpose, seg.getVelocity(), rot) ;
             output_.accept(spd);            
 
-            if (index_ != path_.getSegments(0).length - 1) {
+            if (index_ != path_.getTrajectoryEntryCount() - 1) {
                 index_++ ;
             }
             else {
@@ -180,7 +184,7 @@ public class HolonomicPathFollower {
                     driving_ = false ;
                     output_.accept(new ChassisSpeeds()) ;
                 }
-                else if (elapsed > start_time_ + traj_.getTotalTimeSeconds() + timeout_) {
+                else if (elapsed > start_time_ + path_.getDuration() + timeout_) {
                     did_timeout_ = true ;
                     driving_ = false ;
                     output_.accept(new ChassisSpeeds()) ;                
@@ -191,13 +195,15 @@ public class HolonomicPathFollower {
 
     private void executeDriveTo() {
         if (driving_) {
-            Logger.recordOutput("driving-to", path_name_) ;
+            Logger.recordOutput("paths:to", path_name_) ;
 
             double elapsed = Timer.getFPGATimestamp() - start_time_ ;
 
             Pose2d here = pose_.get() ;
             Trajectory.State st = traj_.sample(elapsed) ;
             Rotation2d rot = rotatationValue(elapsed) ;
+
+            Logger.recordOutput("paths:target", st.poseMeters) ;            
 
             ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
             output_.accept(spd);

@@ -18,7 +18,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.competition.ThreeNoteCommand;
-import frc.robot.automodes.testmodes.TeeTestModeCommand;
+import frc.robot.automodes.competition.ThreeNotePathsCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
 
@@ -52,12 +52,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autoamp";
+        return "autothreepaths";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "four-note" ;
+        return "three-note-paths" ;
     }
 
     @Override
@@ -83,15 +83,16 @@ public class AllegroRobot extends XeroRobot {
     public void createCompetitionAutoModes() {
         if (container_ != null && container_.getDriveTrain() != null) {
             addAutoMode(new FourNoteDynamicCommand(this, container_));
-            addAutoMode(new ThreeNoteCommand(this, container_)) ;
-            addAutoMode(new DriveStraight(this, container_));
+            addAutoMode(new ThreeNotePathsCommand(this, container_)) ;
+
+            // addAutoMode(new ThreeNoteCommand(this, container_)) ;            
+            //addAutoMode(new DriveStraight(this, container_));
         }
     }
 
     @Override
     public void createTestAutoModes() {
-        addAutoMode(new TeeTestModeCommand(this, container_)) ;
-    }    
+    }
 
     @Override
     public void enableMessages() {

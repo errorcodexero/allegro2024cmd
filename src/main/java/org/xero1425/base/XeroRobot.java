@@ -120,6 +120,10 @@ public abstract class XeroRobot extends LoggedRobot {
     protected abstract void createTestAutoModes() ;
     protected abstract void addRobotSimulationModels() ;
 
+    public XeroPathManager getPathManager() {
+        return paths_ ;
+    }
+
     public void robotInit() {
         super.robotInit() ;
 
