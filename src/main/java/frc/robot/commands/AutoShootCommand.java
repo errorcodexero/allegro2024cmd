@@ -36,16 +36,11 @@ public class AutoShootCommand extends Command {
         intake_ = intake ;
         
         rotate_ = null ;      
-
-        addRequirements();
         setName("shoot") ;
     }
 
     @Override
     public void initialize() {
-        shoot_ = null ;
-        rotate_ = null ;
-
         rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(rotatePositionTolerence())
                             .withVelocityTolerance(kShootVelocityTolerance) ;
@@ -101,7 +96,8 @@ public class AutoShootCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return rotate_ == null && shoot_ == null ;
+        boolean ret = (rotate_ == null && shoot_ == null) ;
+        return ret ;
     }
 
     //

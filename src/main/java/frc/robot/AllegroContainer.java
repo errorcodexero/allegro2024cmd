@@ -336,15 +336,16 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(db_.getAmpAlign()) ;
 
         driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
-        driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(0.5), "pov90")) ;        
+        driver_controller_.pov(90).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(-0.5), "pov90")) ;        
         driver_controller_.pov(180).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0), "pov180")) ;
-        driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(-0.5), "pov270")) ;          
+        driver_controller_.pov(270).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(0.5), "pov270")) ;          
 
         db_.registerTelemetry(logger_::telemeterize) ;
     }
     // #endregion
 
     // #region superstructure bindings
+
     private void superStructureBindings() {
         //
         // Collect command, bound to OI and the gamepad

@@ -11,7 +11,7 @@ import frc.robot.AllegroContainer;
 import frc.robot.commands.AutoShootCommand;
 
 public class ThreeNoteCommand extends XeroAutoCommand {
-    private static final double kPathVelocity = 4.0 ;
+    private static final double kPathVelocity = 3.0 ;
     private static final double kPathAcceleration = 2.0 ;
 
     private enum State {
@@ -30,12 +30,16 @@ public class ThreeNoteCommand extends XeroAutoCommand {
     private State state_ ;
     private AllegroContainer container_ ;
     private Pose2dWithRotation collect2pose_ ;
+    private Pose2dWithRotation collect2poseimmd_ ;    
     private Pose2dWithRotation shoot2pose_ ;
+    private Pose2dWithRotation shoot2imdpose_ ;
     private AutoShootCommand shoot_ ;
 
     private Pose2dWithRotation startpose_ ;
     private Pose2dWithRotation collect3pose_ ;
+    private Pose2dWithRotation collect3imdpose_ ;
     private Pose2dWithRotation shoot3pose_ ;    
+    private Pose2dWithRotation shoot3imdpose_;
 
     private final static String desc = "This auto mode starts in the center subwoofer position, shoots the loaded note, and collects and shoots the three notes that are near" ;
      
@@ -44,6 +48,8 @@ public class ThreeNoteCommand extends XeroAutoCommand {
 
         container_ = container ;
         state_ = State.Start ;
+
+        addRequirements(container.getDriveTrain());
     }
 
     @Override
@@ -55,11 +61,16 @@ public class ThreeNoteCommand extends XeroAutoCommand {
         container_.getIntakeShooter().setAutoModeAutoShoot(true);
                 
         try {
-            startpose_ = ThreeNoteConstants.getStartPosition(getRobot().getFieldLayout().getFieldLength()) ;            
-            collect2pose_ = ThreeNoteConstants.getCollect2Pose(getRobot().getFieldLayout().getFieldLength()) ;
-            shoot2pose_ = ThreeNoteConstants.getShoot2Pose(getRobot().getFieldLayout().getFieldLength()) ;            
-            collect3pose_ = ThreeNoteConstants.getCollect3Pose(getRobot().getFieldLayout().getFieldLength()) ;
-            shoot3pose_ = ThreeNoteConstants.getShoot3Pose(getRobot().getFieldLayout().getFieldLength()) ;
+            double length = getRobot().getFieldLayout().getFieldLength() ;
+            startpose_ = ThreeNoteConstants.getStartPosition(length) ;            
+            collect2pose_ = ThreeNoteConstants.getCollect2Pose(length) ;
+            collect2poseimmd_ = ThreeNoteConstants.getCollect2PoseImmd(length) ;
+            shoot2pose_ = ThreeNoteConstants.getShoot2Pose(length) ;            
+            shoot2imdpose_ = ThreeNoteConstants.getShooot2ImdPose(length);
+            collect3pose_ = ThreeNoteConstants.getCollect3Pose(length) ;
+            collect3imdpose_ = ThreeNoteConstants.getCollect3ImdPose(length) ;
+            shoot3pose_ = ThreeNoteConstants.getShoot3Pose(length) ;
+            shoot3imdpose_ = ThreeNoteConstants.getShooot3ImdPose(length);            
         }
         catch(Exception ex) {
             state_ = State.Error ;
@@ -73,7 +84,7 @@ public class ThreeNoteCommand extends XeroAutoCommand {
                 ThreeNoteConstants.kLowManualUpDown, ThreeNoteConstants.kLowManualUpDownPosTol, ThreeNoteConstants.kLowManualUpDownVelTol, 
                 ThreeNoteConstants.kLowManualTilt, ThreeNoteConstants.kLowManualTiltPosTol, ThreeNoteConstants.kLowManualTiltVelTol,
                 ThreeNoteConstants.kLowManualShooter, ThreeNoteConstants.kLowManualShooterVelTol,
-                true, false) ;
+                true, true) ;
         state_ = State.ShootFirstNote ;
     }
 
@@ -91,8 +102,9 @@ public class ThreeNoteCommand extends XeroAutoCommand {
                     // down when the robot arrives at the first note
                     //
                     // container_.getIntakeShooter().collect() ;
-                    container_.getDriveTrain().driveTo("Collect2", null, collect2pose_, 
-                                                    kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
+                    Pose2d immds[] = new Pose2d[] { collect2poseimmd_ } ;                    
+                    container_.getDriveTrain().driveTo("Collect2", immds, collect2pose_, 
+                                                    kPathVelocity, kPathAcceleration, 0, 1.0, 0.2) ;
                     state_ = State.DriveToSecondNote ;
                 }
                 break ;
@@ -100,15 +112,16 @@ public class ThreeNoteCommand extends XeroAutoCommand {
             case DriveToSecondNote:
                 if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
-                        container_.getDriveTrain().driveTo("Shoot2", null, shoot2pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
+                        Pose2d immds[] = new Pose2d[] { shoot2imdpose_ } ;
+                        container_.getDriveTrain().driveTo("Shoot2", immds, shoot2pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
                         state_ = State.DriveToShootSecond ;
                     }
                     else {
                         //
                         // May need imd points here to swing around enough to get the note
                         //
-                        container_.getDriveTrain().driveTo("Shoot3", null, shoot3pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
-                        state_ = State.DriveToShootThird ;
+                        container_.getDriveTrain().driveTo("Collect3", null, collect3pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
+                        state_ = State.DriveToThirdNote ;
                     }
                 }
                 break;
@@ -124,16 +137,18 @@ public class ThreeNoteCommand extends XeroAutoCommand {
             case ShootingSecondNote:
                 if (shoot_.isFinished()) {
                     shoot_ = null ;
-                    container_.getIntakeShooter().collect() ;
-                    container_.getDriveTrain().driveTo("Collect3", null, collect3pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
+                    Pose2d immds[] = new Pose2d[] { collect3imdpose_ } ;                    
+                    container_.getDriveTrain().driveTo("Collect3", immds, collect3pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
                     state_ = State.DriveToThirdNote ;
                 }
                 break ;
 
             case DriveToThirdNote:
+                container_.getIntakeShooter().collect() ;
                 if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
-                        container_.getDriveTrain().driveTo("Shoot3", null, shoot3pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
+                        Pose2d immds[] = new Pose2d[] { shoot3imdpose_ } ;                          
+                        container_.getDriveTrain().driveTo("Shoot3", immds, shoot3pose_, kPathVelocity, kPathAcceleration, 0, 0, 0.2) ;
                         state_ = State.DriveToShootThird ;
                     }
                     else {

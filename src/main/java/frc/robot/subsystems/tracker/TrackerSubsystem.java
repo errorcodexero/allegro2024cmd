@@ -123,6 +123,10 @@ public class TrackerSubsystem extends XeroSubsystem {
         return ret ;
     }
 
+    public int tagCount() {
+        return inputs_.tag_count_ ;
+    }
+
     @Override
     public void periodic() {
         if (!has_target_info_) {

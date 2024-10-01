@@ -30,7 +30,7 @@ public class SwerveRotateToAngle extends Command {
     private double veltol_ ;
 
     public SwerveRotateToAngle(CommandSwerveDrivetrain db, DoubleSupplier angSupplier, double postol, double veltol) {
-        addRequirements(db);
+        // addRequirements(db);
 
         setName("swerve-rotate-to-angle");
 

@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -238,9 +239,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         dumpOutput() ;
     }
 
-    public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
+    public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
         follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
-        follower_.driveTo(pathname, imd, dest, maxv, maxa, pre_rot_time, pose_rot_time, to);
+        follower_.driveTo(pathname, imd, dest, maxv, maxa, pre_rot_time, post_rot_time, to);
+    }
+
+    public void stopPath() {
+        setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds())) ;
+        follower_ = null ;
     }
 
     public double getPathDistance() {
