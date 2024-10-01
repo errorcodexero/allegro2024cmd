@@ -342,7 +342,7 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
 
         driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_, "brake").ignoringDisable(true)) ;
-        driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(new AutoAmp(getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
+        driver_controller_.rightTrigger().or(oi_.autoTrap()).and(tramp_.readyForAmp()).onTrue(new AutoAmp(getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
         oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrap(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
 
         driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
