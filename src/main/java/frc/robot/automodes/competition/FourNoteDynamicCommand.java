@@ -51,7 +51,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
 
     @Override
     public void initialize() {
-        Logger.recordMetadata("automode", getName()) ;
         try {
             shootpose_ = FourNoteDynamicConstants.getShootPose(getRobot().getFieldLayout().getFieldLength()) ;
             collect1pose_ = FourNoteDynamicConstants.getCollect1Pose(getRobot().getFieldLayout().getFieldLength()) ;

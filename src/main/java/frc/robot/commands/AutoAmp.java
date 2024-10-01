@@ -16,13 +16,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.tramp.TrampSubsystem;
 
 public class AutoAmp extends Command {
 
     private enum State {
         Starting,
         DriveToPoint,
-        DrivingIn,
+        Shooting, 
         Done
     }
 
@@ -31,14 +32,14 @@ public class AutoAmp extends Command {
     private static double kMaxDistance = 3.0 ;
 
     private OISubsystem oi_ ;    
+    private TrampSubsystem tramp_ ;
     private CommandSwerveDrivetrain db_ ;
     private Pose2dWithRotation target_ ;
     private boolean has_target_ ;
     private AprilTagFieldLayout layout_ ;
     private State state_ ;
-    private Pose2d start_ ;
 
-    public AutoAmp(AprilTagFieldLayout layout, OISubsystem oi, CommandSwerveDrivetrain dt) {
+    public AutoAmp(AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
         db_ = dt ;
         oi_ = oi ;
         layout_ = layout ;
@@ -59,31 +60,27 @@ public class AutoAmp extends Command {
 
     @Override
     public void execute() {
-        if (oi_.isAbortPressed()) {
-            db_.stopPath() ;
-            state_ = State.Done ;
-            return ;
-        }
+
         switch(state_) {
             case Starting:
                 break ;
 
             case DriveToPoint:
-                if (!db_.isFollowingPath()) {
+                if (oi_.isAbortPressed()) {
                     db_.stopPath() ;
-                    db_.setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds(-0.5, 0.0, 0.0))) ;
-                    start_ = db_.getState().Pose ;
-                    state_ = State.DrivingIn ;
+                    state_ = State.Done ;
+                    return ;
+                }            
+                else if (!db_.isFollowingPath()) {
+                    db_.stopPath() ;
+                    tramp_.shoot();
+                    state_ = State.Shooting ;
                 }
                 break ;
 
-            case DrivingIn:
-                {
-                    double dist = db_.getState().Pose.getTranslation().getDistance(start_.getTranslation()); 
-                    if (dist > kExtraSpacing) {
-                        db_.stopPath() ;
-                        state_ = State.Done ;
-                    }
+            case Shooting:
+                if (!tramp_.isShooting()) {
+                    state_ = State.Done ;
                 }
                 break ;
 

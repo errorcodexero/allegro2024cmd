@@ -288,11 +288,18 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.BasicClimbDown ;
     }
 
+    public boolean isShooting() {
+        return state_ == State.Shooting ;
+    }
+
     public void shoot() {
         if (isInAmpPosition()) {
             io_.setManipulatorVoltage(TrampConstants.Manipulator.kShootPower);
             shoot_timer_.start() ;
             state_ = State.Shooting ;
+        }
+        else {
+            state_ = State.Idle ;
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.misc.MessageDestination;
 import org.xero1425.misc.MessageDestinationThumbFile;
 import org.xero1425.misc.MessageLogger;
@@ -28,6 +29,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -61,6 +64,10 @@ public abstract class XeroRobot extends LoggedRobot {
     private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
     private boolean auto_modes_created_ ;
+
+    private XboxController gamepad_ ;
+    private double rumble_ ;
+    private double stop_rumble_time_ ;
 
     private HashMap<String, ISubsystemSim> subsystems_ ;
 
@@ -108,6 +115,22 @@ public abstract class XeroRobot extends LoggedRobot {
 
     public ISubsystemSim getSubsystemByName(String name) {
         return subsystems_.get(name) ;
+    }
+
+    public void setDriveController(XboxController ctrl) {
+        gamepad_ = ctrl ;
+    }
+
+    private double start_rumble_ ;
+    public void setRumble(double value, double duration) {
+        rumble_ = value ;
+        start_rumble_ = Timer.getFPGATimestamp() ;
+        stop_rumble_time_ = Timer.getFPGATimestamp() + duration ;
+        gamepad_.setRumble(RumbleType.kBothRumble, value);
+    }
+
+    public double getRumble() {
+        return rumble_ ;
     }
 
     public abstract boolean isCharMode() ;
@@ -237,6 +260,13 @@ public abstract class XeroRobot extends LoggedRobot {
                 engine.run(getPeriod());
             }
         }
+
+        if (gamepad_ != null && rumble_ != 0.0) {
+            if (Timer.getFPGATimestamp() > stop_rumble_time_) {
+                rumble_ = 0.0 ;
+                gamepad_.setRumble(RumbleType.kBothRumble, 0.0);
+            }
+        }
     }
 
     public void registerSubsystem(String name, ISubsystemSim subsystem) {
@@ -248,6 +278,7 @@ public abstract class XeroRobot extends LoggedRobot {
         super.autonomousInit() ;
 
         if (auto_mode_ != null) {
+            Logger.recordMetadata("auto-mode-run", auto_mode_.getName()) ;
             auto_mode_.schedule() ;
         }
     }

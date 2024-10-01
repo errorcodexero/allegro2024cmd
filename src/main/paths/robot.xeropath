@@ -106,6 +106,36 @@
                     "startvelocity": 0
                 }
             ]
+        },
+        {
+            "name": "DriveStraight",
+            "paths": [
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 2,
+                    "maxvelocity": 4,
+                    "name": "Path1",
+                    "points": [
+                        {
+                            "heading": 0,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 0.5810857008907719,
+                            "y": 2.2088954472990414
+                        },
+                        {
+                            "heading": 0,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 2.745281080956759,
+                            "y": 2.1931558445349246
+                        }
+                    ],
+                    "startvelocity": 0
+                }
+            ]
         }
     ],
     "outdir": "C:/cygwin64/home/butch/robottools/robots/1425/2024/allegro2024cmd/src/main/deploy/paths",

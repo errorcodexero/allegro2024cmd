@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.LimelightHelpers;
 import org.xero1425.base.XeroRobot;
-import org.xero1425.base.XeroTimer;
 import org.xero1425.base.LimelightHelpers.LimelightResults;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.math.XeroMath;
@@ -34,14 +33,14 @@ public class AutoTrap extends Command {
         Starting,
         LookForAprilTag,
         DriveToTrap,
-        Delay,
+        Wait,
         Trapping,
         Done
     }
 
     private static double kExtraSpacing1 = 1.5 ;
     private static double kExtraSpacing2 = 0.5 ;    
-    private static double kMaxDistance = 10.0 ;
+    private static double kMaxDistance = 3.0 ;
     private static int kSimulatedTag = 13 ;
 
     private String limelight_name_ ;
@@ -49,8 +48,6 @@ public class AutoTrap extends Command {
     private OISubsystem oi_ ;
     private TrampSubsystem tramp_ ;
     private CommandSwerveDrivetrain db_ ;
-
-    private XeroTimer timer_ ;
 
     private Command trap_command_ ;
     private AprilTagFieldLayout layout_ ;
@@ -65,9 +62,7 @@ public class AutoTrap extends Command {
         tramp_ = tramp ;
         layout_ = layout ;
         addRequirements(db_) ;
-        state_  = State.Starting ;
-
-        timer_ = new XeroTimer("auto-trap-timer", 1.0) ;
+        state_ = State.Starting ;
     }
 
     @Override
@@ -113,14 +108,12 @@ public class AutoTrap extends Command {
                     state_ = State.Done ;
                 }
                 else if (!db_.isFollowingPath()) {
-
-                    timer_.start() ;
-                    state_ = State.Delay ;
+                    state_ = State.Wait ;
                 }
                 break ;
 
-            case Delay:
-                if (timer_.isExpired()) {
+            case Wait:
+                if (oi_.isAutoTrapPressed()) {
                     trap_command_ = tramp_.trapCommand() ;
                     CommandScheduler.getInstance().schedule(trap_command_) ;                    
                     state_ = State.Trapping ;
@@ -132,6 +125,7 @@ public class AutoTrap extends Command {
                     state_ = State.Done ;
                 }
                 break ;
+
             case Done:
                 break ;
         }

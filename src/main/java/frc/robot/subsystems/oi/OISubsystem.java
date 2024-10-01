@@ -72,6 +72,10 @@ public class OISubsystem extends XeroSubsystem {
         return inputs_.abort ;
     }
 
+    public boolean isAutoTrapPressed() {
+        return inputs_.autoTrap ;
+    }
+
     public void setLEDState(OILed led, boolean b) {
         ios_.setLED(led.value, b) ;
     }

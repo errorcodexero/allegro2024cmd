@@ -85,7 +85,7 @@ public class AllegroRobot extends XeroRobot {
             addAutoMode(new ThreeNotePathsCommand(this, container_)) ;
 
             // addAutoMode(new ThreeNoteCommand(this, container_)) ;            
-            //addAutoMode(new DriveStraight(this, container_));
+            // addAutoMode(new DriveStraight(this, container_));
         }
     }
 
@@ -126,6 +126,7 @@ public class AllegroRobot extends XeroRobot {
         // autonomous chooser on the dashboard.
         try {
             container_ = new AllegroContainer(this);
+            setDriveController(container_.getController());
             enableMessages() ;
 
         } catch (Exception e) {
@@ -154,6 +155,7 @@ public class AllegroRobot extends XeroRobot {
 
         if (!RobotConstants.kCharMode) {
             Logger.recordOutput("oi:buttons", container_.getDriveControllerOIString()) ;
+            Logger.recordOutput("oi:rumble", getRumble());
         }
     }
 }

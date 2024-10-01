@@ -2,6 +2,7 @@ package frc.robot;
 
 import frc.robot.commands.AutoAmp;
 import frc.robot.commands.AutoTrap;
+import frc.robot.commands.ConditionalVibrateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
@@ -16,6 +17,7 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.xero1425.base.XeroContainer;
@@ -29,6 +31,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -138,6 +141,10 @@ public class AllegroContainer extends XeroContainer {
         configureBindings(robot);
     }
     // #endregion
+
+    public XboxController getController() {
+        return driver_controller_.getHID() ;
+    }
 
     // #region get subsytems
     public OISubsystem getOI() {
@@ -335,7 +342,7 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
 
         driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_, "brake").ignoringDisable(true)) ;
-        driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(new AutoAmp(getRobot().getFieldLayout(), oi_, db_)) ;
+        driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(new AutoAmp(getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
         oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrap(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
 
         driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
@@ -353,7 +360,8 @@ public class AllegroContainer extends XeroContainer {
         //
         // Collect command, bound to OI and the gamepad
         //
-        driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand()) ;
+        BooleanSupplier condition = () -> intake_shooter_.hasNote() ;
+        driver_controller_.rightBumper().or(oi_.collect()).whileTrue(intake_shooter_.collectCommand().andThen(new ConditionalVibrateCommand(getRobot(), 1.5, condition))) ;
 
         //
         // Eject command, bound to the eject button on the OI

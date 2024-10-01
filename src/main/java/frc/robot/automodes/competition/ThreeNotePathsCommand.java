@@ -85,8 +85,6 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
         if (state_ == State.Error)
             return ;
 
-        Logger.recordMetadata("automode", getName()) ;
-
         //
         // This is ugly and I would definitely design the intake differently knowing what I know now
         //
