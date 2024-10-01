@@ -1,0 +1,179 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "start" : 0,
+                        "autonomous" : 0.0,
+                        "between" : 0.0,
+                        "teleop" : 100.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set target to the speaker",
+                        "note-target" : "trap",
+                        "shoot-type" : "auto"
+                    }
+                },
+                {
+                    "model" : "swervedrive",
+                    "instance" : "1",
+                    // "values" : 
+                    // {
+                    //     "comment" : "Set the drive pose to in front of the AMP - blue tag 16",
+                    //     "pose" : "2.3,1.0,-100.0"
+                    // }
+                    // "values" : 
+                    // {
+                    //     "comment" : "Set the drive pose to in front of the AMP - blue tag 15",
+                    //     "pose" : "2.3,1.0,-100.0"
+                    // }
+                    // "values" : 
+                    // {
+                    //     "comment" : "Set the drive pose to in front of the AMP - blue tag 14",
+                    //     "pose" : "7.7,4.8,0.0"
+                    // } 
+                    // "values" : 
+                    // {
+                    //     "comment" : "Set the drive pose to in front of the AMP - red tag 11",
+                    //     "pose" : "13.8,1.9,-80.0"
+                    // }     
+                    // "values" : 
+                    // {
+                    //     "comment" : "Set the drive pose to in front of the AMP - red tag 12",
+                    //     "pose" : "12.39, 6.5, 80"
+                    // }          
+                    "values" : 
+                    {
+                        "comment" : "Set the drive pose to in front of the AMP - red tag 13",
+                        "pose" : "9.4, 4.5, 160"
+                    }                                                                        
+                }
+            ]
+        },
+        {
+            "time" : 4.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the right bumper button",
+                        "rb" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.0,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - sensor on",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note left intake - sensor off",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },        
+        {
+            "time" : 6.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the right bumper button",
+                        "rb" : false
+                    }
+                }
+            ]
+        },      
+        {
+            "time" : 8.0,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - sensor on",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 8.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note left intake - sensor off",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },         
+        {
+            "time" : 14.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the auto trap button",
+                        "auto-trap" : true
+                    }
+                }
+            ]
+        }
+    ]
+}

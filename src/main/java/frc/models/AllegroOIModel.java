@@ -14,7 +14,8 @@ public class AllegroOIModel extends OIBaseModel {
         "shoot", OIConstants.Buttons.kShoot,
         "collect", OIConstants.Buttons.kCollect,
         "climb-up-prep", OIConstants.Buttons.kClimbUpPrep,
-        "climb-up-exec", OIConstants.Buttons.kClimbUpExec
+        "climb-up-exec", OIConstants.Buttons.kClimbUpExec,
+        "auto-trap", OIConstants.Buttons.kAutoTrap
     ) ;    
 
     public AllegroOIModel(SimulationEngine engine, String model, String inst) {

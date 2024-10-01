@@ -474,14 +474,14 @@ public class TrampSubsystem extends XeroSubsystem {
                 break ;
 
             case MovingNoteForward:
-                if (inputs_.manipulatorPosition >= manipulator_target_) {
+                if (inputs_.manipulatorPosition >= manipulator_target_ || XeroRobot.isSimulation()) {
                     io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
                     state_ = next_state_ ;
                 }
                 break ;
 
             case MovingNoteBackward:
-                if (inputs_.manipulatorPosition <= manipulator_target_) {
+                if (inputs_.manipulatorPosition <= manipulator_target_ || XeroRobot.isSimulation()) {
                     io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
                     state_ = next_state_ ;
                 }

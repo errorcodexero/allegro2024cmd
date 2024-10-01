@@ -1,7 +1,5 @@
 package org.xero1425.base;
 
-import static edu.wpi.first.units.Units.Rotation;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

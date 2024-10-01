@@ -15,19 +15,22 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.oi.OISubsystem;
 
-public class AlignWithAmpCmd extends Command {
+public class AutoAmp extends Command {
 
     private enum State {
+        Starting,
         DriveToPoint,
         DrivingIn,
         Done
     }
 
     private static double robot_length_ = 0.9779 ;
-    private static double kExtraSpacing = 0.01 ;
+    private static double kExtraSpacing = 0.0 ;
     private static double kMaxDistance = 3.0 ;
 
+    private OISubsystem oi_ ;    
     private CommandSwerveDrivetrain db_ ;
     private Pose2dWithRotation target_ ;
     private boolean has_target_ ;
@@ -35,22 +38,36 @@ public class AlignWithAmpCmd extends Command {
     private State state_ ;
     private Pose2d start_ ;
 
-    public AlignWithAmpCmd(AprilTagFieldLayout layout, CommandSwerveDrivetrain dt) {
+    public AutoAmp(AprilTagFieldLayout layout, OISubsystem oi, CommandSwerveDrivetrain dt) {
         db_ = dt ;
+        oi_ = oi ;
         layout_ = layout ;
+        state_ = State.Starting ;
         addRequirements(db_);
     }
 
     @Override
     public void initialize() {
-        computeDest() ;        
-        db_.driveTo("auto-amp", null, target_, 2.0, 2.0, 0.0, 0.5, 0.1) ;
-        state_ = State.DriveToPoint ;
+        if (computeTarget()) {
+            db_.driveTo("auto-amp", null, target_, 2.0, 2.0, 0.0, 1.0, 0.1) ;
+            state_ = State.DriveToPoint ;
+        }
+        else {
+            state_ = State.Done ;
+        }
     }
 
     @Override
     public void execute() {
+        if (oi_.isAbortPressed()) {
+            db_.stopPath() ;
+            state_ = State.Done ;
+            return ;
+        }
         switch(state_) {
+            case Starting:
+                break ;
+
             case DriveToPoint:
                 if (!db_.isFollowingPath()) {
                     db_.stopPath() ;
@@ -87,7 +104,9 @@ public class AlignWithAmpCmd extends Command {
         db_.stopPath() ;
     }
 
-    private void computeDest() {
+    private boolean computeTarget() {
+        boolean ret = false ;
+
         Optional<Alliance> alliance = DriverStation.getAlliance() ;
         if (alliance.isPresent()) {
             int tag = -1 ;
@@ -105,14 +124,10 @@ public class AlignWithAmpCmd extends Command {
 
             double dist = target_.getTranslation().getDistance(db_.getState().Pose.getTranslation()) ;
             if (dist < kMaxDistance) {
-                has_target_ = true ;
-            }
-            else {
-                has_target_ = false ;
+                ret = true ;
             }
         }
-        else {
-            has_target_ = false;
-        }
+
+        return ret;
     }    
 }
