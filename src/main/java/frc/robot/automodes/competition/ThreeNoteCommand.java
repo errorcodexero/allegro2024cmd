@@ -189,6 +189,6 @@ public class ThreeNoteCommand extends XeroAutoCommand {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("auto-three done") ; 
+        container_.getDriveTrain().stopPath();
     }
 }

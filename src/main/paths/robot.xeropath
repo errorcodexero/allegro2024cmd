@@ -1,0 +1,113 @@
+{
+    "_version": "3",
+    "generator": "errorcodexeroswerve",
+    "groups": [
+        {
+            "name": "Side3Auto",
+            "paths": [
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 2,
+                    "maxvelocity": 4,
+                    "name": "Collect2",
+                    "points": [
+                        {
+                            "heading": -60,
+                            "swrot": -60,
+                            "swrotvel": 0,
+                            "x": 0.7384817285319347,
+                            "y": 4.223564601105924
+                        },
+                        {
+                            "heading": 0,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 7.553729725394279,
+                            "y": 0.5011485473924253
+                        }
+                    ],
+                    "startvelocity": 0
+                },
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 2,
+                    "maxvelocity": 4,
+                    "name": "Shoot2",
+                    "points": [
+                        {
+                            "heading": 180,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 7.55373,
+                            "y": 0.501149
+                        },
+                        {
+                            "heading": 140,
+                            "swrot": 140,
+                            "swrotvel": 0,
+                            "x": 2.241613792505038,
+                            "y": 3.570371086395098
+                        }
+                    ],
+                    "startvelocity": 0
+                },
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 2,
+                    "maxvelocity": 4,
+                    "name": "Collect3",
+                    "points": [
+                        {
+                            "heading": -40.00000000000002,
+                            "swrot": 140,
+                            "swrotvel": 0,
+                            "x": 2.23374,
+                            "y": 3.57037
+                        },
+                        {
+                            "heading": 30,
+                            "swrot": 30,
+                            "swrotvel": 0,
+                            "x": 7.656037143361035,
+                            "y": 2.0042806113655294
+                        }
+                    ],
+                    "startvelocity": 0
+                },
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 2,
+                    "maxvelocity": 4,
+                    "name": "Shoot3",
+                    "points": [
+                        {
+                            "heading": -150,
+                            "swrot": 30,
+                            "swrotvel": 0,
+                            "x": 7.65604,
+                            "y": 2.00428
+                        },
+                        {
+                            "heading": 140,
+                            "swrot": 140,
+                            "swrotvel": 0,
+                            "x": 2.24161,
+                            "y": 3.57037
+                        }
+                    ],
+                    "startvelocity": 0
+                }
+            ]
+        }
+    ],
+    "outdir": "C:/cygwin64/home/butch/robottools/robots/1425/2024/allegro2024cmd/src/main/deploy/paths",
+    "units": "m"
+}

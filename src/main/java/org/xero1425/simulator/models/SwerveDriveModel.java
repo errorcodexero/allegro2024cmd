@@ -6,10 +6,10 @@ import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SettingsValue;
 import org.xero1425.simulator.engine.SimulationEngine;
 import org.xero1425.simulator.engine.SimulationModel;
+import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 
 public class SwerveDriveModel extends SimulationModel {
     private static final String SubsystemNameProperty = "subsystem-name" ;

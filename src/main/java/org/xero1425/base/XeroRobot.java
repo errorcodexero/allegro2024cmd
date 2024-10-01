@@ -1,15 +1,25 @@
 package org.xero1425.base;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.littletonrobotics.junction.LoggedRobot;
 import org.xero1425.misc.MessageDestination;
 import org.xero1425.misc.MessageDestinationThumbFile;
 import org.xero1425.misc.MessageLogger;
+import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SimArgs;
+import org.xero1425.paths.XeroPathManager;
+import org.xero1425.paths.XeroPathType;
 import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -35,6 +45,9 @@ public abstract class XeroRobot extends LoggedRobot {
     } ;
 
     private static XeroRobot robot_ = null ;
+
+    // The path following paths
+    private XeroPathManager paths_ ;    
 
     private MessageLogger logger_ ;
     private RobotPaths robot_paths_ ;
@@ -82,7 +95,15 @@ public abstract class XeroRobot extends LoggedRobot {
                 addRobotSimulationModels() ;
                 SimulationEngine.getInstance().initAll(str) ;
             }
-        }        
+        }    
+        
+        paths_ = new XeroPathManager(robot_paths_.pathsDirectory(), XeroPathType.SwerveHolonomic) ;
+        try {
+            loadPathsFile();
+        } catch (Exception ex) {
+            logger_.startMessage(MessageType.Error) ;
+            logger_.add("caught exception reading path files -").add(ex.getMessage()).endMessage();
+        }
     }
 
     public ISubsystemSim getSubsystemByName(String name) {
@@ -171,6 +192,23 @@ public abstract class XeroRobot extends LoggedRobot {
     protected void addAutoMode(XeroAutoCommand mode) {
         automodes_.add(mode) ;
     }
+
+    /// \brief load the paths file from the paths file directory
+    protected void loadPathsFile() throws Exception {
+        try (Stream<Path> walk = Files.walk(Paths.get(paths_.getBaseDir()))) {
+            List<String> result = walk.map(x -> x.toString()).filter(f -> f.endsWith("-main.csv")).collect(Collectors.toList());
+            for(String name : result) {
+                int index = name.lastIndexOf(File.separator) ;
+                if (index != -1) {
+                    name = name.substring(index + 1) ;
+                    name = name.substring(0, name.length() - 9) ;
+                    paths_.loadPath(name) ;
+                }
+            }
+        }
+        catch(IOException ex) {
+        }
+    }    
 
     private void enableMessageLogger() {
         MessageDestination dest ;

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package org.xero1425.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -8,10 +8,13 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.HolonomicPathFollower;
 import org.xero1425.base.ISubsystemSim;
+import org.xero1425.base.LimelightHelpers;
 import org.xero1425.base.XeroRobot;
+import org.xero1425.base.LimelightHelpers.PoseEstimate;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.math.XeroMath;
 import org.xero1425.misc.SettingsValue;
+import org.xero1425.paths.XeroPath;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -36,8 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.PoseEstimate;
+
 import frc.robot.constants.RobotConstants;
 
 /**
@@ -84,6 +86,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     private XeroRobot robot_ ;
 
+    //#region Characterization support
     private final SwerveRequest.SysIdSwerveTranslation TranslationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     // private final SwerveRequest.SysIdSwerveRotation RotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     // private final SwerveRequest.SysIdSwerveSteerGains SteerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
@@ -99,7 +102,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
                     (volts) -> setControl(TranslationCharacterization.withVolts(volts)),
                     null,
                     this));
-
     // private final SysIdRoutine SysIdRoutineRotation = new SysIdRoutine(
     //         new SysIdRoutine.Config(
     //                 null,
@@ -120,10 +122,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     //                 (volts) -> setControl(SteerCharacterization.withVolts(volts)),
     //                 null,
     //                 this));
-
+    //#endregion
 
     /* Change this to the sysid routine you want to test */
     /* May be changed to SysIdRoutineRotation or SysIdRoutineSteer */
+
     private final SysIdRoutine RoutineToApply = SysIdRoutineTranslation;
 
     public CommandSwerveDrivetrain(XeroRobot robot, SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
@@ -151,14 +154,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         limelight_name_ = name ;
     }
 
+    public XeroRobot getRobot() {
+        return robot_ ;
+    }
+
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier, String name) {
         Command cmd = run(() -> this.setControl(requestSupplier.get()));
         cmd.setName(name) ;
         return cmd ;
-    }
-
-    public Command getAmpAlign() {
-        return new AlignWithAmpCmd(robot_.getFieldLayout(), this) ;
     }
 
     /*
@@ -242,6 +245,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
         follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
         follower_.driveTo(pathname, imd, dest, maxv, maxa, pre_rot_time, post_rot_time, to);
+    }
+
+    public void drivePath(XeroPath path) {
+        follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
+        follower_.drivePath(path, 0.1) ;
     }
 
     public void stopPath() {

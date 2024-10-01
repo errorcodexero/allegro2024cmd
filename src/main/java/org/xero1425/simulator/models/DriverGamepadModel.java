@@ -1,6 +1,8 @@
 package org.xero1425.simulator.models;
 
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
+import edu.wpi.first.wpilibj.XboxController;
+
 import org.xero1425.simulator.engine.SimulationModel;
 import org.xero1425.simulator.engine.SimulationEngine;
 import java.util.Map;
@@ -90,8 +92,6 @@ public class DriverGamepadModel extends SimulationModel {
 
             for (int i = 0; i < count; i++)
                 axes_[i] = 0.0f;
-
-            DriverStationDataJNI.setJoystickAxes((byte) index_, axes_);
         }
 
         if (hasProperty("buttons")) {
@@ -113,7 +113,6 @@ public class DriverGamepadModel extends SimulationModel {
             }
 
             buttons_ = 0;
-            DriverStationDataJNI.setJoystickButtons((byte) index_, buttons_, button_count_);
         }
 
         if (hasProperty("povs")) {
@@ -138,8 +137,6 @@ public class DriverGamepadModel extends SimulationModel {
 
             for (int i = 0; i < count; i++)
                 povs_[i] = -1 ;
-
-            DriverStationDataJNI.setJoystickPOVs((byte) index_, povs_);
         }
 
         setCreated();
@@ -170,8 +167,6 @@ public class DriverGamepadModel extends SimulationModel {
                 buttons_ |= (1 << (which - 1)) ;
             else
                 buttons_ &= ~(1 << (which - 1)) ;
-
-            DriverStationDataJNI.setJoystickButtons((byte) index_, buttons_, button_count_);                
         }
         catch(BadParameterTypeException e) {
             MessageLogger logger = getEngine().getMessageLogger();
@@ -203,6 +198,38 @@ public class DriverGamepadModel extends SimulationModel {
                 return true ;            
             }
             doOneButton(name, which, value) ;
+        }
+        else if (name.equals("ltrigger")) {
+            if (!value.isDouble()) {
+                MessageLogger logger = getEngine().getMessageLogger();
+                logger.startMessage(MessageType.Error);
+                logger.add("event: model ").addQuoted(getModelName());
+                logger.add(" instance ").addQuoted(getInstanceName());
+                logger.add(" event name ").addQuoted(name);
+                logger.add(" value is not a double").endMessage();                
+            }            
+
+            try {
+                axes_[XboxController.Axis.kLeftTrigger.value] = (float)value.getDouble() ;
+            }
+            catch(Exception ex) {
+            }            
+        }        
+        else if (name.equals("rtrigger")) {
+            if (!value.isDouble()) {
+                MessageLogger logger = getEngine().getMessageLogger();
+                logger.startMessage(MessageType.Error);
+                logger.add("event: model ").addQuoted(getModelName());
+                logger.add(" instance ").addQuoted(getInstanceName());
+                logger.add(" event name ").addQuoted(name);
+                logger.add(" value is not a double").endMessage();                
+            }            
+
+            try {
+                axes_[XboxController.Axis.kRightTrigger.value] = (float)value.getDouble() ;
+            }
+            catch(Exception ex) {
+            }            
         }
         else if (name.startsWith(axisEvent)) {
             try {
@@ -242,8 +269,6 @@ public class DriverGamepadModel extends SimulationModel {
             }
             catch(BadParameterTypeException e) {
             }
-
-            DriverStationDataJNI.setJoystickAxes((byte) index_, axes_) ;
         }
         else if (name.startsWith(povEvent)) {
             try {
@@ -283,9 +308,12 @@ public class DriverGamepadModel extends SimulationModel {
             }
             catch(BadParameterTypeException e) {
             }
-
-            DriverStationDataJNI.setJoystickPOVs((byte) index_, povs_) ;
         }        
+
+        DriverStationDataJNI.setJoystickButtons((byte) index_, buttons_, button_count_);        
+        DriverStationDataJNI.setJoystickAxes((byte) index_, axes_) ;
+        DriverStationDataJNI.setJoystickPOVs((byte) index_, povs_) ;
+
         return true ;
     }
 }

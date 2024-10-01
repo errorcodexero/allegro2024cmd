@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import org.xero1425.base.TalonFXFactory;
+import org.xero1425.base.XeroRobot;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -70,14 +71,28 @@ public class TrampIOHardware implements TrampIO {
                                                                     TrampConstants.Elevator.kCurrentLimit);
                                                                     elevator_motor_.setPosition(0.0) ;
         motors_.put(TrampSubsystem.ELEVATOR_MOTOR_NAME, elevator_motor_) ;
-        final Slot0Configs elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.PID.kP)
-                                .withKI(TrampConstants.Elevator.PID.kI)
-                                .withKD(TrampConstants.Elevator.PID.kD)
-                                .withKV(TrampConstants.Elevator.PID.kV)
-                                .withKA(TrampConstants.Elevator.PID.kA)
-                                .withKG(TrampConstants.Elevator.PID.kG)
-                                .withKS(TrampConstants.Elevator.PID.kS)
-                                .withGravityType(GravityTypeValue.Elevator_Static) ;
+        final Slot0Configs elevatorcfg ;
+        
+        if (XeroRobot.isReal()) {
+            elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.RealPID.kP)
+                                    .withKI(TrampConstants.Elevator.RealPID.kI)
+                                    .withKD(TrampConstants.Elevator.RealPID.kD)
+                                    .withKV(TrampConstants.Elevator.RealPID.kV)
+                                    .withKA(TrampConstants.Elevator.RealPID.kA)
+                                    .withKG(TrampConstants.Elevator.RealPID.kG)
+                                    .withKS(TrampConstants.Elevator.RealPID.kS)
+                                    .withGravityType(GravityTypeValue.Elevator_Static) ;
+        }
+        else {
+            elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.SimPID.kP)
+                                    .withKI(TrampConstants.Elevator.SimPID.kI)
+                                    .withKD(TrampConstants.Elevator.SimPID.kD)
+                                    .withKV(TrampConstants.Elevator.SimPID.kV)
+                                    .withKA(TrampConstants.Elevator.SimPID.kA)
+                                    .withKG(TrampConstants.Elevator.SimPID.kG)
+                                    .withKS(TrampConstants.Elevator.SimPID.kS)
+                                    .withGravityType(GravityTypeValue.Elevator_Static) ;
+        }
         checkError("set-elevator-PID-value", () -> elevator_motor_.getConfigurator().apply(elevatorcfg)) ;
 
         final MotionMagicConfigs mmcfg = new MotionMagicConfigs()

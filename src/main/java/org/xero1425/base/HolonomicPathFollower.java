@@ -1,5 +1,7 @@
 package org.xero1425.base;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +10,8 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.math.Pose2dWithRotation;
+import org.xero1425.paths.XeroPath;
+import org.xero1425.paths.XeroPathSegment;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -62,6 +66,8 @@ public class HolonomicPathFollower {
 
     private boolean did_timeout_ ;
     private String path_name_ ;
+    private XeroPath path_ ;
+    private int index_ ;
 
     private Translation2d last_pos_ ;
 
@@ -96,6 +102,8 @@ public class HolonomicPathFollower {
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
         path_name_ = pathname ;
+        path_ = null ;
+
         Pose2d st = pose_.get() ;
         Rotation2d heading ;
         if (imd != null && imd.length > 0) {
@@ -121,10 +129,18 @@ public class HolonomicPathFollower {
         }
         pts.add(dest) ;
         traj_ = TrajectoryGenerator.generateTrajectory(pts, config);
-        driving_ = true ;
 
+        driving_ = true ;
         last_pos_ = start_pose_.getTranslation() ;
     }
+
+    public void drivePath(XeroPath path, double to) {
+        path_name_ = null ;
+        path_ = path ;
+        index_ = 0 ;
+        driving_ = true ;
+        start_time_ = Timer.getFPGATimestamp() ;        
+    }    
 
     public boolean didTimeout() {
         return did_timeout_ ;
@@ -135,41 +151,72 @@ public class HolonomicPathFollower {
     }
 
     public void execute() {
-        if (driving_)
-            Logger.recordOutput("driving", path_name_) ;
-        else
-            Logger.recordOutput("driving", "NA") ;
+        if (path_name_ != null) {
+            executeDriveTo() ;
+        } else {
+            executeDrivePath() ;
+        }
+    }
 
-        if (!driving_)
-            return ;
+    private void executeDrivePath() {
+        if (driving_) {
+            Logger.recordOutput("driving-path", path_.getName()) ;
 
-        double elapsed = Timer.getFPGATimestamp() - start_time_ ;
+            double elapsed = Timer.getFPGATimestamp() - start_time_ ;            
 
-        Pose2d here = pose_.get() ;
-        Trajectory.State st = traj_.sample(elapsed) ;
-        Rotation2d rot = rotatationValue(elapsed) ;
+            Pose2d here = pose_.get() ;
+            XeroPathSegment seg = path_.getSegment(0, index_) ;
+            Pose2d pathpose = new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getHeading())) ;
+            Rotation2d rot = Rotation2d.fromDegrees(seg.getRotation()) ;
 
-        ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
-        output_.accept(spd);
+            ChassisSpeeds spd = controller_.calculate(here, pathpose, seg.getVelocity(), rot) ;
+            output_.accept(spd);            
 
-        Logger.recordOutput("swerve:vx", spd.vxMetersPerSecond) ;
-        Logger.recordOutput("swerve:vy", spd.vyMetersPerSecond) ;
-        Logger.recordOutput("swerve:rot", spd.omegaRadiansPerSecond) ;
-
-        if (elapsed >= traj_.getTotalTimeSeconds()) {
-            if (controller_.atReference()) {
-                driving_ = false ;
-                output_.accept(new ChassisSpeeds()) ;
+            if (index_ != path_.getSegments(0).length - 1) {
+                index_++ ;
             }
-            else if (elapsed > start_time_ + traj_.getTotalTimeSeconds() + timeout_) {
-                did_timeout_ = true ;
-                driving_ = false ;
-                output_.accept(new ChassisSpeeds()) ;                
+            else {
+                if (controller_.atReference()) {
+                    driving_ = false ;
+                    output_.accept(new ChassisSpeeds()) ;
+                }
+                else if (elapsed > start_time_ + traj_.getTotalTimeSeconds() + timeout_) {
+                    did_timeout_ = true ;
+                    driving_ = false ;
+                    output_.accept(new ChassisSpeeds()) ;                
+                }                
             }
         }
-        
-        distance_ += here.getTranslation().getDistance(last_pos_) ;
-        last_pos_ = here.getTranslation() ;
+    }
+
+    private void executeDriveTo() {
+        if (driving_) {
+            Logger.recordOutput("driving-to", path_name_) ;
+
+            double elapsed = Timer.getFPGATimestamp() - start_time_ ;
+
+            Pose2d here = pose_.get() ;
+            Trajectory.State st = traj_.sample(elapsed) ;
+            Rotation2d rot = rotatationValue(elapsed) ;
+
+            ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
+            output_.accept(spd);
+
+            if (elapsed >= traj_.getTotalTimeSeconds()) {
+                if (controller_.atReference()) {
+                    driving_ = false ;
+                    output_.accept(new ChassisSpeeds()) ;
+                }
+                else if (elapsed > start_time_ + traj_.getTotalTimeSeconds() + timeout_) {
+                    did_timeout_ = true ;
+                    driving_ = false ;
+                    output_.accept(new ChassisSpeeds()) ;                
+                }
+            }
+            
+            distance_ += here.getTranslation().getDistance(last_pos_) ;
+            last_pos_ = here.getTranslation() ;
+        }
     }
 
     private Rotation2d rotatationValue(double elapsed) {

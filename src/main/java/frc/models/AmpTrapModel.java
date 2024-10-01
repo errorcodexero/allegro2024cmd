@@ -22,8 +22,8 @@ public class AmpTrapModel extends SimulationModel {
     private static final double kArmGearRation = 14.81 ;
     private static final double kArmInertia = 0.000001 ;    
 
-    private static final double kElevatorGearRatio = 29.22 ;
-    private static final double kElevatorInertia = 0.000001 ;      
+    private static final double kElevatorGearRatio = 1.0 ;
+    private static final double kElevatorInertia = 0.00001 ;      
 
     private static final double kClimberGearRatio = 250.0 ;
     private static final double kClimberInertia = 0.000001 ;     

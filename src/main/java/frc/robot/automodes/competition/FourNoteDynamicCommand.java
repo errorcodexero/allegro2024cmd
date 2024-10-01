@@ -233,6 +233,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
 
     @Override
     public void end(boolean interrupted) {
+        container_.getDriveTrain().stopPath();
     }
 
     @Override

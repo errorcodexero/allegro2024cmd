@@ -31,7 +31,7 @@ public class TrampConstants {
             public static final double kBasicClimb = 0.2 ;
         }
 
-        public class PID {
+        public class RealPID {
             public static final double kP = 8.0 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
@@ -40,6 +40,17 @@ public class TrampConstants {
             public static final double kG = 0.25 ;
             public static final double kS = 0.0 ;
         };        
+
+
+        public class SimPID {
+            public static final double kP = 0.4 ;
+            public static final double kI = 0.0 ;
+            public static final double kD = 0.0 ;
+            public static final double kV = 0.1 ;
+            public static final double kA = 0.0 ;
+            public static final double kG = 0.25 ;
+            public static final double kS = 0.0 ;
+        };          
 
         public class MotionMagic {
             public static final double kMaxVelocity = 89.0 ;

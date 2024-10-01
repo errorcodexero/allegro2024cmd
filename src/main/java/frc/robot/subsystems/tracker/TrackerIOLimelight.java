@@ -1,7 +1,7 @@
 package frc.robot.subsystems.tracker;
 
-import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.PoseEstimate;
+import org.xero1425.base.LimelightHelpers;
+import org.xero1425.base.LimelightHelpers.PoseEstimate;
 
 public class TrackerIOLimelight implements TrackerIO {
     private String limelight_name_ ;

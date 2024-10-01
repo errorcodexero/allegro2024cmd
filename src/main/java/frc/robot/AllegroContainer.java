@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.commands.AlignWithAmpCmd;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
@@ -9,9 +10,6 @@ import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
-import frc.robot.subsystems.swerve.CmdTuneRotateDb;
-import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
-import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
@@ -21,6 +19,9 @@ import java.util.function.Supplier;
 
 import org.xero1425.base.XeroContainer;
 import org.xero1425.base.XeroRobot;
+import org.xero1425.subsystems.swerve.CmdTuneRotateDb;
+import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
+import org.xero1425.subsystems.swerve.SwerveConstants;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
@@ -333,7 +334,7 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.y().and(driver_controller_.b()).onTrue(db_.runOnce(()->yandbPressed()).ignoringDisable(true)) ;
 
         driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_, "brake").ignoringDisable(true)) ;
-        driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(db_.getAmpAlign()) ;
+        driver_controller_.rightTrigger().and(tramp_.readyForAmp()).onTrue(new AlignWithAmpCmd(getRobot().getFieldLayout(), db_)) ;
 
         driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
         driver_controller_.pov(90).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(-0.5), "pov90")) ;        

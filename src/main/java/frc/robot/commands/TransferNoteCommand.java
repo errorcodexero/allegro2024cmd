@@ -74,7 +74,7 @@ public class TransferNoteCommand extends Command {
                 break ;
         }
 
-        Logger.recordOutput("xfer", state_) ;
+        Logger.recordOutput("states:xfer", state_) ;
     }
 
     @Override
