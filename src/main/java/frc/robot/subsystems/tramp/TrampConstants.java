@@ -28,7 +28,7 @@ public class TrampConstants {
             public static final double kTrap2 = 0.3222 ;
             public static final double kTrap3 = 0.2411 ;
             public static final double kTrap4 = 0.2411 ;
-            public static final double kBasicClimb = 0.0 ;
+            public static final double kBasicClimb = 0.2 ;
         }
 
         public class RealPID {
@@ -78,7 +78,7 @@ public class TrampConstants {
             public static final double kTrap2 = 121 ;
             public static final double kTrap3 = 149.6 ;
             public static final double kTrap4 = 225 ;  
-            public static final double kBasicClimb = 0.0 ;          
+            public static final double kBasicClimb = 180.0 ;          
         }     
         
         public class PID {
