@@ -35,6 +35,8 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
     private AllegroContainer container_ ;
     private AutoShootCommand shoot_ ;
 
+    private static final double kMaxVelocity = 4.0 ;
+    private static final double kMaxAccel = 2.0 ;
     private static final String kAutoModeNamePathsFile = "Side3Auto" ;
     private static final String kCollect2PathName = "Collect2" ;
     private static final String kShoot2PathName = "Shoot2" ;
@@ -111,15 +113,16 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             case Start:
                 break; 
             case ShootFirstNote:
+                // maxv, maxa, pre_rot_time, post_rot_time, to) ;
                 if (!container_.getIntakeShooter().hasNote()) {
-                    container_.getDriveTrain().drivePath(collect2_path_, 0.1) ;
+                    container_.getDriveTrain().drivePathWithTraj(collect2_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToSecondNote ;
                 }
                 break ;
 
             case DriveToSecondNote:
                 if (!container_.getDriveTrain().isFollowingPath()) {
-                    container_.getDriveTrain().drivePath(shoot2_path_, 0.1) ; 
+                    container_.getDriveTrain().drivePathWithTraj(shoot2_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToShootSecond ;
                 }
                 break;
@@ -134,7 +137,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
             case ShootingSecondNote:
                 if (shoot_.isFinished()) {
-                    container_.getDriveTrain().drivePath(collect3_path_, 0.1) ;
+                    container_.getDriveTrain().drivePathWithTraj(collect3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToThirdNote ;
                 }
                 break ;
@@ -142,7 +145,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             case DriveToThirdNote:
                 container_.getIntakeShooter().collect() ;
                 if (!container_.getDriveTrain().isFollowingPath()) {
-                    container_.getDriveTrain().drivePath(shoot3_path_, 0.1) ;
+                    container_.getDriveTrain().drivePathWithTraj(shoot3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToShootThird ;                    
                 }
                 break ;

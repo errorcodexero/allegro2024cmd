@@ -252,6 +252,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         follower_.drivePath(path, to) ;
     }
 
+    public void drivePathWithTraj(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
+        follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
+        follower_.drivePathWithTraj(path, maxv, maxa, pre_rot_time, post_rot_time, to);        
+    }
+
     public void stopPath() {
 
         setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds())) ;

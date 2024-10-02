@@ -137,8 +137,28 @@ public class HolonomicPathFollower {
         path_ = path ;
         index_ = 0 ;
         driving_ = true ;
-        start_time_ = Timer.getFPGATimestamp() ;        
-    }    
+        start_time_ = Timer.getFPGATimestamp() ;      
+    }
+
+    public void drivePathWithTraj(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
+        XeroPathSegment seg = path.getSegment(0, path.getTrajectoryEntryCount() - 1) ;
+        Pose2dWithRotation dest = new Pose2dWithRotation(seg.getX(), seg.getY(), 
+                                        Rotation2d.fromDegrees(seg.getHeading()), Rotation2d.fromDegrees(seg.getRotation())) ;
+
+        // The number of points in the intermediate points array
+        List<Pose2d> immd = new ArrayList<>() ;
+
+        // The starting point along the generated path for the intermediate points, the current
+        // robot pose is the first point
+        int index = 5 ;
+        while (index < path.getTrajectoryEntryCount()) {
+            seg = path.getSegment(0, index) ;
+            immd.add(new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getHeading()))) ;
+            index += 5 ;
+        }
+
+        driveTo(path.getName(), immd.toArray(new Pose2d[0]), dest, maxv, maxa, pre_rot_time, post_rot_time, to) ;
+    }
 
     public boolean didTimeout() {
         return did_timeout_ ;
@@ -200,6 +220,10 @@ public class HolonomicPathFollower {
             Pose2d here = pose_.get() ;
             Trajectory.State st = traj_.sample(elapsed) ;
             Rotation2d rot = rotatationValue(elapsed) ;
+
+            if (st != null) {
+                Logger.recordOutput("paths:target", st.poseMeters) ;
+            }
 
             ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
             output_.accept(spd);

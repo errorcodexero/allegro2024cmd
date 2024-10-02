@@ -18,7 +18,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.competition.JustShootCommand;
-// import frc.robot.automodes.competition.ThreeNoteCommand;
 import frc.robot.automodes.competition.ThreeNotePathsCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
@@ -53,7 +52,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autotrap";
+        return "autothree";
     }
 
     @Override
