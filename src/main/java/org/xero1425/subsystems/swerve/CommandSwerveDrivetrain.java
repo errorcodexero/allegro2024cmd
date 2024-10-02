@@ -51,18 +51,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final String NAME = "swerve" ;
 
     private static final int kRecordModuleStates = (1  << 0) ;
-    private static final int kDisplayAcquisition = (1 << 1) ;
-    private static final int kRecordGyroYaw = (1 << 2) ;
-    private static final int kDisplayRobotPose = (1 << 3) ;
-    private static final int kDisplayEncoderValues = (1 << 4) ;
-    private static final int kRecordModulePositions = (1 << 5) ;
-    private static final int kRecordModuleTargets = (1 << 6) ;
+    private static final int kRecordGyroYaw = (1 << 1) ;
+    private static final int kDisplayRobotPose = (1 << 2) ;
+    private static final int kDisplayEncoderValues = (1 << 3) ;
+    private static final int kRecordModulePositions = (1 << 4) ;
+    private static final int kRecordModuleTargets = (1 << 5) ;
     private int kDumpOutputSelected = kRecordModuleStates ;
     // private int kDumpOutputSelected =   kRecordModuleStates | 
     //                                     kDisplayAcquisition | 
     //                                     kDisplayEncoderValues | 
     //                                     kDisplayRobotPose |
-    //                                     kRecordModuleStates | 
     //                                     kRecordGyroYaw |
     //                                     kRecordModuleTargets ;
 
@@ -280,32 +278,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private void dumpOutput() {
         if ((kDumpOutputSelected & kRecordModuleStates) == kRecordModuleStates) {
             var states = m_cachedState.ModuleStates ;
-            Logger.recordOutput("ms:fl-a", XeroMath.normalizeAngleDegrees(states[0].angle.getDegrees())) ;
-            Logger.recordOutput("ms:fr-a", XeroMath.normalizeAngleDegrees(states[1].angle.getDegrees())) ;
-            Logger.recordOutput("ms:bl-a", XeroMath.normalizeAngleDegrees(states[2].angle.getDegrees())) ;
-            Logger.recordOutput("ms:br-a", XeroMath.normalizeAngleDegrees(states[3].angle.getDegrees())) ;
-            Logger.recordOutput("ms:fl-v", states[0].speedMetersPerSecond) ;
-            Logger.recordOutput("ms:fr-v", states[1].speedMetersPerSecond) ;
-            Logger.recordOutput("ms:bl-v", states[2].speedMetersPerSecond) ;
-            Logger.recordOutput("ms:br-v", states[3].speedMetersPerSecond) ;
+            Logger.recordOutput("swerve:states", states) ;
         }
 
         if ((kDumpOutputSelected & kRecordModuleTargets) == kRecordModuleTargets) {
-            var states = m_cachedState.ModuleStates ;
-            Logger.recordOutput("mt:fl-a", XeroMath.normalizeAngleDegrees(states[0].angle.getDegrees())) ;
-            Logger.recordOutput("mt:fr-a", XeroMath.normalizeAngleDegrees(states[1].angle.getDegrees())) ;
-            Logger.recordOutput("mt:bl-a", XeroMath.normalizeAngleDegrees(states[2].angle.getDegrees())) ;
-            Logger.recordOutput("mt:br-a", XeroMath.normalizeAngleDegrees(states[3].angle.getDegrees())) ;
-            Logger.recordOutput("mt:fl-v", states[0].speedMetersPerSecond) ;
-            Logger.recordOutput("mt:fr-v", states[1].speedMetersPerSecond) ;
-            Logger.recordOutput("mt:bl-v", states[2].speedMetersPerSecond) ;
-            Logger.recordOutput("mt:br-v", states[3].speedMetersPerSecond) ;
+            var states = m_cachedState.ModuleTargets ;
+            Logger.recordOutput("swerve:targets", states) ;
         }        
-
-        if ((kDumpOutputSelected & kDisplayAcquisition) == kDisplayAcquisition) {
-            SmartDashboard.putNumber("good-daq", m_cachedState.SuccessfulDaqs) ;
-            SmartDashboard.putNumber("bad-daq", m_cachedState.FailedDaqs) ;
-        }
 
         if ((kDumpOutputSelected & kRecordGyroYaw) == kRecordGyroYaw) {
             Logger.recordOutput("yaw", XeroMath.normalizeAngleDegrees(getPigeon2().getYaw().getValueAsDouble())) ;
