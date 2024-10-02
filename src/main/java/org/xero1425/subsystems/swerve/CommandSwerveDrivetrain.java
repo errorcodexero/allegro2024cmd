@@ -253,6 +253,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void stopPath() {
+
         setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds())) ;
         follower_ = null ;
     }

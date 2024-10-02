@@ -15,7 +15,9 @@ import org.xero1425.simulator.engine.ModelFactory;
 import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
+import frc.robot.automodes.competition.JustShootCommand;
 // import frc.robot.automodes.competition.ThreeNoteCommand;
 import frc.robot.automodes.competition.ThreeNotePathsCommand;
 import frc.robot.constants.RobotConstants;
@@ -83,9 +85,8 @@ public class AllegroRobot extends XeroRobot {
         if (container_ != null && container_.getDriveTrain() != null) {
             addAutoMode(new FourNoteDynamicCommand(this, container_));
             addAutoMode(new ThreeNotePathsCommand(this, container_)) ;
-
-            // addAutoMode(new ThreeNoteCommand(this, container_)) ;            
-            // addAutoMode(new DriveStraight(this, container_));
+            addAutoMode(new JustShootCommand(this, container_)) ;
+            addAutoMode(new DriveStraight(this, container_)) ;
         }
     }
 

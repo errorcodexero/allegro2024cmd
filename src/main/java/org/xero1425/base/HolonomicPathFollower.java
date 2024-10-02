@@ -149,7 +149,7 @@ public class HolonomicPathFollower {
     }
 
     public void execute() {
-        if (path_name_ != null) {
+        if (traj_ != null) {
             executeDriveTo() ;
         } else {
             executeDrivePath() ;
@@ -167,9 +167,9 @@ public class HolonomicPathFollower {
             Pose2d pathpose = new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getHeading())) ;
             Rotation2d rot = Rotation2d.fromDegrees(seg.getRotation()) ;
 
+            Logger.recordOutput("paths:path", pathpose) ;
             Logger.recordOutput("paths:elapsed", Double.toString(elapsed)) ;
             Logger.recordOutput("paths:index", Integer.toString(index_)) ;
-            Logger.recordOutput("paths:target", pathpose) ;
 
             ChassisSpeeds spd = controller_.calculate(here, pathpose, seg.getVelocity(), rot) ;
             output_.accept(spd);            
@@ -200,8 +200,6 @@ public class HolonomicPathFollower {
             Pose2d here = pose_.get() ;
             Trajectory.State st = traj_.sample(elapsed) ;
             Rotation2d rot = rotatationValue(elapsed) ;
-
-            Logger.recordOutput("paths:target", st.poseMeters) ;            
 
             ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
             output_.accept(spd);

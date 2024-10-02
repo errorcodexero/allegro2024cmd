@@ -39,8 +39,8 @@ public class AutoTrap extends Command {
     }
 
     private static double kExtraSpacing1 = 1.5 ;
-    private static double kExtraSpacing2 = 0.5 ;    
-    private static double kMaxDistance = 3.0 ;
+    private static double kExtraSpacing2 = 0.0 ;    
+    private static double kMaxDistance = 4.0 ;
     private static int kSimulatedTag = 13 ;
 
     private String limelight_name_ ;
@@ -102,6 +102,7 @@ public class AutoTrap extends Command {
                     lookForAprilTag() ;
                 }
                 break; 
+
             case DriveToTrap:
                 if (oi_.isAbortPressed()) {
                     db_.stopPath() ;
@@ -113,7 +114,11 @@ public class AutoTrap extends Command {
                 break ;
 
             case Wait:
-                if (oi_.isAutoTrapPressed()) {
+                if (oi_.isAbortPressed()) {
+                    db_.stopPath() ;
+                    state_ = State.Done ;
+                }
+                else if (oi_.isAutoTrapPressed()) {
                     trap_command_ = tramp_.trapCommand() ;
                     CommandScheduler.getInstance().schedule(trap_command_) ;                    
                     state_ = State.Trapping ;

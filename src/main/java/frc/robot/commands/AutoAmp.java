@@ -6,12 +6,9 @@ import org.littletonrobotics.junction.Logger;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,13 +32,13 @@ public class AutoAmp extends Command {
     private TrampSubsystem tramp_ ;
     private CommandSwerveDrivetrain db_ ;
     private Pose2dWithRotation target_ ;
-    private boolean has_target_ ;
     private AprilTagFieldLayout layout_ ;
     private State state_ ;
 
     public AutoAmp(AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
         db_ = dt ;
         oi_ = oi ;
+        tramp_ = tramp ;
         layout_ = layout ;
         state_ = State.Starting ;
         addRequirements(db_);
@@ -93,7 +90,7 @@ public class AutoAmp extends Command {
 
     @Override
     public boolean isFinished() {
-        return state_ == State.Done || !has_target_ ;
+        return state_ == State.Done ;
     }
     
     @Override

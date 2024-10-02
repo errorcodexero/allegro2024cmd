@@ -121,10 +121,8 @@ public abstract class XeroRobot extends LoggedRobot {
         gamepad_ = ctrl ;
     }
 
-    private double start_rumble_ ;
     public void setRumble(double value, double duration) {
         rumble_ = value ;
-        start_rumble_ = Timer.getFPGATimestamp() ;
         stop_rumble_time_ = Timer.getFPGATimestamp() + duration ;
         gamepad_.setRumble(RumbleType.kBothRumble, value);
     }

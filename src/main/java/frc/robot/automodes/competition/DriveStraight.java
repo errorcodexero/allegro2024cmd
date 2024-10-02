@@ -64,6 +64,8 @@ public class DriveStraight extends XeroAutoCommand {
 
             delay_.start() ;
             state_ = State.Delay ;
+
+            container_.getIntakeShooter().setHasNote(true);
         }
         else {
             state_ = State.Done ;

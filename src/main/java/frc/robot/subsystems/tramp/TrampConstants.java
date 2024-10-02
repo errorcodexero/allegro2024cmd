@@ -104,7 +104,7 @@ public class TrampConstants {
         public static final double kCurrentLimit = 60.0 ;        
         public static final double kEjectVoltage = -6.0 ;
         public static final double kEjectTime = 0.5 ;
-        public static final double kShootTime = 1.5 ;
+        public static final double kShootTime = 0.8 ;
         public static final double kShootPower = -5.0 ;
         public static final double kTrapMoveNoteDistance = 0.1
          ;

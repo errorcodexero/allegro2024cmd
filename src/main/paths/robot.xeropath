@@ -1,6 +1,6 @@
 {
     "_version": "3",
-    "generator": "errorcodexeroswerve",
+    "generator": "cheesy",
     "groups": [
         {
             "name": "Side3Auto",
@@ -9,7 +9,7 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2,
+                    "maxacceleration": 2.5,
                     "maxvelocity": 4,
                     "name": "Collect2",
                     "points": [
@@ -21,11 +21,11 @@
                             "y": 4.223564601105924
                         },
                         {
-                            "heading": 0,
-                            "swrot": 0,
+                            "heading": -20,
+                            "swrot": -20,
                             "swrotvel": 0,
-                            "x": 7.553729725394279,
-                            "y": 0.5011485473924253
+                            "x": 7.751068980676239,
+                            "y": 0.7770771175808475
                         }
                     ],
                     "startvelocity": 0
@@ -34,7 +34,7 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2,
+                    "maxacceleration": 2.5,
                     "maxvelocity": 4,
                     "name": "Shoot2",
                     "points": [
@@ -59,7 +59,7 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2,
+                    "maxacceleration": 2.5,
                     "maxvelocity": 4,
                     "name": "Collect3",
                     "points": [
@@ -74,8 +74,8 @@
                             "heading": 30,
                             "swrot": 30,
                             "swrotvel": 0,
-                            "x": 7.656037143361035,
-                            "y": 2.0042806113655294
+                            "x": 7.737140804312829,
+                            "y": 1.8493186160724697
                         }
                     ],
                     "startvelocity": 0
@@ -84,7 +84,7 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2,
+                    "maxacceleration": 2.5,
                     "maxvelocity": 4,
                     "name": "Shoot3",
                     "points": [
