@@ -14,11 +14,13 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -101,6 +103,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private PieceWiseLinear updown_pwl_ ;
     private PieceWiseLinear tilt_pwl_ ;
     private PieceWiseLinear velocity_pwl_ ;
+    private LinearFilter average_filter_ ;
+    private double average_value_ ;
+    private int average_samples_ ;
+    private double last_value_ ;
+    private double last_time_ ;
 
     private boolean has_note_ ;
     private boolean need_stop_manipulator_ ;
@@ -262,6 +269,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         boolean b =  
             Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
             Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
+
+        if (b && tracking_) {
+            if (Math.abs(average_value_) > IntakeShooterConstants.Tilt.kMaxAbsoluteTiltVelocity || 
+                            average_samples_ < IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) {
+                b = false ;
+            }
+        }
         return b ;
     }
 
@@ -278,7 +292,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }    
 
     public boolean hasShotLeft() {
-        return state_ != State.WaitForShotFinish ;
+        return state_ != State.WaitForShotFinish && state_ != State.WaitingToShoot ;
     }    
 
     //
@@ -364,8 +378,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // If the intake is idle, and does not have a note, this method collects a new note.  This
     // is used from automodes to directly collect a note without any additional commands.
     //
+    private boolean isStowing() {
+        return (state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition) && next_state_ == State.Idle ;
+    }
+
     public void collect() {
-        if (!has_note_ && state_ == State.Idle) {
+        if (!has_note_ && (state_ == State.Idle || isStowing())) {
             //
             // Turn on the feeder
             //
@@ -511,6 +529,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private void setTracking(boolean b) {
         tracking_ = b ;
+
+        if (tracking_) {
+            average_filter_ = LinearFilter.movingAverage(IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) ;
+            average_samples_ = 0 ;
+            last_time_ = Timer.getFPGATimestamp() ;
+            last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
+        }
+        else {
+            average_filter_ = null ;
+        }
     }
 
     private double computeTiltFromUpdown(double updown) {
@@ -912,6 +940,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public void periodic() {
         io_.updateInputs(inputs_);
         Logger.processInputs("intake-shooter", inputs_);
+
+
+        if (average_filter_ != null) {
+            double vel = (inputs_.tiltAbsoluteEncoderPosition - last_value_) / (Timer.getFPGATimestamp() - last_time_) ;
+            average_value_ = average_filter_.calculate(vel) ;
+            average_samples_++ ;
+        }
+        else {
+            average_value_ = Double.POSITIVE_INFINITY ;
+        }
 
         switch(state_) {
             case Idle:

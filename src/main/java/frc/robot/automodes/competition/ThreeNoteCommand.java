@@ -11,7 +11,7 @@ import frc.robot.AllegroContainer;
 import frc.robot.commands.AutoShootCommand;
 
 public class ThreeNoteCommand extends XeroAutoCommand {
-    private static final double kPathVelocity = 3.0 ;
+    private static final double kPathVelocity = 4.0 ;
     private static final double kPathAcceleration = 2.0 ;
 
     private enum State {

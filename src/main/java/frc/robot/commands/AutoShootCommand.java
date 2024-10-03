@@ -57,17 +57,13 @@ public class AutoShootCommand extends Command {
         if (rotate_ != null) {
             if (rotate_.isFinished()) {
                 if (!tracker_.isFrozen()) {
-                    tracker_.freezePose(true);                
+                    tracker_.freezePose(true);
                 }
                 if (tracker_.isOkToShoot()) {
                     rotate_ = null ;
                     shoot_ = intake_.shootCommand() ;
                     CommandScheduler.getInstance().schedule(shoot_);
                     str = "rfinished" ;
-                }
-                else {
-                    str = "exittracker" ;
-                    shoot_ = null ;
                 }
             }
             else {
