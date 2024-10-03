@@ -7,7 +7,7 @@ public class IntakeShooterConstants {
     public static final double kafactor = 80.0 ;
     public static final double kjfactor = 500.0;
 
-    public static final double kCollectDelayTime = 0.5 ;
+    public static final double kCollectDelayTime = 0.0 ;
     public static final double kReverseDelayTime = 0.3 ;
 
     public class ManualShotFerry {

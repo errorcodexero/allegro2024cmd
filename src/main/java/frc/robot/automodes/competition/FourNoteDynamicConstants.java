@@ -31,6 +31,7 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
     private static final Pose2dWithRotation kCollect1PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
     private static final Pose2dWithRotation kCollect2PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 6.52, Rotation2d.fromDegrees(45.0)), Rotation2d.fromDegrees(45.0)) ;
     private static final Pose2dWithRotation kCollect3PoseConst = new Pose2dWithRotation(new Pose2d(2.30, 4.55, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;        
+    private static final Pose2dWithRotation kEndPoseConst = new Pose2dWithRotation(new Pose2d(7.75, 7.5, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
 
     public static Pose2dWithRotation getShootPose(double width) throws Exception {
         Optional<Alliance> alliance = DriverStation.getAlliance();
@@ -63,4 +64,12 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
 
         return (alliance.get() == Alliance.Blue) ? kCollect3PoseConst : mirror(kCollect3PoseConst, width) ;
     }
+
+    public static Pose2dWithRotation getEndPose(double width) throws Exception {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty())
+            throw new Exception("Trying to initialize an automode before alliance is known") ;
+
+        return (alliance.get() == Alliance.Blue) ? kEndPoseConst : mirror(kEndPoseConst, width) ;
+    }    
 }

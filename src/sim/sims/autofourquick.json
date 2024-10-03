@@ -1,0 +1,129 @@
+{
+    "purpose" : [
+        "",
+        "*********************************************************************",
+        " Simulation Purpose: Run the four note auto mode",
+        "*********************************************************************"
+    ],
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "start" : 1.0,
+                        "autonomous" : 2500.0,
+                        "between" : 0.0,
+                        "teleop" : 0.0,
+                        "fms" : false
+                    }
+                }             
+            ]
+        },
+        {
+            "time" : 1.0,
+            "asserts" : [
+                {
+                    "subsystem" : "IntakeShooterSubsystem",
+                    "property" : "has-note",
+                    "value": true
+                }
+            ]
+        },        
+        {
+            "time" : 6.7,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },      
+        {
+            "time" : 6.8,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 9.8,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },      
+        {
+            "time" : 9.9,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 13.0,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },      
+        {
+            "time" : 13.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Note arrived in intake - triggered sensor",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        }  
+    ]
+}

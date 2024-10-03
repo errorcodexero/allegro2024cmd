@@ -17,6 +17,7 @@ import org.xero1425.simulator.engine.SimulationEngine;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
+import frc.robot.automodes.competition.FourNoteQuickCommand;
 import frc.robot.automodes.competition.JustShootCommand;
 import frc.robot.automodes.competition.ThreeNotePathsCommand;
 import frc.robot.constants.RobotConstants;
@@ -52,12 +53,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autothree";
+        return "autofourquick";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "three-note-paths" ;
+        return "four-note-quick-end" ;
     }
 
     @Override
@@ -83,6 +84,8 @@ public class AllegroRobot extends XeroRobot {
     public void createCompetitionAutoModes() {
         if (container_ != null && container_.getDriveTrain() != null) {
             addAutoMode(new FourNoteDynamicCommand(this, container_));
+            addAutoMode(new FourNoteQuickCommand(this, container_, true)) ;
+            addAutoMode(new FourNoteQuickCommand(this, container_, false)) ;            
             addAutoMode(new ThreeNotePathsCommand(this, container_)) ;
             addAutoMode(new JustShootCommand(this, container_)) ;
             addAutoMode(new DriveStraight(this, container_)) ;

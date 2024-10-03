@@ -773,8 +773,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }    
 
     private void waitForCaptureState() {
-        if (true) {
-            // if (capture_timer_.isExpired()) {
+        if (capture_timer_.isExpired()) {
             //
             // Turn off the feeder
             //
