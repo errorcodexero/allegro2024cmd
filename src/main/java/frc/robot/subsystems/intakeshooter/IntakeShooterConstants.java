@@ -125,7 +125,7 @@ public class IntakeShooterConstants {
         public static final boolean kInvert = true ;            
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 5.0 ;
-        public static final double kTargetVelTolerance = 10.0 ;
+        public static final double kTargetVelTolerance = 20.0 ;
         public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
@@ -136,12 +136,12 @@ public class IntakeShooterConstants {
         // The velocity of the tilt must be below this threshold in order to
         // shoot a note.  This is measured using the absolute encoder that is 
         // mounting on the tilt mechansim beyond the gearing
-        public static final double kMaxAbsoluteTiltVelocity = 1.0 ;
+        public static final double kMaxAbsoluteTiltVelocity = 4.0 ;
 
         // The velocity of the tilt is smoothed using a LinearFilter configurated to
         // track a moving average. This is the number of taps in the moving average filter.
         // Each tap is 20ms long and therefore
-        public static final int kMaxAbsoluteTiltMovingAverageTaps = 20 ;
+        public static final int kMaxAbsoluteTiltMovingAverageTaps = 7 ;
 
         public class Positions {
             public static final double kStowed = -72.0 ;

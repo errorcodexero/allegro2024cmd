@@ -5,7 +5,7 @@
             "model" : "fms",
             "instance" : "1",
             "props" : {
-                "alliance" : "blue1",
+                "alliance" : "red1",
                 "fms" : false,
                 "create_early" : true
             }            

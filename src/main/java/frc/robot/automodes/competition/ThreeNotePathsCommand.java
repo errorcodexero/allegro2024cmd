@@ -43,15 +43,19 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
     private static final String kCollect3PathName = "Collect3" ;
     private static final String kShoot3PathName = "Shoot3" ;
 
-    private XeroPath collect2_path_ ;
+    private XeroPath collect2_red_path_ ;
+    private XeroPath collect2_blue_path_ ;
     private XeroPath shoot2_path_ ;
     private XeroPath collect3_path_ ;
     private XeroPath shoot3_path_ ;
+
+    private Optional<Alliance> alliance_ ;
 
     private final static String desc = "This auto mode starts on the side of the subwoofer and scores 2, collects the third" ;
      
     public ThreeNotePathsCommand(XeroRobot robot, AllegroContainer container) {
         super(robot, "three-note-paths", desc) ;
+
 
         container_ = container ;
         state_ = State.Start ;
@@ -59,7 +63,8 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
         addRequirements(container.getDriveTrain());
 
         try {
-            collect2_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName) ;
+            collect2_red_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName + "Red") ;
+            collect2_blue_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName + "Blue") ;
             shoot2_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kShoot2PathName) ;
             collect3_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect3PathName) ;
             shoot3_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kShoot3PathName) ;
@@ -70,7 +75,8 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
             if (alliance.get() == Alliance.Red) {
                 double length = robot.getFieldLayout().getFieldLength() ;
-                collect2_path_.mirrorX(length) ;
+                collect2_red_path_.mirrorX(length) ;
+                collect2_blue_path_.mirrorX(length) ;                
                 shoot2_path_.mirrorX(length) ;
                 collect3_path_.mirrorX(length) ;
                 shoot3_path_.mirrorX(length) ;
@@ -83,17 +89,25 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
     @Override
     public void initialize() {
-
         if (state_ == State.Error)
             return ;
+
+        alliance_ = DriverStation.getAlliance() ;
+        if (alliance_.isEmpty()) {
+            state_ = State.Error ;
+            return ;
+        }
 
         //
         // This is ugly and I would definitely design the intake differently knowing what I know now
         //
         container_.getIntakeShooter().setAutoModeAutoShoot(true);
 
-
-        XeroPathSegment seg = collect2_path_.getSegment(0, 0) ;
+        //
+        // Set the position of the robot
+        //
+        XeroPath path = (alliance_.get() == Alliance.Blue) ? collect2_blue_path_ : collect2_red_path_ ;        
+        XeroPathSegment seg = path.getSegment(0, 0) ;
         container_.getDriveTrain().seedFieldRelative(new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getRotation()))) ;
 
         container_.getIntakeShooter().setHasNote(true) ;
@@ -115,7 +129,8 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             case ShootFirstNote:
                 // maxv, maxa, pre_rot_time, post_rot_time, to) ;
                 if (!container_.getIntakeShooter().hasNote()) {
-                    container_.getDriveTrain().drivePathWithTraj(collect2_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
+                    XeroPath path = (alliance_.get() == Alliance.Blue) ? collect2_blue_path_ : collect2_red_path_ ;
+                    container_.getDriveTrain().drivePathWithTraj(path, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToSecondNote ;
                 }
                 break ;

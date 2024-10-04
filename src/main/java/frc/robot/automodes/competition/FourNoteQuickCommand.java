@@ -60,7 +60,7 @@ public class FourNoteQuickCommand extends XeroAutoCommand {
         try {
             shootpose_ = FourNoteDynamicConstants.getShootPose(getRobot().getFieldLayout().getFieldLength()) ;
             collect1pose_ = FourNoteDynamicConstants.getCollect1Pose(getRobot().getFieldLayout().getFieldLength()) ;
-            collect2pose_ = FourNoteDynamicConstants.getCollect3Pose(getRobot().getFieldLayout().getFieldLength()) ;
+            collect2pose_ = FourNoteDynamicConstants.getCollect3QPose(getRobot().getFieldLayout().getFieldLength()) ;
             collect3pose_ = FourNoteDynamicConstants.getCollect2Pose(getRobot().getFieldLayout().getFieldLength()) ;
             endpose_ = FourNoteDynamicConstants.getEndPose(getRobot().getFieldLayout().getFieldLength()) ;
         }
@@ -190,6 +190,7 @@ public class FourNoteQuickCommand extends XeroAutoCommand {
                 break ;
 
             case DriveToEnd:
+                container_.getIntakeShooter().collect() ;             
                 if (!container_.getDriveTrain().isFollowingPath()) {
                     state_ = State.Done ;
                 }   

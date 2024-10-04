@@ -105,7 +105,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private PieceWiseLinear velocity_pwl_ ;
     private LinearFilter average_filter_ ;
     private double average_value_ ;
-    private int average_samples_ ;
     private double last_value_ ;
     private double last_time_ ;
 
@@ -167,6 +166,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
 
         need_stop_manipulator_ = false ;
+
+        average_filter_ = LinearFilter.movingAverage(IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) ;
+        last_time_ = Timer.getFPGATimestamp() ;
+        last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
     }
     // #endregion
 
@@ -270,13 +273,15 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
             Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
 
-        if (b && tracking_) {
-            if (Math.abs(average_value_) > IntakeShooterConstants.Tilt.kMaxAbsoluteTiltVelocity || 
-                            average_samples_ < IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) {
-                b = false ;
-            }
-        }
-        return b ;
+        boolean absvel = true ;
+
+        // if (Math.abs(average_value_) > IntakeShooterConstants.Tilt.kMaxAbsoluteTiltVelocity) {
+        //     absvel = false ;
+        // }
+        // else {
+        //     absvel = true ;
+        // }
+        return b & absvel ;
     }
 
     public boolean isUpDownReady() {
@@ -529,16 +534,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private void setTracking(boolean b) {
         tracking_ = b ;
-
-        if (tracking_) {
-            average_filter_ = LinearFilter.movingAverage(IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) ;
-            average_samples_ = 0 ;
-            last_time_ = Timer.getFPGATimestamp() ;
-            last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
-        }
-        else {
-            average_filter_ = null ;
-        }
     }
 
     private double computeTiltFromUpdown(double updown) {
@@ -940,14 +935,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         io_.updateInputs(inputs_);
         Logger.processInputs("intake-shooter", inputs_);
 
-
         if (average_filter_ != null) {
-            double vel = (inputs_.tiltAbsoluteEncoderPosition - last_value_) / (Timer.getFPGATimestamp() - last_time_) ;
+            double now = Timer.getFPGATimestamp() ;
+            double vel = (inputs_.tiltAbsoluteEncoderPosition - last_value_) / (now - last_time_) ;
             average_value_ = average_filter_.calculate(vel) ;
-            average_samples_++ ;
-        }
-        else {
-            average_value_ = Double.POSITIVE_INFINITY ;
+
+            Logger.recordOutput("tilt-abs-velocity", average_value_) ;
+            Logger.recordOutput("tilt-raw-vel", vel) ;
+
+            last_time_ = now ;
+            last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
         }
 
         switch(state_) {

@@ -53,12 +53,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autofourquick";
+        return "autothreepaths";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "four-note-quick-end" ;
+        return "three-note-paths" ;
     }
 
     @Override

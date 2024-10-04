@@ -11,7 +11,7 @@
                     "endvelocity": 0,
                     "maxacceleration": 2,
                     "maxvelocity": 4,
-                    "name": "Collect2",
+                    "name": "Collect2Blue",
                     "points": [
                         {
                             "heading": -60,
@@ -101,6 +101,31 @@
                             "swrotvel": 0,
                             "x": 2.24161,
                             "y": 3.57037
+                        }
+                    ],
+                    "startvelocity": 0
+                },
+                {
+                    "constraints": [
+                    ],
+                    "endvelocity": 0,
+                    "maxacceleration": 2,
+                    "maxvelocity": 4,
+                    "name": "Collect2Red",
+                    "points": [
+                        {
+                            "heading": -60,
+                            "swrot": -60,
+                            "swrotvel": 0,
+                            "x": 0.75,
+                            "y": 4.44
+                        },
+                        {
+                            "heading": 0,
+                            "swrot": 0,
+                            "swrotvel": 0,
+                            "x": 7.713885845246775,
+                            "y": 0.7314322408913352
                         }
                     ],
                     "startvelocity": 0
