@@ -114,7 +114,7 @@ public class AllegroRobot extends XeroRobot {
 
         Logger.disableDeterministicTimestamps();
 
-        Logger.addDataReceiver(new NT4Publisher());
+        // Logger.addDataReceiver(new NT4Publisher());
         Logger.addDataReceiver(new WPILOGWriter()) ;
         Logger.start() ;
 

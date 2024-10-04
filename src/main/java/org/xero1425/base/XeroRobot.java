@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -178,6 +179,17 @@ public abstract class XeroRobot extends LoggedRobot {
         }
 
         if (!auto_modes_created_) {
+            String alliance = "?????" ;
+            Optional<DriverStation.Alliance> a = DriverStation.getAlliance() ;
+            if (a.isPresent()) {
+                alliance = a.get().toString() ;
+            }
+            Logger.recordOutput("info:event", DriverStation.getEventName()) ;
+            Logger.recordOutput("info:match", DriverStation.getMatchType().toString()) ;
+            Logger.recordOutput("info:number", Integer.toString(DriverStation.getMatchNumber())) ;
+            Logger.recordOutput("info:alliance", alliance) ;
+            Logger.recordOutput("info:location", Integer.toString(DriverStation.getLocation().getAsInt())) ;            
+
             if (shouldBeCompetition() || !isTestMode()) {
                 createCompetitionAutoModes() ;
             }
