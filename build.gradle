@@ -163,3 +163,14 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+// For AdvatageScope
+project.compileJava.dependsOn(createVersionFile)
+gversion {
+  srcDir       = "src/main/java/"
+  classPackage = "frc.robot"
+  className    = "BuildConstants"
+  dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+  timeZone     = "America/New_York" // Use preferred time zone
+  indent       = "  "
+}
