@@ -1,5 +1,27 @@
 package frc.robot;
 
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
+import org.xero1425.base.XeroContainer;
+import org.xero1425.base.XeroRobot;
+import org.xero1425.subsystems.swerve.CmdTuneRotateDb;
+import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
+import org.xero1425.subsystems.swerve.SwerveConstants;
+
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AutoAmp;
 import frc.robot.commands.AutoTrap;
 import frc.robot.commands.ConditionalVibrateCommand;
@@ -14,29 +36,6 @@ import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
-import org.xero1425.base.XeroContainer;
-import org.xero1425.base.XeroRobot;
-import org.xero1425.subsystems.swerve.CmdTuneRotateDb;
-import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
-import org.xero1425.subsystems.swerve.SwerveConstants;
-
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -409,7 +408,7 @@ public class AllegroContainer extends XeroContainer {
                 IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
                 IntakeShooterConstants.ManualShotFerry.kShooterVel,
                 IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
-        driver_controller_.leftTrigger().onTrue(ferry) ;
+        // driver_controller_.leftTrigger().onTrue(ferry) ;
     }
     // #endregion
 
