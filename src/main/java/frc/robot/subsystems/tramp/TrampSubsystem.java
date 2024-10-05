@@ -10,6 +10,7 @@ import org.xero1425.base.XeroTimer;
 import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units;
@@ -598,9 +599,11 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     private void climberDown() {
-        io_.setClimberMotorVoltage(-TrampConstants.Climber.kMoveClimberVoltage);
-        climber_target_ = TrampConstants.Climber.kClimberDownPosition ;
-        climber_dir_ = ClimberDir.Down;
+        if (inputs_.climberPosition > TrampConstants.Climber.kClimberDownPosition) {
+            io_.setClimberMotorVoltage(-TrampConstants.Climber.kMoveClimberVoltage);
+            climber_target_ = TrampConstants.Climber.kClimberDownPosition ;
+            climber_dir_ = ClimberDir.Down;
+        }
     }
 
     private boolean isElevatorReady() {
