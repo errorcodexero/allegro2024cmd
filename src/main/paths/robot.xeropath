@@ -125,7 +125,7 @@
                             "swrot": 0,
                             "swrotvel": 0,
                             "x": 7.713885845246775,
-                            "y": 0.7314322408913352
+                            "y": 0.4266322408913352
                         }
                     ],
                     "startvelocity": 0
@@ -163,6 +163,6 @@
             ]
         }
     ],
-    "outdir": "C:/cygwin64/home/butch/robottools/robots/1425/2024/allegro2024cmd/src/main/deploy/paths",
+    "outdir": "C:/cygwin64/home/team1425/robots/allegro2024cmd/src/main/deploy/paths",
     "units": "m"
 }
