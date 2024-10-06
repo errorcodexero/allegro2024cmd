@@ -5,7 +5,6 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.misc.MessageLogger;
@@ -116,14 +115,15 @@ public class AllegroRobot extends XeroRobot {
 
         // Logger.addDataReceiver(new NT4Publisher());
         Logger.addDataReceiver(new WPILOGWriter()) ;
-        Logger.start() ;
-
+        
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
         Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
         Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-
+        
+        Logger.start() ;
+        
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
         // autonomous chooser on the dashboard.
