@@ -30,6 +30,7 @@ import frc.robot.NoteDestination;
 import frc.robot.ShotType;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
+import frc.robot.util.ComponentVisualizer;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
 
@@ -82,6 +83,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private IntakeShooterIO io_ ;
     private IntakeShooterIOInputsAutoLogged inputs_ ;
 
+    private ComponentVisualizer visualizer_;
+
     private double target_tilt_ ;
     private double target_tilt_tol_ ;
     private double target_tilt_vel_ ;
@@ -132,7 +135,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #endregion
 
     // #region constructor
-    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype) throws Exception {
+    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype, ComponentVisualizer visualizer) throws Exception {
         super(robot, NAME) ;
 
         io_ = new IntakeShooterIOHardware(robot) ;
@@ -169,6 +172,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         average_filter_ = LinearFilter.movingAverage(IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) ;
         last_time_ = Timer.getFPGATimestamp() ;
         last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
+
+        visualizer_ = visualizer;
     }
     // #endregion
 
@@ -1094,8 +1099,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
         }
 
-        AllegroContainer.componentVisualizer.setUpdownAngle(Units.Degrees.of(-inputs_.updownPosition));
-        AllegroContainer.componentVisualizer.setTiltAngle(Units.Degrees.of(-inputs_.tiltAbsoluteEncoderPosition + 90));
+        visualizer_.setUpdownAngle(Units.Degrees.of(-inputs_.updownPosition));
+        visualizer_.setTiltAngle(Units.Degrees.of(-inputs_.tiltAbsoluteEncoderPosition + 90));
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);

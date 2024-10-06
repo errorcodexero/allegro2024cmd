@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.AllegroContainer;
 import frc.robot.NoteDestination;
+import frc.robot.util.ComponentVisualizer;
 
 public class TrampSubsystem extends XeroSubsystem {
 
@@ -101,7 +101,9 @@ public class TrampSubsystem extends XeroSubsystem {
     private double climber_target_ ;
     private double manipulator_target_ ;
 
-    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
+    private ComponentVisualizer visualizer_;
+
+    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest, ComponentVisualizer visualizer) throws Exception {
         super(robot, NAME) ;
 
         io_ = new TrampIOHardware() ;
@@ -125,6 +127,8 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.Idle ;
         climber_dir_ = ClimberDir.None ;
         climber_target_ = 0.0 ;
+
+        visualizer_ = visualizer;
     }
 
     public void endNoteTransfer() {
@@ -576,9 +580,9 @@ public class TrampSubsystem extends XeroSubsystem {
             aux += ":" + climber_dir_.toString() ;
         }
 
-        AllegroContainer.componentVisualizer.setElevatorHeight(Units.Meters.of(inputs_.elevatorPosition));
-        AllegroContainer.componentVisualizer.setClimberHeight(Units.Meters.of(inputs_.climberPosition));
-        AllegroContainer.componentVisualizer.setArmAngle(Units.Degrees.of(-inputs_.armPosition + 80));
+        visualizer_.setElevatorHeight(Units.Meters.of(inputs_.elevatorPosition));
+        visualizer_.setClimberHeight(Units.Meters.of(inputs_.climberPosition));
+        visualizer_.setArmAngle(Units.Degrees.of(-inputs_.armPosition + 80));
         
         if (getVerbose()) {
             Logger.recordOutput("tramp:state", state_ + aux);

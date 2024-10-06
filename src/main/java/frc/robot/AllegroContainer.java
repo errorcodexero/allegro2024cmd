@@ -89,7 +89,7 @@ public class AllegroContainer extends XeroContainer {
 
     final private double SlowFactor = 0.1 ;
 
-    public static final ComponentVisualizer componentVisualizer = new ComponentVisualizer("Component3d");
+    private final ComponentVisualizer visualizer_;
     
     // #endregion
 
@@ -130,11 +130,13 @@ public class AllegroContainer extends XeroContainer {
             oi_ = null ;
         }
 
+        visualizer_ = new ComponentVisualizer("Component3d");
+
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         db_.setLimelightName(limelight_name_);
 
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
-        tramp_ = new TrampSubsystem(robot, notesupply) ;
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply, visualizer_) ;
+        tramp_ = new TrampSubsystem(robot, notesupply, visualizer_) ;
 
         //
         // Create OI devices
