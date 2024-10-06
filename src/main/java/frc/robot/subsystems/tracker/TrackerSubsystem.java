@@ -18,9 +18,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AllegroContainer;
 import frc.robot.AprilTags;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -129,7 +129,7 @@ public class TrackerSubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
-        if (!has_target_info_) {
+        if (true /*!has_target_info_*/) {
             has_target_info_ = getTargetPose() ;
             if (!has_target_info_) {
                 //
