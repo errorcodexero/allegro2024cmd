@@ -27,11 +27,11 @@ import org.xero1425.simulator.engine.SimulationEngine;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -286,6 +286,7 @@ public abstract class XeroRobot extends LoggedRobot {
         }
         Logger.recordOutput("info:alliance", alliance) ;
 
+        Logger.recordOutput("info:isFMSAttached", DriverStation.isFMSAttached()) ;
     }
 
     public void registerSubsystem(String name, ISubsystemSim subsystem) {

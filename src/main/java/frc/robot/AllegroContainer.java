@@ -36,6 +36,7 @@ import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
+import frc.robot.util.ComponentVisualizer;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -88,6 +89,8 @@ public class AllegroContainer extends XeroContainer {
 
     final private double SlowFactor = 0.1 ;
 
+    public static final ComponentVisualizer componentVisualizer = new ComponentVisualizer("Component3d");
+    
     // #endregion
 
     // #region constructor

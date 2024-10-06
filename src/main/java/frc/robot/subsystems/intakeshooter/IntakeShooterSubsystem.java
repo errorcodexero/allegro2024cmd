@@ -1,5 +1,10 @@
 package frc.robot.subsystems.intakeshooter ;
 
+import java.util.Map;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.base.XeroSubsystem;
 import org.xero1425.base.XeroTimer;
@@ -7,12 +12,6 @@ import org.xero1425.math.PieceWiseLinear;
 import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-
-import java.util.Map;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.Measure;
@@ -1094,6 +1093,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             oi.setLEDState(OILed.ShooterReady, isShooterReady()) ;
             oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
         }
+
+        AllegroContainer.componentVisualizer.setUpdownAngle(Units.Degrees.of(-inputs_.updownPosition));
+        AllegroContainer.componentVisualizer.setTiltAngle(Units.Degrees.of(-inputs_.tiltAbsoluteEncoderPosition + 90));
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);
