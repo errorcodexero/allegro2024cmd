@@ -11,8 +11,11 @@ import frc.robot.AllegroContainer;
 
 public class FourNoteDynamicCommand extends XeroAutoCommand {
 
+     static final double kStartDelay = 1.0 ;
+
     private enum State {
         Start,
+        StartDelay,
         ShootFirstNote,
         DelayForIntake,
         DriveToShootSecond,        
@@ -30,6 +33,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
 
     private State state_ ;
     private XeroTimer collect_delay_timer_ ;
+    private XeroTimer start_delay_timer_ ;
     private AllegroContainer container_ ;
     private Pose2dWithRotation shootpose_ ;
     private Pose2dWithRotation collect1pose_ ;
@@ -47,6 +51,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
         addRequirements(container.getDriveTrain(), container.getIntakeShooter(), container.getTramp());
 
         collect_delay_timer_ = new XeroTimer("four-note-collect-delay", FourNoteDynamicConstants.kDelayForIntakeDownTime) ;
+        start_delay_timer_ = new XeroTimer("start-delay-timer", kStartDelay) ;
     }
 
     @Override
@@ -64,12 +69,8 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
 
         container_.getDriveTrain().seedFieldRelative(new Pose2d(shootpose_.getTranslation(), shootpose_.getRobotRotation())) ;
         container_.getIntakeShooter().setHasNote(true) ;
-        container_.getIntakeShooter().manualShoot(
-                FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
-                FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
-                FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol,
-                true, true) ;
-        state_ = State.ShootFirstNote ;
+        start_delay_timer_.start() ;
+        state_ = State.StartDelay ;
     }
 
     @Override
@@ -81,6 +82,17 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
                 break ;
 
             case Error:
+                break ;
+
+            case StartDelay:
+                if (start_delay_timer_.isExpired()) {
+                    container_.getIntakeShooter().manualShoot(
+                            FourNoteDynamicConstants.kLowManualUpDown, FourNoteDynamicConstants.kLowManualUpDownPosTol, FourNoteDynamicConstants.kLowManualUpDownVelTol, 
+                            FourNoteDynamicConstants.kLowManualTilt, FourNoteDynamicConstants.kLowManualTiltPosTol, FourNoteDynamicConstants.kLowManualTiltVelTol,
+                            FourNoteDynamicConstants.kLowManualShooter, FourNoteDynamicConstants.kLowManualShooterVelTol,
+                            true, true) ;
+                    state_ = State.ShootFirstNote ;
+                }
                 break ;
 
             case ShootFirstNote:
