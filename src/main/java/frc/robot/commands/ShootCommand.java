@@ -6,6 +6,7 @@ import org.xero1425.subsystems.swerve.SwerveRotateToAngle;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.AllegroContainer;
 import frc.robot.ShotType;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
@@ -21,7 +22,7 @@ public class ShootCommand extends Command {
     private final static double kShootPositionToleranceAtNear = 3.0 ;
     private final static double kShootVelocityTolerance = 5.0 ;
  
-
+    private AllegroContainer container_ ;
     private OISubsystem oi_ ;
     private CommandSwerveDrivetrain db_ ;
     private IntakeShooterSubsystem intake_ ;
@@ -30,7 +31,8 @@ public class ShootCommand extends Command {
     private SwerveRotateToAngle rotate_ ;
     private Command shoot_ ;
 
-    public ShootCommand(OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake) {
+    public ShootCommand(AllegroContainer c, OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake) {
+        container_ = c ;
         oi_ = oi ;
         tracker_ = tracker ;
 
@@ -59,6 +61,7 @@ public class ShootCommand extends Command {
                                 IntakeShooterConstants.ManualShotPodium.kTiltVelTolerance,
                                 IntakeShooterConstants.ManualShotPodium.kShooterVel,
                                 IntakeShooterConstants.ManualShotPodium.kShooterVelTolerance) ;
+            container_.enableGamePad(false);
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
@@ -72,6 +75,7 @@ public class ShootCommand extends Command {
                                 IntakeShooterConstants.ManualShotSubwoofer.kTiltVelTolerance,
                                 IntakeShooterConstants.ManualShotSubwoofer.kShooterVel,
                                 IntakeShooterConstants.ManualShotSubwoofer.kShooterVelTolerance) ;
+            container_.enableGamePad(false);                                
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
@@ -99,6 +103,7 @@ public class ShootCommand extends Command {
                 str = "aborted" ;
             }
             else if (rotate_.isFinished()) {
+                container_.enableGamePad(false);
                 if (!tracker_.isFrozen()) {
                     tracker_.freezePose(true);                
                 }
@@ -120,6 +125,7 @@ public class ShootCommand extends Command {
         else if (shoot_ != null) {
             dbready = true ;
             if (intake_.hasShotLeft()) {
+                container_.enableGamePad(true) ;
                 tracker_.freezePose(false);
                 str = "sfinished" ;
                 shoot_ = null ;
@@ -135,6 +141,8 @@ public class ShootCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        // Just to be sure, this is always called when the command is done.
+        container_.enableGamePad(true) ;        
     }
 
     @Override
