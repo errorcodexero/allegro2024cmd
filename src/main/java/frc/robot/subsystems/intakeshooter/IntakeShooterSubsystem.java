@@ -907,8 +907,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private void ejectPauseState() {
         if (eject_pause_timer_.isExpired()) {
-            setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
-            io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
+            setShooterVelocity(IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
             eject_reverse_timer_.start() ;
             state_ = State.EjectReverse ;
         }
@@ -1046,8 +1046,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 
             case GoToEjectPosition:
                 if (isTiltReady() && isUpDownReady()) {
-                    setShooterVelocity(IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
-                    io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
+                    setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+                    io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
                     eject_forward_timer_.start() ;
                     has_note_ = false ;
                     state_ = State.EjectForward ;
