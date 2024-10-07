@@ -5,6 +5,7 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.misc.MessageLogger;
@@ -32,6 +33,8 @@ import frc.robot.subsystems.oi.OIConstants;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
+    private static final boolean kLogToNetworkTables = false ;
+
     private AllegroContainer container_;
 
     public AllegroRobot() {
@@ -52,7 +55,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autothreepaths";
+        return "collectshootxfer";
     }
 
     @Override
@@ -113,7 +116,9 @@ public class AllegroRobot extends XeroRobot {
 
         Logger.disableDeterministicTimestamps();
 
-        // Logger.addDataReceiver(new NT4Publisher());
+        if (kLogToNetworkTables || XeroRobot.isSimulation()) {
+            Logger.addDataReceiver(new NT4Publisher());
+        }
         Logger.addDataReceiver(new WPILOGWriter()) ;
         
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);

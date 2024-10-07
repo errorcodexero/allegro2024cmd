@@ -657,7 +657,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         if (!DriverStation.isAutonomous()) {
             NoteDestination dest = getNoteDestination() ;
-            ret = has_note_ && 
+            ret = has_note_ && !tracking_ && 
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
                      (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
         }
@@ -841,7 +841,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Start the shooter wheels so that the shooter is up to speed when the updown/tilt reach the
             // transfer position
             //
-            if (dest == NoteDestination.Amp) {
+            if (dest == NoteDestination.Amp || dest == NoteDestination.Trap) {
                 setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
             }
         }
@@ -945,6 +945,18 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
             last_time_ = now ;
             last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
+        }
+        
+        NoteDestination dest = getNoteDestination() ;
+        if (tracking_ && (dest == NoteDestination.Amp || dest == NoteDestination.Trap)) {
+            //
+            // We are transitioning from shoot to Amp or Trap, turn off tracking
+            // and stop the shooter wheels
+            //
+            setTracking(false) ;
+            io_.setShooter1MotorVoltage(0.0) ;
+            io_.setShooter2MotorVoltage(0.0) ;
+            moveToTransferPosition() ;
         }
 
         switch(state_) {
