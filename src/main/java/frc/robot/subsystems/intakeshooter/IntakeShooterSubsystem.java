@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intakeshooter ;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -1099,8 +1101,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
         }
 
-        visualizer_.setUpdownAngle(Units.Degrees.of(-inputs_.updownPosition));
-        visualizer_.setTiltAngle(Units.Degrees.of(-inputs_.tiltAbsoluteEncoderPosition + 90));
+        visualizer_.updateIntakeShooter(
+            Degrees.of(-inputs_.updownPosition),
+            Degrees.of(-inputs_.tiltAbsoluteEncoderPosition)
+        );
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);

@@ -1,5 +1,8 @@
 package frc.robot.subsystems.tramp;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -580,10 +583,13 @@ public class TrampSubsystem extends XeroSubsystem {
             aux += ":" + climber_dir_.toString() ;
         }
 
-        visualizer_.setElevatorHeight(Units.Meters.of(inputs_.elevatorPosition));
-        visualizer_.setClimberHeight(Units.Meters.of(inputs_.climberPosition));
-        visualizer_.setArmAngle(Units.Degrees.of(-inputs_.armPosition + 80));
-        
+        visualizer_.updateTramp(
+            Meters.of(inputs_.elevatorPosition),
+            Degrees.of(-inputs_.armPosition)
+        );
+
+        visualizer_.updateClimber(Meters.of(inputs_.climberPosition));
+
         if (getVerbose()) {
             Logger.recordOutput("tramp:state", state_ + aux);
             Logger.recordOutput("tramp:elev-target", target_elev_);
