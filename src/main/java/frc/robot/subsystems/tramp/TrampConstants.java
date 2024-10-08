@@ -7,6 +7,10 @@ public class TrampConstants {
         public static final double kMaxArm = 75.0 ;
     }
 
+    public class Trap {
+        public static final double kDelayTime = 0.5 ;
+    }
+
     public class Elevator {
         public static final int kMotorId = 6 ;
         public static final boolean kInverted = true ;
@@ -23,11 +27,11 @@ public class TrampConstants {
             public static final double kStowed = 0.0 ;
             public static final double kTransfer = 0.0 ;
             public static final double kAmp = 0.2 ;
-            public static final double kTrap = 0.2411 ;
-            public static final double kTrap1 = 0.2522 ;
-            public static final double kTrap2 = 0.3222 ;
-            public static final double kTrap3 = 0.2411 ;
-            public static final double kTrap4 = 0.2411 ;
+            public static final double kTrapBeforeClimb = 0.2411 ;
+            public static final double kTrapAfterClimb1 = 0.2522 ;
+            public static final double kTrapAfterClimb2 = 0.3222 ;
+            public static final double kTrapAfterDeposit1 = 0.2411 ;
+            public static final double kTrapAfterDeposit2 = 0.2411 ;
             public static final double kBasicClimb = 0.2 ;
         }
 
@@ -73,11 +77,11 @@ public class TrampConstants {
             public static final double kStowed = 0.0 ;
             public static final double kTransfer = 0.0 ;
             public static final double kAmp = 230.0 ;
-            public static final double kTrap = 180 ;
-            public static final double kTrap1 = 139 ;
-            public static final double kTrap2 = 139 ;
-            public static final double kTrap3 = 149.6 ;
-            public static final double kTrap4 = 225 ;  
+            public static final double kTrapBeforeClimb = 180 ;
+            public static final double kTrapAfterClimb1 = 139 ;
+            public static final double kTrapAfterClimb2 = 139 ;
+            public static final double kTrapAfterDeposit1 = 149.6 ;
+            public static final double kTrapAfterDeposit2 = 225 ;  
             public static final double kBasicClimb = 180.0 ;          
         }     
         
