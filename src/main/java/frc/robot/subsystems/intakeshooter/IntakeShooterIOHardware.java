@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.units.Units ;
 
 public class IntakeShooterIOHardware implements IntakeShooterIO {
@@ -49,6 +50,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private AtomicBoolean rising_seen_ ;
     private AtomicBoolean falling_seen_ ;
     private AtomicInteger shooter_position_ ;
+    private MedianFilter abs_encoder_median_filter_filter_ ;
 
     private double updown_voltage_ ;
     private double tilt_voltage_ ;
@@ -80,6 +82,9 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
 
     public IntakeShooterIOHardware(XeroRobot robot) throws Exception {
+
+
+        abs_encoder_median_filter_filter_ = new MedianFilter(3) ;
 
         talon_motors_ = new HashMap<>() ;
 
@@ -142,6 +147,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         inputs.tiltVoltage = tilt_voltage_signal_.refresh().getValueAsDouble() ;
 
         inputs.tiltAbsoluteEncoderPosition = getTiltAbsoluteEncoderPosition() ;
+        inputs.tiltAbsoluteEncoderPositionMedian = abs_encoder_median_filter_filter_.calculate(inputs.tiltAbsoluteEncoderPosition) ;
 
         inputs.feederCurrent = feeder_current_signal_.refresh().getValueAsDouble() ;
 
@@ -162,7 +168,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
         rising_seen_.set(false) ;
         falling_seen_.set(false) ;
-    }
+    }  
 
     public void setUpDownTargetPos(double t) {
         updown_motor_.setControl(new MotionMagicVoltage(t / IntakeShooterConstants.UpDown.kDegreesPerRev)

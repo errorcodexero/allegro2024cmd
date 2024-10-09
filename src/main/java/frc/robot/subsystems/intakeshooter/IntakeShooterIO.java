@@ -24,6 +24,7 @@ public interface IntakeShooterIO {
         public double tiltVoltage = 0.0 ;
         public double tiltEncoder = 0.0 ;
         public double tiltAbsoluteEncoderPosition = 0.0;
+        public double tiltAbsoluteEncoderPositionMedian = 0.0 ;
         public double feederCurrent = 0.0;
         public double shooter1Velocity = 0.0 ;
         public double shooter1Current = 0.0 ;
@@ -40,6 +41,9 @@ public interface IntakeShooterIO {
 
     public default double getShooterPositionAtRisingEdge() {
         return 0.0 ;
+    }
+
+    public default void syncTiltEncoders(boolean b) {
     }
 
     public default void updateInputs(IntakeShooterIOInputs inputs) {
@@ -65,10 +69,6 @@ public interface IntakeShooterIO {
 
     public default void setTiltMotorVoltage(double vol) {
     }
-
-    public default double getTiltAbsoluteEncoderPosition() {
-        return 0.0;
-    }    
 
     public default void logTiltMotor(SysIdRoutineLog log) {
     }

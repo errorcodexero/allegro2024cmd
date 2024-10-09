@@ -40,8 +40,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public abstract class XeroRobot extends LoggedRobot {
 
-
-
     public enum RobotType {
         COMPETITION_REAL,
         PRACTICE_REAL,

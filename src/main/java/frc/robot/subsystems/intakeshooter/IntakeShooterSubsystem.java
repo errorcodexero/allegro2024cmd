@@ -127,6 +127,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
 
+    private boolean encoders_synced_ ;
+
     private Trigger transfer_note_trigger_ ;
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
@@ -150,7 +152,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         eject_reverse_timer_ = new XeroTimer("eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
         eject_pause_timer_ = new XeroTimer("eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
 
-        io_.setTiltMotorPosition(io_.getTiltAbsoluteEncoderPosition());
+
         io_.setUpDownMotorPosition(IntakeShooterConstants.UpDown.Positions.kStowed);
 
         setTracking(false) ;
@@ -170,8 +172,20 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         average_filter_ = LinearFilter.movingAverage(IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) ;
         last_time_ = Timer.getFPGATimestamp() ;
         last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
+
+        encoders_synced_ = false ;
+
     }
     // #endregion
+
+    public void syncTiltEncoders(boolean b) {
+        if (b) {
+            io_.setTiltMotorPosition(inputs_.tiltAbsoluteEncoderPositionMedian) ;
+        }
+        else {
+            io_.setTiltMotorPosition(inputs_.tiltAbsoluteEncoderPosition) ;
+        }
+    }
 
     public void setTransferCmd(Command cmd) {
         xfercmd_ = cmd ;
@@ -933,18 +947,30 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     @Override
     public void periodic() {
         io_.updateInputs(inputs_);
+
+        if (!encoders_synced_ && getRobot().isEnabled()) {
+            syncTiltEncoders(true) ;
+            encoders_synced_ = true ;
+        }
+
+        if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
+            average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
+            syncTiltEncoders(false) ;
+            encoders_synced_ = false ;
+        }
+
         Logger.processInputs("intake-shooter", inputs_);
 
         if (average_filter_ != null) {
             double now = Timer.getFPGATimestamp() ;
-            double vel = (inputs_.tiltAbsoluteEncoderPosition - last_value_) / (now - last_time_) ;
+            double vel = (inputs_.tiltAbsoluteEncoderPositionMedian - last_value_) / (now - last_time_) ;
             average_value_ = average_filter_.calculate(vel) ;
 
             Logger.recordOutput("tilt-abs-velocity", average_value_) ;
             Logger.recordOutput("tilt-raw-vel", vel) ;
 
             last_time_ = now ;
-            last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
+            last_value_ = inputs_.tiltAbsoluteEncoderPositionMedian ;
         }
         
         NoteDestination dest = getNoteDestination() ;
