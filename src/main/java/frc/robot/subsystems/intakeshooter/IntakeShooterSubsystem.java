@@ -353,7 +353,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public Command turtleCommand() {
         Command ret = new FunctionalCommand(
-                                ()->turtle(),
+                                ()->turtle(false),
                                 () -> {},
                                 (Boolean b) -> {},
                                 ()->isIdle()) ;
@@ -616,8 +616,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     //
     // If we are in the idle state, this method moves the mechanisms to the stowed position.
     //
-    private void turtle() {
-        if (state_ == State.Idle) {
+    public void turtle(boolean force) {
+        if (state_ == State.Idle || force) {
             //
             // Move the updown and tilt to the collect position
             //
