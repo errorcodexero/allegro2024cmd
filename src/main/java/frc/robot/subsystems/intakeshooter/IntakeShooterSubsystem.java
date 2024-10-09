@@ -948,17 +948,21 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public void periodic() {
         io_.updateInputs(inputs_);
 
+        boolean synced = false ;
         if (!encoders_synced_ && getRobot().isEnabled()) {
             syncTiltEncoders(true) ;
             encoders_synced_ = true ;
+            synced = true ;
         }
 
         if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
             average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
             syncTiltEncoders(false) ;
             encoders_synced_ = false ;
+            synced = true ;
         }
 
+        Logger.recordOutput("intake:synced", synced) ;
         Logger.processInputs("intake-shooter", inputs_);
 
         if (average_filter_ != null) {
