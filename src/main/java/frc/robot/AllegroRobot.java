@@ -85,7 +85,8 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void createCompetitionAutoModes() {
         if (container_ != null && container_.getDriveTrain() != null) {
-            addAutoMode(new FourNoteDynamicCommand(this, container_));
+            addAutoMode(new FourNoteDynamicCommand(this, container_, 0.0));
+            addAutoMode(new FourNoteDynamicCommand(this, container_, 1.0));
             addAutoMode(new FourNoteQuickCommand(this, container_, true)) ;
             addAutoMode(new FourNoteQuickCommand(this, container_, false)) ;            
             addAutoMode(new ThreeNotePathsCommand(this, container_)) ;

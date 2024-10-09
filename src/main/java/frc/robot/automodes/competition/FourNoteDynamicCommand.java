@@ -11,8 +11,6 @@ import frc.robot.AllegroContainer;
 
 public class FourNoteDynamicCommand extends XeroAutoCommand {
 
-     static final double kStartDelay = 1.0 ;
-
     private enum State {
         Start,
         StartDelay,
@@ -42,8 +40,8 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
 
     private final static String desc = "This auto mode starts in the center subwoofer position, shoots the loaded note, and collects and shoots the three notes that are near" ;
     
-    public FourNoteDynamicCommand(XeroRobot robot, AllegroContainer container) {
-        super(robot, "four-note", desc) ;
+    public FourNoteDynamicCommand(XeroRobot robot, AllegroContainer container, double delay) {
+        super(robot, "four-note-" + Double.toString(delay), desc) ;
 
         container_ = container ;
         state_ = State.Start ;
@@ -51,7 +49,7 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
         addRequirements(container.getDriveTrain(), container.getIntakeShooter(), container.getTramp());
 
         collect_delay_timer_ = new XeroTimer("four-note-collect-delay", FourNoteDynamicConstants.kDelayForIntakeDownTime) ;
-        start_delay_timer_ = new XeroTimer("start-delay-timer", kStartDelay) ;
+        start_delay_timer_ = new XeroTimer("start-delay-timer", delay) ;
     }
 
     @Override
