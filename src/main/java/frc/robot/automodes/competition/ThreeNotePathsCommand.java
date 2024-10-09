@@ -127,7 +127,6 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             case Start:
                 break; 
             case ShootFirstNote:
-                // maxv, maxa, pre_rot_time, post_rot_time, to) ;
                 if (!container_.getIntakeShooter().hasNote()) {
                     XeroPath path = (alliance_.get() == Alliance.Blue) ? collect2_blue_path_ : collect2_red_path_ ;
                     container_.getDriveTrain().drivePathWithTraj(path, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
@@ -137,6 +136,9 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
             case DriveToSecondNote:
                 if (!container_.getDriveTrain().isFollowingPath()) {
+                    if (!container_.getIntakeShooter().hasNote()) {
+                        container_.getIntakeShooter().turtle(true) ;
+                    }
                     container_.getDriveTrain().drivePathWithTraj(shoot2_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToShootSecond ;
                 }
@@ -144,9 +146,15 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
             case DriveToShootSecond:
                 if (!container_.getDriveTrain().isFollowingPath()) {
-                    shoot_ = new AutoShootCommand(container_.getOI(), container_.getTracker(), container_.getDriveTrain(), container_.getIntakeShooter()) ;
-                    CommandScheduler.getInstance().schedule(shoot_) ;
-                    state_ = State.ShootingSecondNote ;
+                    if (container_.getIntakeShooter().hasNote()) {
+                        shoot_ = new AutoShootCommand(container_.getOI(), container_.getTracker(), container_.getDriveTrain(), container_.getIntakeShooter()) ;
+                        CommandScheduler.getInstance().schedule(shoot_) ;
+                        state_ = State.ShootingSecondNote ;
+                    }
+                    else {
+                        container_.getDriveTrain().drivePathWithTraj(collect3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
+                        state_ = State.DriveToThirdNote ;                        
+                    }
                 }
                 break ;
 
@@ -160,8 +168,14 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             case DriveToThirdNote:
                 container_.getIntakeShooter().collect() ;
                 if (!container_.getDriveTrain().isFollowingPath()) {
-                    container_.getDriveTrain().drivePathWithTraj(shoot3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-                    state_ = State.DriveToShootThird ;                    
+                    if (container_.getIntakeShooter().hasNote()) {
+                        container_.getDriveTrain().drivePathWithTraj(shoot3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
+                        state_ = State.DriveToShootThird ;
+                    }
+                    else {
+                        container_.getIntakeShooter().turtle(true) ;
+                        state_ = State.Done ;
+                    }
                 }
                 break ;
 
