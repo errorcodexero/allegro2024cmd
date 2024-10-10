@@ -18,7 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -30,7 +29,6 @@ import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
-import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -415,15 +413,15 @@ public class AllegroContainer extends XeroContainer {
         oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
         oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
 
-        Command ferry = intake_shooter_.manualShootCommand(
-                IntakeShooterConstants.ManualShotFerry.kUpDownPos,
-                IntakeShooterConstants.ManualShotFerry.kUpDownPosTolerance,
-                IntakeShooterConstants.ManualShotFerry.kUpDownVelTolerance,
-                IntakeShooterConstants.ManualShotFerry.kTiltPos,
-                IntakeShooterConstants.ManualShotFerry.kTiltPosTolerance,
-                IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
-                IntakeShooterConstants.ManualShotFerry.kShooterVel,
-                IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
+        // Command ferry = intake_shooter_.manualShootCommand(
+        //         IntakeShooterConstants.ManualShotFerry.kUpDownPos,
+        //         IntakeShooterConstants.ManualShotFerry.kUpDownPosTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kUpDownVelTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kTiltPos,
+        //         IntakeShooterConstants.ManualShotFerry.kTiltPosTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kShooterVel,
+        //         IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
         // driver_controller_.leftTrigger().onTrue(ferry) ;
     }
     // #endregion

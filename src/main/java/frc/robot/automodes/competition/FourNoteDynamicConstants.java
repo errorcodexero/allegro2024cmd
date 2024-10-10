@@ -28,7 +28,7 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
     public static final double kPath1Accel = 2.0 ;
 
     private static final Pose2dWithRotation kShootPoseConst = new Pose2dWithRotation(new Pose2d(1.50, 5.55, Rotation2d.fromDegrees(180.0)), Rotation2d.fromDegrees(0.0)) ;
-    private static final Pose2dWithRotation kCollect1PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
+    private static final Pose2dWithRotation kCollect1PoseConst = new Pose2dWithRotation(new Pose2d(3.0, 5.55, Rotation2d.fromDegrees(0.0)), Rotation2d.fromDegrees(0.0)) ;
     private static final Pose2dWithRotation kCollect2PoseConst = new Pose2dWithRotation(new Pose2d(2.40, 6.52, Rotation2d.fromDegrees(45.0)), Rotation2d.fromDegrees(45.0)) ;
     private static final Pose2dWithRotation kCollect3PoseConst = new Pose2dWithRotation(new Pose2d(2.30, 4.55, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;        
     private static final Pose2dWithRotation kCollect3QPoseConst = new Pose2dWithRotation(new Pose2d(2.35, 4.5, Rotation2d.fromDegrees(-45.0)), Rotation2d.fromDegrees(-45.0)) ;        
