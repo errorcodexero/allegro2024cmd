@@ -20,7 +20,7 @@ public class FourNoteDynamicConstants extends AutoModeConstants {
     public static final double kLowManualShooter = 75.0 ;
     public static final double kLowManualShooterVelTol = 10.0 ;
     public static final double kDelayForIntakeDownTime = 0.1 ;
-    public static final double kDistanceShoot2 = 0.2 ;
+    public static final double kDistanceShoot2 = 0.8 ;
     public static final double kDistanceShoot3 = 1.05 ;
     public static final double kDistanceShoot4 = 0.7 ;
 

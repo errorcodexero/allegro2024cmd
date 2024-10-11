@@ -957,7 +957,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
             average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
-            syncTiltEncoders(false) ;
+            //  syncTiltEncoders(false) ;
             encoders_synced_ = false ;
             synced = true ;
         }
