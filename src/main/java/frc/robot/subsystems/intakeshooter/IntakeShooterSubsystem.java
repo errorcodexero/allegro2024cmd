@@ -59,7 +59,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         WaitingToShoot,
         WaitForShotFinish,
 
-        GoToEjectPosition,
+        StartEjectOperations,
         EjectForward,
         EjectPause,
         EjectReverse,
@@ -350,7 +350,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->collect(),
                                 () -> {},
                                 (Boolean b) -> { if (b) stopCollect(); },
-                                ()->isIdle() || hasNote()) ;
+                                ()->isIdle() || hasNote(),
+                                this) ;
         cmd.setName("collect") ;        
         return cmd ;
     }
@@ -360,7 +361,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->eject(),
                                 () -> {},
                                 (Boolean b) -> {},
-                                ()->isIdle()) ;
+                                ()-> { return isIdle() || isStowing(); } ,
+                                this) ;
         ret.setName("eject") ;        
         return ret ;
     }
@@ -370,7 +372,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->turtle(false),
                                 () -> {},
                                 (Boolean b) -> {},
-                                ()->isIdle()) ;
+                                ()->isIdle() ,
+                                this) ;
         ret.setName("turtle") ;
         return ret ;
     }
@@ -380,7 +383,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             ()->manualShoot(updown, updownpostol, updownveltol, tilt, tiltpostol, tiltveltol, shooter, shooterveltol, true, false),
             ()-> {},
             (Boolean b) -> { },
-            () -> hasShotLeft());
+            () -> hasShotLeft(), 
+            this);
         ret.setName("manual-shoot");
         return ret ;
     }
@@ -507,14 +511,18 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         state_ = State.WaitingToShoot ;
     }
 
+    int count = 0 ;
     public void eject() {
+        count++ ;
         if (xfercmd_ != null) {
             xfercmd_.cancel() ;
         }
         setTracking(false);
         gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, 5.0, 100.0, 
                      IntakeShooterConstants.Tilt.Positions.kEject, 8.0, 100.0) ;
-        state_ = State.GoToEjectPosition ;
+        next_state_ = State.StartEjectOperations ;
+
+        Logger.recordOutput("count", count) ;
     }
 
     //
@@ -1093,14 +1101,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 }
                 break ;
                 
-            case GoToEjectPosition:
-                if (isTiltReady() && isUpDownReady()) {
-                    setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
-                    io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
-                    eject_forward_timer_.start() ;
-                    has_note_ = false ;
-                    state_ = State.EjectForward ;
-                }
+            case StartEjectOperations:
+                setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+                io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
+                eject_forward_timer_.start() ;
+                has_note_ = false ;
+                state_ = State.EjectForward ;
                 break ;
             
             case HoldForShoot:

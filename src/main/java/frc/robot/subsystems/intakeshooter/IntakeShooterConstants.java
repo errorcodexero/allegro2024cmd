@@ -194,9 +194,9 @@ public class IntakeShooterConstants {
 
         public class Simulated {
             public class MovementPIDSlot0 {
-                public static final double kP = 4.0 ;
+                public static final double kP = 10.0 ;
                 public static final double kI = 0.0 ;
-                public static final double kD = 0.0 ;
+                public static final double kD = 0.35 ;
                 public static final double kV = 0.1 ;
                 public static final double kA = 0.0 ;
                 public static final double kG = 0.0 ;

@@ -26,12 +26,11 @@ public class TransferNoteCommand extends Command {
         tramp_ = tramp ;
 
         setName("transfer-note") ;
-
-        intake_shooter_.setTransferCmd(this) ;
     }
 
     @Override
     public void initialize() {
+        intake_shooter_.setTransferCmd(this) ;        
         intake_shooter_.setShooterVelocity(0, 0);
         intake_shooter_.moveToTransferPosition();
         tramp_.moveToTransferPosition();

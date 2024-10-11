@@ -13,7 +13,7 @@
                         "start" : 0,
                         "autonomous" : 0.0,
                         "between" : 0.0,
-                        "teleop" : 12.0,
+                        "teleop" : 100.0,
                         "fms" : false,
                         "alliance" : "blue1"
                     }
@@ -76,7 +76,7 @@
             ]
         },          
         {
-            "time" : 6.2,
+            "time" :4.8,
             "events" :
             [
                 {
@@ -91,7 +91,7 @@
             ]
         },
         {
-            "time" : 6.8,
+            "time" : 5.0,
             "events" :
             [
                 {

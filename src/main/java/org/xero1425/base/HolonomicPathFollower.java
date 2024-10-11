@@ -64,8 +64,6 @@ public class HolonomicPathFollower {
 
     private boolean did_timeout_ ;
     private String path_name_ ;
-    private XeroPath path_ ;
-    private int index_ ;
 
     private Translation2d last_pos_ ;
 
@@ -100,7 +98,6 @@ public class HolonomicPathFollower {
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
         path_name_ = pathname ;
-        path_ = null ;
 
         Pose2d st = pose_.get() ;
         Rotation2d heading ;
