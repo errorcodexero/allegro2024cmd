@@ -55,7 +55,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "collectshootxfer";
+        return "eject2";
     }
 
     @Override
@@ -117,18 +117,18 @@ public class AllegroRobot extends XeroRobot {
 
         Logger.disableDeterministicTimestamps();
 
-        if (kLogToNetworkTables || XeroRobot.isSimulation()) {
+        if (XeroRobot.isSimulation() || kLogToNetworkTables) {
             Logger.addDataReceiver(new NT4Publisher());
         }
         Logger.addDataReceiver(new WPILOGWriter()) ;
-        
+
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
         Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
         Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-        
-        Logger.start() ;
+
+        Logger.start() ;             
         
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our

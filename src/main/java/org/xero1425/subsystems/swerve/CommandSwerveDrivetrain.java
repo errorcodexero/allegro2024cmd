@@ -196,6 +196,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     @Override
     public void periodic() {
 
+        startPeriodic();
+
         Command cmd = CommandScheduler.getInstance().requiring(this) ;
         if (cmd != null) {
             String str = cmd.getName() ;
@@ -238,16 +240,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         dumpOutput() ;
+
+        endPeriodic();
+    }
+
+    public void startPeriodic() {
+        robot_.startPeriodic(NAME) ;
+    }
+
+    public void endPeriodic() {
+        robot_.endPeriodic(NAME) ;
     }
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
         follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
         follower_.driveTo(pathname, imd, dest, maxv, maxa, pre_rot_time, post_rot_time, to);
-    }
-
-    public void drivePath(XeroPath path, double to) {
-        follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
-        follower_.drivePath(path, to) ;
     }
 
     public void drivePathWithTraj(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {

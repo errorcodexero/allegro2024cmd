@@ -947,20 +947,26 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #region periodic method that evaluates the state machine each robot loop
     @Override
     public void periodic() {
+        super.startPeriodic() ;
         io_.updateInputs(inputs_);
 
         boolean synced = false ;
+        double motortilt = inputs_.tiltPosition ;
         if (!encoders_synced_ && getRobot().isEnabled()) {
             syncTiltEncoders(true) ;
+            motortilt = inputs_.tiltAbsoluteEncoderPositionMedian ;
             encoders_synced_ = true ;
             synced = true ;
         }
 
+        double tiltdiff = Math.abs(inputs_.tiltAbsoluteEncoderPosition - motortilt) ;
         if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
-            average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
-            syncTiltEncoders(false) ;
-            encoders_synced_ = false ;
-            synced = true ;
+            Math.abs(average_value_) < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle &&
+            encoders_synced_ && tiltdiff > IntakeShooterConstants.Tilt.Resync.kPosDiffThreshold) { 
+            if (!XeroRobot.isSimulation()) {
+                syncTiltEncoders(false) ;
+                synced = true ;
+            }
         }
 
         Logger.recordOutput("intake:synced", synced) ;
@@ -971,13 +977,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             double vel = (inputs_.tiltAbsoluteEncoderPositionMedian - last_value_) / (now - last_time_) ;
             average_value_ = average_filter_.calculate(vel) ;
 
-            Logger.recordOutput("tilt-abs-velocity", average_value_) ;
-            Logger.recordOutput("tilt-raw-vel", vel) ;
+            Logger.recordOutput("intake:tilt-abs-velocity", average_value_) ;
+            Logger.recordOutput("intake:tilt-raw-vel", vel) ;
 
             last_time_ = now ;
             last_value_ = inputs_.tiltAbsoluteEncoderPositionMedian ;
         }
-        
+
         NoteDestination dest = getNoteDestination() ;
         if (tracking_ && (dest == NoteDestination.Amp || dest == NoteDestination.Trap)) {
             //
@@ -1166,6 +1172,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
             Logger.recordOutput("intake:cappos", io_.getShooterPositionAtRisingEdge());
         }        
+
+        endPeriodic();
     }
 
     // #endregion

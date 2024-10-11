@@ -180,6 +180,8 @@ public class OISubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
+        startPeriodic();
+
         ios_.updateInputs(inputs_) ;
         Logger.processInputs("oi", inputs_);
 
@@ -190,6 +192,8 @@ public class OISubsystem extends XeroSubsystem {
             Logger.recordOutput("oi:note-dest", note_dest_) ;
             Logger.recordOutput("oi:shoot-type", shot_type_) ;
         }
+
+        endPeriodic();
     }
 
     private NoteDestination mapNoteDestination(boolean b1, boolean b2)

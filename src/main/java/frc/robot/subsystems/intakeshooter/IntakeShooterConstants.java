@@ -154,6 +154,13 @@ public class IntakeShooterConstants {
             // The angular velocity of the tilt in degrees/second must be less than this
             // value to be considered for resync.
             public static final double kVelThreshold = 0.25 ;
+
+            //
+            // The absolute encoder tilt value and the motor tilt value, which were synced to be
+            // equal when the robot was enabled, must be different by this value or more for the
+            // resync to be applied.
+            //
+            public static final double kPosDiffThreshold = 10.0 ;
         }
 
         public class Positions {

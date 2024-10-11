@@ -376,6 +376,8 @@ public class TrampSubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
+        startPeriodic();
+
         io_.updateInputs(inputs_) ;
         Logger.processInputs("tramp", inputs_);
 
@@ -602,6 +604,8 @@ public class TrampSubsystem extends XeroSubsystem {
             Logger.recordOutput("tramp:hasnote", hasNote()) ;  
             Logger.recordOutput("tramp:mantarget", manipulator_target_) ;   
         }
+
+        endPeriodic();
     }
 
     private void transferStartManipulator() {
