@@ -717,6 +717,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
+
         setUpDownTarget(updown);
         setTiltTarget(tilt) ;
         setShooterVelocity(velocity, IntakeShooterConstants.Shooter.kAutoShootVelocityTol) ;
@@ -957,7 +958,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
             average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
-            //  syncTiltEncoders(false) ;
+            syncTiltEncoders(false) ;
             encoders_synced_ = false ;
             synced = true ;
         }

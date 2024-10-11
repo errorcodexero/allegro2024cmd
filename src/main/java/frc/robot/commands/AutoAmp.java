@@ -26,7 +26,7 @@ public class AutoAmp extends Command {
     }
 
     private static double robot_length_ = 0.9779 ;
-    private static double kExtraSpacing = 0.0 ;
+    private static double kExtraSpacing = -0.04 ;
     private static double kMaxDistance = 3.0 ;
 
     private OISubsystem oi_ ;    

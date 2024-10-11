@@ -33,7 +33,7 @@ import frc.robot.subsystems.oi.OIConstants;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
-    private static final boolean kLogToNetworkTables = false ;
+    private static final boolean kLogToNetworkTables = true ;
 
     private AllegroContainer container_;
 
@@ -135,7 +135,7 @@ public class AllegroRobot extends XeroRobot {
         // autonomous chooser on the dashboard.
         try {
             container_ = new AllegroContainer(this);
-            setDriveController(container_.getController());
+            setDriveController(container_.getController()); 
             enableMessages() ;
 
         } catch (Exception e) {

@@ -266,6 +266,7 @@ public abstract class XeroRobot extends LoggedRobot {
                 gamepad_.setRumble(RumbleType.kBothRumble, 0.0);
             }
         }
+        Logger.recordOutput("rumble", rumble_) ;
 
         // Temporarily log alliance color in every robot loop to check if it ever changes
         String alliance = "?????" ;
