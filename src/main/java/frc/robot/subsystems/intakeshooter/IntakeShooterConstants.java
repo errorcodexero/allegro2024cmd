@@ -247,7 +247,7 @@ public class IntakeShooterConstants {
             2.62, -66.0,
             2.93, -64.0,
             3.23, -63.0,
-            3.495, -60.0,
+            3.4995, -62.0,
             3.5, -60.0,
             3.9, -57.5,
             4.2, -56.5,
@@ -260,7 +260,7 @@ public class IntakeShooterConstants {
         public static final double kEjectForwardTime = 1.0 ;
         public static final double kEjectPauseTime = 0.5 ;
         public static final double kEjectReverseTime = 1.0 ;
-        public static final double kEjectVelocity = 60.0 ;
+        public static final double kEjectVelocity = 75.0 ;
 
         public static final double kAutoShootVelocityTol = 5.0 ;            
 
@@ -296,7 +296,7 @@ public class IntakeShooterConstants {
             2.62, 75,
             2.93, 75,
             3.23, 75,
-            3.495, 75,
+            3.4995, 75,
             3.5, 80,
             4.5, 80
         } ;            
