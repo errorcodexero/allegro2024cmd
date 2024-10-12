@@ -23,6 +23,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.units.Units ;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -58,6 +59,8 @@ public class TrampIOHardware implements TrampIO {
     private double climber_voltage_ ;
     private double arm_voltage_ ;
     private double elevator_voltage_ ;
+
+    private Encoder thru_bore_encoder_ ;
 
     public TrampIOHardware() throws Exception {
 
@@ -185,6 +188,15 @@ public class TrampIOHardware implements TrampIO {
         manipulator_pid_.setFF(TrampConstants.Manipulator.VelocityPID.kV, 1) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+        // Thru Bore Encoder
+        /////////////////////////////////////////////////////////////////////////////////////////////////           
+        thru_bore_encoder_ = new Encoder(TrampConstants.Manipulator.ThruBoreEncoder.kEncoderA, 
+                                            TrampConstants.Manipulator.ThruBoreEncoder.kEncoderB,
+                                            TrampConstants.Manipulator.ThruBoreEncoder.kEncoderInverted,
+                                            Encoder.EncodingType.k1X) ;
+        thru_bore_encoder_.setDistancePerPulse(TrampConstants.Manipulator.ThruBoreEncoder.kEncoderDistancePerPulse) ;
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
         /////////////////////////////////////////////////////////////////////////////////////////////////            
         BaseStatusSignal.setUpdateFrequencyForAll(75.0,
@@ -233,6 +245,8 @@ public class TrampIOHardware implements TrampIO {
         inputs.manipulatorPosition = manipulator_encoder_.getPosition() ;
         inputs.manipulatorVelocity = manipulator_encoder_.getVelocity() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
+
+        inputs.manipulatorFreeWheelPosition = thru_bore_encoder_.getDistance() ;
     }
 
     ////////////////////////////////////////////////////////////////////////////

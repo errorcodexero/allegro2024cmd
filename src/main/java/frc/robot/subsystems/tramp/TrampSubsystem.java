@@ -102,6 +102,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private ClimberDir climber_dir_ ;
     private double climber_target_ ;
     private double manipulator_target_ ;
+    private double manipulator_start_pos_ ;
 
     public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
         super(robot, NAME) ;
@@ -345,10 +346,15 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_.start();
         state_ = State.Eject ;
     }
+    
+    public boolean needStopManipulator() {
+        return inputs_.manipulatorFreeWheelPosition > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance ;
+    }
 
     public void transferNote() {
         if (state_ == State.HoldingTransferPosition) {
             state_ = State.TransferStartManipulator ;
+            manipulator_start_pos_ = inputs_.manipulatorFreeWheelPosition ;
             io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
         }
     }

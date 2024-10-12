@@ -49,7 +49,7 @@ public class TransferNoteCommand extends Command {
                 break ;
 
             case TransferringNote:
-                if (intake_shooter_.needStopManipulator())  {
+                if (intake_shooter_.needStopManipulator() | tramp_.needStopManipulator()) {
                     tramp_.endNoteTransfer() ;
                     state_ = State.WaitForShooterIdle ;
                 }

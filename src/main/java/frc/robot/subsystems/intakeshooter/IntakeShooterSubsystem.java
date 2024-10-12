@@ -951,9 +951,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
     // #endregion
 
-    int counter = 0 ;
-    double lasttime = 0.0 ;
-    boolean lastone = false ;
+    public void endNoteTransfer() {
+        has_note_ = false ;                    
+        state_ = State.TransferRunToShooterStop ;        
+    }
 
     // #region periodic method that evaluates the state machine each robot loop
     @Override

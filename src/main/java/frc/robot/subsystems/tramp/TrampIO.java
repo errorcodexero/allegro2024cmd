@@ -25,6 +25,7 @@ public interface TrampIO {
         public double manipulatorPosition = 0.0 ;
         public double manipulatorVelocity = 0.0 ;
         public double manipulatorCurrent = 0.0 ;
+        public double manipulatorFreeWheelPosition = 0.0 ;
         public double climberPosition = 0.0 ;
         public double climberCurrent = 0.0 ;
         public double climberVelocity = 0.0 ;

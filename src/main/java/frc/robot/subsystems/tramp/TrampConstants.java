@@ -110,17 +110,23 @@ public class TrampConstants {
         public static final double kEjectTime = 0.5 ;
         public static final double kShootTime = 0.8 ;
         public static final double kShootPower = -5.0 ;
-        public static final double kTrapMoveNoteDistance = 0.1
-         ;
+        public static final double kTrapMoveNoteDistance = 0.1 ;
         public static final double kTrapMoveNoteVelocity = 5.0 ;
         public static final double kDepositTime = 1.5 ;
-        public static final double kDepositVelocity = 10 
-        ;
+        public static final double kDepositVelocity = 10 ;
         public static final double kHoldNoteTime = 0.2 ;
+        public static final double kFreeWheelTransferDistance = 1.0 ;
 
         public static final double kTransferVoltage = 1.2 ;
         public static final double kTransferVelocity = 25.0 ;
         public static final double kTransferTime = 0.2;
+
+        public class ThruBoreEncoder {
+            public static int kEncoderA = 0 ;
+            public static int kEncoderB = 1 ;
+            public static boolean kEncoderInverted = false ;
+            public static double kEncoderDistancePerPulse = 1.0 / 2048.0 ;
+        }
 
         public class PositionPID {
             public static final double kP = 10 ;
