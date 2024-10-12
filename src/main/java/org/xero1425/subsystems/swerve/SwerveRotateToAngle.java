@@ -3,6 +3,7 @@ package org.xero1425.subsystems.swerve;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.xero1425.math.XeroMath;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
@@ -73,7 +74,8 @@ public class SwerveRotateToAngle extends Command {
         }
 
         double current_angular_velocity = db_.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() ;
-        is_finished_ = Math.abs(current - target) < postol_ && Math.abs(current_angular_velocity) < veltol_ ;
+        double diffangle = XeroMath.normalizeAngleDegrees(current-target) ;
+        is_finished_ = Math.abs(diffangle) < postol_ && Math.abs(current_angular_velocity) < veltol_ ;
 
         if (!is_finished_) {
             db_.setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds(0, 0, Units.degreesToRadians(rotvel)))) ;

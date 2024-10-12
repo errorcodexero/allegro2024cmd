@@ -725,6 +725,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
+        if (dist > 5.0) {
+            velocity = 0.0 ;
+        }
 
         setUpDownTarget(updown);
         setTiltTarget(tilt) ;

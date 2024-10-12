@@ -175,9 +175,9 @@ public class IntakeShooterConstants {
 
         public class Real {
             public class MovementPIDSlot0 {
-                public static final double kP = 10.0 ;
+                public static final double kP = 8.0 ;
                 public static final double kI = 0.0 ;
-                public static final double kD = 0.35 ;
+                public static final double kD = 0.30 ;
                 public static final double kV = 0.1 ;
                 public static final double kA = 0.0 ;
                 public static final double kG = 0.0 ;
@@ -245,13 +245,13 @@ public class IntakeShooterConstants {
             2.319, -49.0,
             2.32, -68.0,
             2.62, -66.0,
-            2.93, -64.0,
-            3.23, -63.0,
-            3.4995, -62.0,
-            3.5, -60.0,
-            3.9, -57.5,
-            4.2, -56.5,
-            4.5, -55.5
+            2.93, -62.0,
+            3.23, -60.0,
+            3.5, -58.5,
+            3.9, -56.0,
+            // Need to tune below
+            4.2, -56.0,
+            4.5, -55.0
         } ;            
     }
 
@@ -292,11 +292,10 @@ public class IntakeShooterConstants {
             1.72, 75,
             2.02, 75,
             2.319, 75,
-            2.32, 75,
-            2.62, 75,
-            2.93, 75,
-            3.23, 75,
-            3.4995, 75,
+            2.32, 80,
+            2.62, 80,
+            2.93, 80,
+            3.23, 80,
             3.5, 80,
             4.5, 80
         } ;            
@@ -306,7 +305,6 @@ public class IntakeShooterConstants {
         public static final int kMotorId = 3 ;
         public static final boolean kInvert = true ;             
         public static final double kCurrentLimit = 80.0 ;
-
 
         public static class Real {
             public static final double kP = 0.4;

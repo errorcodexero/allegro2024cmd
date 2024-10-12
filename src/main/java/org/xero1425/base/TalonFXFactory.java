@@ -33,6 +33,8 @@ public class TalonFXFactory {
         if (limit != Double.NaN) {
             config.CurrentLimits.SupplyCurrentLimit = limit ;
             config.CurrentLimits.SupplyCurrentLimitEnable = true ;
+            config.CurrentLimits.SupplyCurrentThreshold = limit ;
+            config.CurrentLimits.SupplyTimeThreshold = 1.0 ;
         }
 
         config.MotorOutput.Inverted = invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive ;
