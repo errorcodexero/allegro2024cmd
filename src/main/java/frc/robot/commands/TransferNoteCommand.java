@@ -49,8 +49,11 @@ public class TransferNoteCommand extends Command {
                 break ;
 
             case TransferringNote:
+                Logger.recordOutput("needStopIntake", intake_shooter_.needStopManipulator()) ;
+                Logger.recordOutput("needStopTramp", tramp_.needStopManipulator()) ;
                 if (intake_shooter_.needStopManipulator() | tramp_.needStopManipulator()) {
                     tramp_.endNoteTransfer() ;
+                    intake_shooter_.endNoteTransfer() ;
                     state_ = State.WaitForShooterIdle ;
                 }
                 break ;
