@@ -17,6 +17,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -229,7 +230,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
  
     public void setShooter1Velocity(double vel) {
         double cvel = vel / IntakeShooterConstants.Shooter.kShooterRevsPerMotorRev ;
-        shooter1_motor_.setControl(new VelocityVoltage(cvel)) ;
+        shooter1_motor_.setControl(new MotionMagicVelocityVoltage(cvel)) ;
     }
 
     public void setShooter1MotorVoltage(double vol) {
@@ -246,7 +247,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
     public void setShooter2Velocity(double vel) {
         double cvel = vel / IntakeShooterConstants.Shooter.kShooterRevsPerMotorRev ;
-        shooter2_motor_.setControl(new VelocityVoltage(cvel)) ;
+        shooter2_motor_.setControl(new MotionMagicVelocityVoltage(cvel)) ;
     }
 
     public void setShooter2MotorVoltage(double vol) {
@@ -437,13 +438,13 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         if (XeroRobot.isReal())
         {
             final Slot0Configs shooter1slot0cfg = new Slot0Configs()
-                                    .withKP(IntakeShooterConstants.Shooter1.Real.kP)
-                                    .withKI(IntakeShooterConstants.Shooter1.Real.kI)
-                                    .withKD(IntakeShooterConstants.Shooter1.Real.kD)
-                                    .withKV(IntakeShooterConstants.Shooter1.Real.kV)
-                                    .withKA(IntakeShooterConstants.Shooter1.Real.kA)
-                                    .withKG(IntakeShooterConstants.Shooter1.Real.kG)
-                                    .withKS(IntakeShooterConstants.Shooter1.Real.kS) ;
+                                    .withKP(IntakeShooterConstants.Shooter1.Real.Pid.kP)
+                                    .withKI(IntakeShooterConstants.Shooter1.Real.Pid.kI)
+                                    .withKD(IntakeShooterConstants.Shooter1.Real.Pid.kD)
+                                    .withKV(IntakeShooterConstants.Shooter1.Real.Pid.kV)
+                                    .withKA(IntakeShooterConstants.Shooter1.Real.Pid.kA)
+                                    .withKG(IntakeShooterConstants.Shooter1.Real.Pid.kG)
+                                    .withKS(IntakeShooterConstants.Shooter1.Real.Pid.kS) ;
             checkError("set-shooter1-PID-value", () -> shooter1_motor_.getConfigurator().apply(shooter1slot0cfg)) ;
         }
         else
@@ -458,11 +459,18 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withKS(IntakeShooterConstants.Shooter.Simulated.kS) ;
             checkError("set-shooter1-PID-value", () -> shooter1_motor_.getConfigurator().apply(shooter1slot0cfg)) ;            
         }
+
+        final MotionMagicConfigs shooter1cfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(IntakeShooterConstants.Shooter1.Real.MotionMagic.kV)
+                                .withMotionMagicAcceleration(IntakeShooterConstants.Shooter1.Real.MotionMagic.kA)
+                                .withMotionMagicJerk(IntakeShooterConstants.Shooter1.Real.MotionMagic.kJ) ;
+        checkError("updown-set-magic-motion", () -> shooter1_motor_.getConfigurator().apply(shooter1cfg)) ;
+
         shooter1_velocity_signal_ = shooter1_motor_.getVelocity() ;
         shooter1_current_signal_ = shooter1_motor_.getSupplyCurrent() ;
         shooter1_position_signal_ = shooter1_motor_.getPosition() ;
-        shooter1_voltage_signal_ = shooter1_motor_.getMotorVoltage() ;        
-
+        shooter1_voltage_signal_ = shooter1_motor_.getMotorVoltage() ;   
+        
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Shooter2 motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////         
@@ -475,13 +483,13 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         if (XeroRobot.isReal())
         {
             final Slot0Configs shooter2slot0cfg = new Slot0Configs()
-                                    .withKP(IntakeShooterConstants.Shooter2.Real.kP)
-                                    .withKI(IntakeShooterConstants.Shooter2.Real.kI)
-                                    .withKD(IntakeShooterConstants.Shooter2.Real.kD)
-                                    .withKV(IntakeShooterConstants.Shooter2.Real.kV)
-                                    .withKA(IntakeShooterConstants.Shooter2.Real.kA)
-                                    .withKG(IntakeShooterConstants.Shooter2.Real.kG)
-                                    .withKS(IntakeShooterConstants.Shooter2.Real.kS) ;
+                                    .withKP(IntakeShooterConstants.Shooter2.Real.Pid.kP)
+                                    .withKI(IntakeShooterConstants.Shooter2.Real.Pid.kI)
+                                    .withKD(IntakeShooterConstants.Shooter2.Real.Pid.kD)
+                                    .withKV(IntakeShooterConstants.Shooter2.Real.Pid.kV)
+                                    .withKA(IntakeShooterConstants.Shooter2.Real.Pid.kA)
+                                    .withKG(IntakeShooterConstants.Shooter2.Real.Pid.kG)
+                                    .withKS(IntakeShooterConstants.Shooter2.Real.Pid.kS) ;
             checkError("set-shooter1-PID-value", () -> shooter2_motor_.getConfigurator().apply(shooter2slot0cfg)) ;
         }
         else
@@ -496,6 +504,13 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withKS(IntakeShooterConstants.Shooter.Simulated.kS) ;
             checkError("set-shooter1-PID-value", () -> shooter2_motor_.getConfigurator().apply(shooter2slot0cfg)) ;            
         }
+
+        final MotionMagicConfigs shooter2cfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(IntakeShooterConstants.Shooter1.Real.MotionMagic.kV)
+                                .withMotionMagicAcceleration(IntakeShooterConstants.Shooter1.Real.MotionMagic.kA)
+                                .withMotionMagicJerk(IntakeShooterConstants.Shooter1.Real.MotionMagic.kJ) ;
+        checkError("updown-set-magic-motion", () -> shooter2_motor_.getConfigurator().apply(shooter2cfg)) ;        
+
         shooter2_velocity_signal_ = shooter2_motor_.getVelocity() ;
         shooter2_current_signal_ = shooter2_motor_.getSupplyCurrent() ;  
         shooter2_position_signal_ = shooter2_motor_.getPosition() ;

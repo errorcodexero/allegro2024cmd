@@ -19,7 +19,7 @@ public class IntakeShooterConstants {
         public static final double kTiltVelTolerance = 16.0 ;
         public static final double kShooterVel = 75.0 ;
         public static final double kShooterVelTolerance = 5.0 ;
-    }    
+    }
 
     public class ManualShotPodium {
         public static final double kUpDownPos = 118.0 ;
@@ -74,7 +74,7 @@ public class IntakeShooterConstants {
             public static final double kTransfer = 90.0 ;
             public static final double kShootNominal = 118.0 ;
             public static final double kEject = 118.0 ;
-        }            
+        }
 
         public class Real {
             public class PID {
@@ -110,19 +110,19 @@ public class IntakeShooterConstants {
                 public static final double kA = kafactor ;
                 public static final double kJ = kjfactor ;
             }
-        }        
+        }
 
         public static final double[] kPwlValues = new double[] {
-            0.0, 100.0, 
-            2.319, 100.0, 
-            2.32, 118.0, 
+            0.0, 100.0,
+            2.319, 100.0,
+            2.32, 118.0,
             5.0, 118.0
         } ;
     }
 
     public class Tilt {
         public static final int kMotorId = 5 ;
-        public static final boolean kInvert = true ;            
+        public static final boolean kInvert = true ;
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 5.0 ;
         public static final double kTargetVelTolerance = 20.0 ;
@@ -130,11 +130,11 @@ public class IntakeShooterConstants {
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
         public static final double kMaxPosition = 45.0 ;
-        public static final double kSimGearRatio = 18.0 ;        
+        public static final double kSimGearRatio = 18.0 ;
         public static final double kSimMotorLoad = 0.1;
 
         // The velocity of the tilt must be below this threshold in order to
-        // shoot a note.  This is measured using the absolute encoder that is 
+        // shoot a note.  This is measured using the absolute encoder that is
         // mounting on the tilt mechansim beyond the gearing
         public static final double kMaxAbsoluteTiltVelocity = 4.0 ;
 
@@ -171,7 +171,7 @@ public class IntakeShooterConstants {
 
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;
-        }             
+        }
 
         public class Real {
             public class MovementPIDSlot0 {
@@ -182,7 +182,7 @@ public class IntakeShooterConstants {
                 public static final double kA = 0.0 ;
                 public static final double kG = 0.0 ;
                 public static final double kS = 0.0 ;
-            };        
+            };
 
             public class MotionMagic {
                 // public static final double kV = 15 ;
@@ -201,7 +201,7 @@ public class IntakeShooterConstants {
                 public static final double kA = 0.0 ;
                 public static final double kG = 0.0 ;
                 public static final double kS = 0.0 ;
-            };        
+            };
 
             public class MotionMagic {
                 public static final double kV = kvfactor * 7.2727273 / 20.0  ;
@@ -234,7 +234,7 @@ public class IntakeShooterConstants {
             }
             public class Simulation {
                 public static final double kEncoderCalibrationValue = 0.0 ;
-            }            
+            }
         }
 
         public static final double[] kPwlValues = new double[] {
@@ -252,30 +252,30 @@ public class IntakeShooterConstants {
             // Need to tune below
             4.2, -56.0,
             4.5, -55.0
-        } ;            
+        } ;
     }
 
     public class Shooter {
-        public static final double kVelocityTolerance = 2.5 ;        
+        public static final double kVelocityTolerance = 2.5 ;
         public static final double kEjectForwardTime = 1.0 ;
         public static final double kEjectPauseTime = 0.5 ;
         public static final double kEjectReverseTime = 1.0 ;
         public static final double kEjectVelocity = 75.0 ;
 
-        public static final double kAutoShootVelocityTol = 5.0 ;            
+        public static final double kAutoShootVelocityTol = 5.0 ;
 
         public static final double kTransferVelocity = 40.0 ;
         public static final double kTransferRunShooterDuration = 2.5 ;
         public static final double kTransferVelocityTol = 5.0 ;
-        
+
         public static final double kTransferLength = 3.0 ;
-        public static final double kTransferContLength = 1.0 ;     
+        public static final double kTransferContLength = 1.0 ;
 
         public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;
         public static final double kShootMinVelocity = 0 ;
         public static final double kShootMaxVelocity = 90 ;
 
-        public static final double kSimGearRatio = 0.6 ;      
+        public static final double kSimGearRatio = 0.6 ;
         public static final double kSimMotorLoad = 0.001 ;
 
         public static class Simulated {
@@ -285,7 +285,7 @@ public class IntakeShooterConstants {
             public static final double kV = 0.125 ;
             public static final double kA = 0.0 ;
             public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;  
+            public static final double kS = 0.0 ;
         }
 
         public static final double[] kPwlValues = new double[] {
@@ -299,43 +299,59 @@ public class IntakeShooterConstants {
             3.23, 80,
             3.5, 80,
             4.5, 80
-        } ;            
+        } ;
     }
 
     public class Shooter1 {
         public static final int kMotorId = 3 ;
-        public static final boolean kInvert = true ;             
+        public static final boolean kInvert = true ;
         public static final double kCurrentLimit = 80.0 ;
 
         public static class Real {
-            public static final double kP = 0.4;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.12727 ;
-            public static final double kA = 0.01718 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.24131 ;   
-        }        
+            public static class Pid {
+                public static final double kP = 0.4;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.12727 ;
+                public static final double kA = 0.01718 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.24131 ;
+            }
+
+            public static class MotionMagic {
+                public static final double kV = 1.0 ;
+                public static final double kA = 1.0 ;
+                public static final double kJ = 1.0 ;
+            }
+        }
     }
 
     public class Shooter2 {
         public static final int kMotorId = 4 ;
-        public static final boolean kInvert = true ;             
-        public static final double kCurrentLimit = 80.0 ;    
+        public static final boolean kInvert = true ;
+        public static final double kCurrentLimit = 80.0 ;
 
         public static class Real {
-            public static final double kP = 0.4;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.12497 ;
-            public static final double kA = 0.017806 ;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.21256 ;   
-        }        
+            public static class Pid {            
+                public static final double kP = 0.4;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.12497 ;
+                public static final double kA = 0.017806 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.21256 ;
+            }
+
+            public static class MotionMagic {
+                public static final double kV = 1.0 ;
+                public static final double kA = 1.0 ;
+                public static final double kJ = 1.0 ;
+            }            
+        }
     }
 
     public class NoteSensor {
         public static final int kChannel = 1 ;
         public static final boolean kInverted = true ;
-    }    
+    }
 }
