@@ -132,7 +132,7 @@ public class TrackerSubsystem extends XeroSubsystem {
         startPeriodic();
 
         io_.updateInputs(inputs_) ;
-        Logger.processInputs("tracker", inputs_);        
+        Logger.processInputs("tracker", inputs_);
 
         if (has_target_info_ == false && getRobot().isEnabled()) {
             has_target_info_ = getTargetPose() ;

@@ -511,9 +511,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         state_ = State.WaitingToShoot ;
     }
 
-    int count = 0 ;
     public void eject() {
-        count++ ;
         if (xfercmd_ != null) {
             xfercmd_.cancel() ;
         }
@@ -521,8 +519,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, 5.0, 100.0, 
                      IntakeShooterConstants.Tilt.Positions.kEject, 8.0, 100.0) ;
         next_state_ = State.StartEjectOperations ;
-
-        Logger.recordOutput("count", count) ;
     }
 
     //
