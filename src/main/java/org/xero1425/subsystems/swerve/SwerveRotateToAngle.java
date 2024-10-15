@@ -8,6 +8,7 @@ import org.xero1425.math.XeroMath;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,12 +27,12 @@ public class SwerveRotateToAngle extends Command {
 
     private CommandSwerveDrivetrain db_;
     private DoubleSupplier angle_supplier_ ;
+    private Rotation2d target_ ;
     private boolean is_finished_ ;
     private double postol_ ;
     private double veltol_ ;
 
     public SwerveRotateToAngle(CommandSwerveDrivetrain db, DoubleSupplier angSupplier, double postol, double veltol) {
-        // addRequirements(db);
 
         setName("swerve-rotate-to-angle");
 
@@ -42,9 +43,24 @@ public class SwerveRotateToAngle extends Command {
         veltol_ = veltol ;
     }
 
+    public SwerveRotateToAngle(CommandSwerveDrivetrain db, Rotation2d target, double postol, double veltol) {
+
+        setName("swerve-rotate-to-angle");
+
+        db_ = db;
+        target_ = target ;
+
+        postol_ = postol ;
+        veltol_ = veltol ;
+    }    
+
     public SwerveRotateToAngle(CommandSwerveDrivetrain db, DoubleSupplier angSupplier) {
         this(db, angSupplier, kDefaultPostol, kDefaultVeltol) ;
     }
+
+    public SwerveRotateToAngle(CommandSwerveDrivetrain db, Rotation2d target) {
+        this(db, target, kDefaultPostol, kDefaultVeltol) ;
+    }      
 
     public SwerveRotateToAngle withPositionTolerance(double v) {
         postol_ = v ;
@@ -65,7 +81,14 @@ public class SwerveRotateToAngle extends Command {
 
     @Override
     public void execute() {
-        double target = angle_supplier_.getAsDouble() ;
+        double target ;
+        if (angle_supplier_ != null) {
+            target = angle_supplier_.getAsDouble() ;
+        }
+        else {
+            target = target_.getDegrees();
+        }
+
         double current = db_.getState().Pose.getRotation().getDegrees() ;
         double rotvel = pid_.calculate(current, target) ;
 

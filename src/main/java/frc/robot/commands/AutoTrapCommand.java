@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 
-public class AutoTrap extends Command {
+public class AutoTrapCommand extends Command {
 
     //
     // April Tags
@@ -41,7 +41,7 @@ public class AutoTrap extends Command {
     private static double kExtraSpacing1 = 1.5 ;
     private static double kExtraSpacing2 = 0.0 ;    
     private static double kMaxDistance = 4.0 ;
-    private static int kSimulatedTag = 13 ;
+    private static int kSimulatedTag = 11 ;
 
     private String limelight_name_ ;
 
@@ -55,7 +55,7 @@ public class AutoTrap extends Command {
     private int target_tag_ ;
     private int[] desired_tags_ = new int[3] ;
 
-    public AutoTrap(String name, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
+    public AutoTrapCommand(String name, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
         limelight_name_ = name ;
         db_ = dt ;
         oi_ = oi ;

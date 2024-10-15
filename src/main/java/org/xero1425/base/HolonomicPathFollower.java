@@ -60,7 +60,7 @@ public class HolonomicPathFollower {
     private double rot_post_ ;
 
     private Supplier<Pose2d> pose_ ;
-    private Consumer<ChassisSpeeds> output_ ;    
+    private Consumer<ChassisSpeeds> output_ ;
 
     private boolean did_timeout_ ;
     private String path_name_ ;
@@ -131,7 +131,7 @@ public class HolonomicPathFollower {
 
     public void drivePathWithTraj(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
         XeroPathSegment seg = path.getSegment(0, path.getTrajectoryEntryCount() - 1) ;
-        Pose2dWithRotation dest = new Pose2dWithRotation(seg.getX(), seg.getY(), 
+        Pose2dWithRotation dest = new Pose2dWithRotation(seg.getX(), seg.getY(),
                                         Rotation2d.fromDegrees(seg.getHeading()), Rotation2d.fromDegrees(seg.getRotation())) ;
 
         // The number of points in the intermediate points array
@@ -163,7 +163,7 @@ public class HolonomicPathFollower {
 
     private void executeDriveTo() {
         if (driving_) {
-            Logger.recordOutput("paths:to", path_name_) ;
+            Logger.recordOutput("path:name", path_name_) ;
 
             double elapsed = Timer.getFPGATimestamp() - start_time_ ;
 
@@ -171,9 +171,11 @@ public class HolonomicPathFollower {
             Trajectory.State st = traj_.sample(elapsed) ;
             Rotation2d rot = rotatationValue(elapsed) ;
 
-            // if (st != null && st.poseMeters != null) {
-            //     Logger.recordOutput("paths:target", st.poseMeters) ;
-            // }
+            if (st != null && st.poseMeters != null) {
+                Logger.recordOutput("path:target-x", st.poseMeters.getX()) ;
+                Logger.recordOutput("path:target-y", st.poseMeters.getY()) ;
+                Logger.recordOutput("path:target-heading", st.poseMeters.getRotation().getDegrees()) ;
+            }
 
             ChassisSpeeds spd = controller_.calculate(here, st, rot) ;
             output_.accept(spd);
@@ -186,10 +188,10 @@ public class HolonomicPathFollower {
                 else if (elapsed > start_time_ + traj_.getTotalTimeSeconds() + timeout_) {
                     did_timeout_ = true ;
                     driving_ = false ;
-                    output_.accept(new ChassisSpeeds()) ;                
+                    output_.accept(new ChassisSpeeds()) ;
                 }
             }
-            
+
             distance_ += here.getTranslation().getDistance(last_pos_) ;
             last_pos_ = here.getTranslation() ;
         }

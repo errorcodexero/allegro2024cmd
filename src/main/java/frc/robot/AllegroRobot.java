@@ -45,7 +45,7 @@ public class AllegroRobot extends XeroRobot {
     protected void addRobotSimulationModels() {
         ModelFactory factory = SimulationEngine.getInstance().getModelFactory();
         factory.registerModel("intake-shooter", "frc.models.IntakeShooterModel");
-        factory.registerModel("amp-trap", "frc.models.AmpTrapModel");
+        factory.registerModel("tramp", "frc.models.TrampModel");
         factory.registerModel("allegro-oi", "frc.models.AllegroOIModel");    
     }      
 
@@ -55,12 +55,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "eject2";
+        return "autofour";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "three-note-paths" ;
+        return "four-note-1.0" ;
     }
 
     @Override

@@ -131,6 +131,11 @@ public class TrampSubsystem extends XeroSubsystem {
         climber_target_ = 0.0 ;
     }
 
+    public void setHasNote(boolean b) {
+        has_note_ = b ;
+        state_ = State.HoldingTrapPosition ;
+    }
+
     public void endNoteTransfer() {
         //
         // Enable a PID controller to hold the note in place.

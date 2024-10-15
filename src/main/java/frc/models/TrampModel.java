@@ -2,6 +2,7 @@ package frc.models;
 
 import java.util.Map;
 
+import org.xero1425.base.ISubsystemSim;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SettingsValue;
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 
-public class AmpTrapModel extends SimulationModel {
+public class TrampModel extends SimulationModel {
 
     private static final double kArmGearRation = 14.81 ;
     private static final double kArmInertia = 0.000001 ;    
@@ -36,7 +37,7 @@ public class AmpTrapModel extends SimulationModel {
     private TalonFX elevator_ ;
     private TalonFX climber_ ;
 
-    public AmpTrapModel(SimulationEngine engine, String model, String inst) {
+    public TrampModel(SimulationEngine engine, String model, String inst) {
         super(engine, model, inst) ;
     }
 
@@ -50,7 +51,27 @@ public class AmpTrapModel extends SimulationModel {
 
     @Override
     public boolean processEvent(String name, SettingsValue value) {
-        return false ;
+        boolean ret = false ;
+        
+        try {
+            if (name.equals("has-note")) {
+                ISubsystemSim simsub = getEngine().getRobot().getSubsystemByName(TrampSubsystem.NAME) ;
+                if (simsub instanceof TrampSubsystem) {
+                    TrampSubsystem sub = (TrampSubsystem)simsub ;
+                    sub.setHasNote(value.getBoolean()) ;
+                }
+                ret = true ;
+            }
+        }
+        catch(Exception ex) {
+            MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+            logger.startMessage(MessageType.Error) ;
+            logger.add("time", getEngine().getSimulationTime());
+            logger.add("event", name) ;
+            logger.add("- expected boolean value, but got " + value.toString()) ;
+            logger.endMessage();
+        }
+        return ret ;
     }
 
     private boolean createModels() {
