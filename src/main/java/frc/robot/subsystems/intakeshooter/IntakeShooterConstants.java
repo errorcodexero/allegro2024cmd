@@ -319,9 +319,9 @@ public class IntakeShooterConstants {
             }
 
             public static class MotionMagic {
-                public static final double kV = 1.0 ;
-                public static final double kA = 1.0 ;
-                public static final double kJ = 1.0 ;
+                public static final double kV = 0.0;
+                public static final double kA = 50.0 ;
+                public static final double kJ = 1000.0 ;
             }
         }
     }
@@ -343,9 +343,9 @@ public class IntakeShooterConstants {
             }
 
             public static class MotionMagic {
-                public static final double kV = 1.0 ;
-                public static final double kA = 1.0 ;
-                public static final double kJ = 1.0 ;
+                public static final double kV = 0.0 ;
+                public static final double kA = 50.0 ;
+                public static final double kJ = 1000.0 ;
             }            
         }
     }
