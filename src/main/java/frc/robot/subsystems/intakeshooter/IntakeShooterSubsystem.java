@@ -132,6 +132,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Trigger transfer_note_trigger_ ;
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
+
+    private boolean firing_ ;
     // #endregion
 
     // #region constructor
@@ -144,6 +146,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         destsupplier_ = destsupplier ;
         shot_type_supplier_ = shottype ;
         auto_mode_auto_shoot_ = false ;
+
+        firing_ = false ;
 
         capture_timer_ = new XeroTimer("collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
         reverse_timer_ = new XeroTimer("reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
@@ -165,7 +169,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         next_state_ = State.Invalid ;
 
         transfer_note_trigger_ = new Trigger(()-> canTransferNote()) ;
-        ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
+        ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot || tracking_ ) ;
+
+
 
         need_stop_manipulator_ = false ;
 
@@ -328,9 +334,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #region public methods to set the state of the subsystem
     public void setTiltToAngle(double t, double tiltpostol, double tiltveltol) {
         setTracking(false) ;
-        setTiltTarget(t) ;
+        setTiltTarget(t, tiltpostol) ;
 
-        target_tilt_tol_ = tiltpostol ;
         target_tilt_vel_ = tiltveltol ;
     }
 
@@ -617,7 +622,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // First align tilt to the desired position, then move them to the desired position together
             //
-            setTiltTarget(desired_tilt) ;
+            setTiltTarget(desired_tilt, target_tilt_tol_) ;
             state_ = State.MoveTiltToPosition ;            
         }
         else {
@@ -625,7 +630,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Single move of updown/tilt together
             //
             setUpDownTarget(updown);
-            setTiltTarget(tilt);
+            setTiltTarget(tilt, target_tilt_tol_);
             state_ = State.MoveBothToPosition ;            
         }
     }
@@ -709,9 +714,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         io_.setUpDownTargetPos(pos);
     }
 
-    private void setTiltTarget(double pos) {
+    private void setTiltTarget(double pos, double postol) {
         io_.setTiltTargetPos(tracking_, pos);
         target_tilt_ = pos ;
+        target_tilt_tol_ = postol ;
     }
 
     private void trackTargetDistance() {
@@ -721,12 +727,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
-        // if (dist > 5.0) {
-        //     velocity = 0.0 ;
-        // }
+        if (dist > 5.0) {
+            velocity = 0.0 ;
+        }
 
         setUpDownTarget(updown);
-        setTiltTarget(tilt) ;
+        setTiltTarget(tilt, 3.0) ;
         setShooterVelocity(velocity, IntakeShooterConstants.Shooter.kAutoShootVelocityTol) ;
     }    
 
@@ -741,7 +747,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private void moveTiltToPositionState() {
         if (isTiltReady()) {
             setUpDownTarget(next_updown_);
-            setTiltTarget(next_tilt_);
+            setTiltTarget(next_tilt_, target_tilt_tol_);
             state_ = State.MoveBothToPosition ;
         }
     }
@@ -869,9 +875,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
-
     public void waitingToShootState() {
         if (isTiltReady() && isUpDownReady() && isShooterReady()) {
+            firing_ = true ;
             io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
             shoot_timer_.start() ;
             state_ = State.WaitForShotFinish ;
@@ -884,6 +890,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Indicate the note has left the robot
             //
             has_note_ = false ;
+
+            firing_ = false ;
 
             //
             // Turn off the feeder and shooter
@@ -1177,6 +1185,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
 
             Logger.recordOutput("intake:cappos", io_.getShooterPositionAtRisingEdge());
+
+            Logger.recordOutput("intake:firing", firing_);
         }        
 
         endPeriodic();

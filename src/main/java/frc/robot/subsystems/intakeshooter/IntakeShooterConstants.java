@@ -243,15 +243,14 @@ public class IntakeShooterConstants {
             1.72, -56.0,
             2.02, -53.0,
             2.319, -49.0,
-            2.32, -68.0,
-            2.62, -66.0,
+            2.32, -67.0,
+            2.62, -65.0,
             2.93, -62.0,
             3.23, -60.0,
             3.5, -58.5,
             3.9, -56.0,
-            // Need to tune below
-            4.2, -56.0,
-            4.5, -55.0
+            4.2, -54.5,
+            4.5, -54.0
         } ;
     }
 
@@ -320,7 +319,7 @@ public class IntakeShooterConstants {
 
             public static class MotionMagic {
                 public static final double kV = 0.0;
-                public static final double kA = 50.0 ;
+                public static final double kA = 75.0 ;
                 public static final double kJ = 1000.0 ;
             }
         }
@@ -344,7 +343,7 @@ public class IntakeShooterConstants {
 
             public static class MotionMagic {
                 public static final double kV = 0.0 ;
-                public static final double kA = 50.0 ;
+                public static final double kA = 75.0 ;
                 public static final double kJ = 1000.0 ;
             }            
         }
