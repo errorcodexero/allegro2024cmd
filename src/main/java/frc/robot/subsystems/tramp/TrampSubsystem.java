@@ -121,7 +121,7 @@ public class TrampSubsystem extends XeroSubsystem {
         delay_trap_timer_ = new XeroTimer("delay-trap-timer", TrampConstants.Trap.kDelayTime) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
-        ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
+        ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition || true) ; 
         climber_down_trigger_ = new Trigger(()-> inputs_.climberPosition < 0.1) ;
         climber_up_trigger_ = new Trigger(()-> inputs_.climberPosition >= TrampConstants.Climber.kClimberUpPosition - 0.1) ;        
         basic_climb_ready_trigger_ = new Trigger(()-> state_ == State.BasicClimbReady) ;

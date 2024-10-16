@@ -49,7 +49,7 @@ public class AutoTrapWithRotateCommand extends Command {
     private static double kMaxDistance = 4.0 ;
     private static int kSimulatedTag = 11 ;
     private static double kForwardVelocity = 0.5 ;
-    private static double kForwardDistance = 0.5 ;
+    private static double kForwardDistance = 1.5 ;
 
     private String limelight_name_ ;
 
@@ -192,7 +192,7 @@ public class AutoTrapWithRotateCommand extends Command {
     private void rotateState() {
         if (rotate_.isFinished()) {
             rotate_ = null ;
-            state_ = State.DriveToTrap2 ;
+            state_ = State.Done ;
             starting_pose_ = db_.getState().Pose ;
             db_.setControl(forward.withVelocityX(kForwardVelocity)) ;
         }
@@ -202,7 +202,7 @@ public class AutoTrapWithRotateCommand extends Command {
         if (!db_.isFollowingPath()) {
             Rotation2d angle = waypoints_[0].getRobotRotation().rotateBy(Rotation2d.fromDegrees(180.0)) ;
             rotate_ = new SwerveRotateToAngle(db_, angle, 1.0, 1.0) ;
-            state_ = State.Rotate ;
+            state_ = State.Done ;
             CommandScheduler.getInstance().schedule(rotate_);
         }
     }
