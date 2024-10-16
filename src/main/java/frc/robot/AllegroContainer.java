@@ -48,7 +48,7 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class AllegroContainer extends XeroContainer {
-    private static int kAutoTrap = 2 ;
+    private static int kAutoTrap = 1 ;
 
     // #region private member variables
     //

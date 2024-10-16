@@ -192,7 +192,7 @@ public class AutoTrapWithRotateCommand extends Command {
     private void rotateState() {
         if (rotate_.isFinished()) {
             rotate_ = null ;
-            state_ = State.Done ;
+            state_ = State.DriveToTrap2 ;
             starting_pose_ = db_.getState().Pose ;
             db_.setControl(forward.withVelocityX(kForwardVelocity)) ;
         }
@@ -202,7 +202,7 @@ public class AutoTrapWithRotateCommand extends Command {
         if (!db_.isFollowingPath()) {
             Rotation2d angle = waypoints_[0].getRobotRotation().rotateBy(Rotation2d.fromDegrees(180.0)) ;
             rotate_ = new SwerveRotateToAngle(db_, angle, 1.0, 1.0) ;
-            state_ = State.Done ;
+            state_ = State.Rotate ;
             CommandScheduler.getInstance().schedule(rotate_);
         }
     }
