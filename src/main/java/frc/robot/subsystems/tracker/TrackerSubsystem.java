@@ -218,7 +218,8 @@ public class TrackerSubsystem extends XeroSubsystem {
                 Logger.recordOutput("tracker:ready_distance_to_target", ready_distance_to_target_) ;
                 Logger.recordOutput("tracker:ready_heading", ready_angle_to_target_) ;
                 Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance_) ;
-                Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;         
+                Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;       
+                Logger.recordOutput("tracker:tags", inputs_.tags_) ; 
             }
 
             AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;

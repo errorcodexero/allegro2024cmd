@@ -9,6 +9,7 @@ public interface TrackerIO {
         public double x_ ;
         public double y_ ;
         public double heading_ ;
+        public String tags_ ;
     }
 
     public default void updateInputs(TrackerInputs inputs) {
@@ -16,6 +17,7 @@ public interface TrackerIO {
         inputs.x_ = Double.NaN ;
         inputs.y_ = Double.NaN ;
         inputs.heading_ = Double.NaN ;
+        inputs.tags_ = "" ;
     }
 
     public default void setTarget(int tag) {

@@ -40,6 +40,8 @@ public class AutoTrapCommand extends Command {
 
     private static double kExtraSpacing1 = 1.5 ;
     private static double kExtraSpacing2 = 0.0 ;    
+    private static double kLeftSpacing1 = -0.1 ;
+    private static double kLeftSpacing2 = -0.1;
     private static double kMaxDistance = 4.0 ;
     private static int kSimulatedTag = 11 ;
 
@@ -63,6 +65,53 @@ public class AutoTrapCommand extends Command {
         layout_ = layout ;
         addRequirements(db_) ;
         state_ = State.Starting ;
+
+        computeTarget(11) ;
+    }
+
+    private Pose2dWithRotation[] computeTarget(int tag) {
+        Pose2dWithRotation [] ret = new Pose2dWithRotation[2] ;
+        Pose2d pt ;
+        Rotation2d ptrt ;
+
+        Pose2d tagpose = layout_.getTagPose(tag).get().toPose2d() ;
+
+        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing1, kLeftSpacing1);
+        ptrt = pt.getRotation() ;
+        ret[0] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
+
+        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing2, kLeftSpacing2) ;
+        ptrt = pt.getRotation() ;
+        ret[1] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
+
+        double dist = ret[0].getTranslation().getDistance(db_.getState().Pose.getTranslation()) ;
+        if (dist > kMaxDistance) {
+            ret = null ;
+        }
+
+        return ret;
+    }
+
+    private Pose2d projectedAlongHeading(Pose2d p, double projection) {
+        double dx = Math.cos(p.getRotation().getRadians()) * projection ;
+        double dy = Math.sin(p.getRotation().getRadians()) * projection ;
+        return new Pose2d(p.getX() + dx, p.getY() + dy, p.getRotation()) ;
+    }  
+
+    private Pose2d computeProjectedTrapPoint(Pose2d tag, double xspacing, double yspacing) {
+        // Find the point projected along the heading given by the tag
+        Pose2d ret1 = projectedAlongHeading(tag, xspacing) ;
+
+        // Find a point at the end of the projection, rotated by 90 degrees
+        Pose2d pt = new Pose2d(ret1.getTranslation(), ret1.getRotation().rotateBy(Rotation2d.fromDegrees(90.0))) ;
+
+        // Find a point at the end of the offset at the end of the projection
+        Pose2d ret2 = projectedAlongHeading(pt, yspacing) ;
+
+        // Take the original heading witht he final point
+        Pose2d ret = new Pose2d(ret2.getTranslation(), tag.getRotation().rotateBy(Rotation2d.fromDegrees(180.0))) ;
+
+        return ret ;
     }
 
     @Override
@@ -174,7 +223,7 @@ public class AutoTrapCommand extends Command {
         }
 
         if (target_tag_ != -1) {
-            Pose2dWithRotation [] waypoints = computeTarget() ;
+            Pose2dWithRotation [] waypoints = computeTarget(target_tag_) ;
             if (waypoints != null) {
                 Pose2d immds[] = new Pose2d[] { waypoints[0] } ;
                 db_.driveTo("auto-amp", immds, waypoints[1], 1.0, 1.0, 0.0, 1.0, 1.0) ;
@@ -189,33 +238,5 @@ public class AutoTrapCommand extends Command {
         }
     }
 
-    private Pose2dWithRotation[] computeTarget() {
-        Pose2dWithRotation [] ret = new Pose2dWithRotation[2] ;
-        Pose2d pt ;
-        Rotation2d ptrt ;
-
-        Pose2d tagpose = layout_.getTagPose(target_tag_).get().toPose2d() ;
-
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing1);
-        ptrt = pt.getRotation() ;
-        ret[0] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
-
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing2) ;
-        ptrt = pt.getRotation() ;
-        ret[1] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
-
-        double dist = ret[0].getTranslation().getDistance(db_.getState().Pose.getTranslation()) ;
-        if (dist > kMaxDistance) {
-            ret = null ;
-        }
-
-        return ret;
-    }
-
-    private Pose2d computeProjectedTrapPoint(Pose2d p, double projection) {
-        double dx = Math.cos(p.getRotation().getRadians()) * projection ;
-        double dy = Math.sin(p.getRotation().getRadians()) * projection ;
-        double angle = XeroMath.normalizeAngleDegrees(p.getRotation().getDegrees() + 180.0) ;
-        return new Pose2d(p.getX() + dx, p.getY() + dy, Rotation2d.fromDegrees(angle)) ;
-    }    
+  
 }
