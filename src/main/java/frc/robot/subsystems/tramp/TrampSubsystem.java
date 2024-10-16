@@ -104,6 +104,8 @@ public class TrampSubsystem extends XeroSubsystem {
     private double manipulator_target_ ;
     private double manipulator_start_pos_ ;
 
+    private double simulated_thru_bore_value_ ;
+
     public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
         super(robot, NAME) ;
 
@@ -129,6 +131,11 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.Idle ;
         climber_dir_ = ClimberDir.None ;
         climber_target_ = 0.0 ;
+        simulated_thru_bore_value_ = 0.0 ;
+    }
+
+    public void setSimulatedThurBoreValue(double v) {
+        simulated_thru_bore_value_ = v ;
     }
 
     public void setHasNote(boolean b) {
@@ -390,6 +397,9 @@ public class TrampSubsystem extends XeroSubsystem {
         startPeriodic();
 
         io_.updateInputs(inputs_) ;
+        if (XeroRobot.isSimulation()) {
+            inputs_.manipulatorFreeWheelPosition = simulated_thru_bore_value_ ;
+        }
         Logger.processInputs("tramp", inputs_);
 
         if (climber_dir_ == ClimberDir.Up) {

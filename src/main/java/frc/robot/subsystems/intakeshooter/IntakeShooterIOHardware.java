@@ -34,7 +34,7 @@ import edu.wpi.first.units.Units ;
 
 public class IntakeShooterIOHardware implements IntakeShooterIO {
 
-    private final static int kApplyTries = 5 ;  
+    private final static int kApplyTries = 5 ;
 
     private HashMap<String, TalonFX> talon_motors_ ;
 
@@ -43,7 +43,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private TalonFX shooter1_motor_ ;
     private TalonFX shooter2_motor_ ;
     private TalonFX tilt_motor_ ;
-    private DigitalInput note_sensor_ ;    
+    private DigitalInput note_sensor_ ;
     private AnalogInput absolute_encoder_;
     private AsynchronousInterrupt note_interrupt_ ;
     private EncoderMapper encoder_mapper_ ;
@@ -61,7 +61,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private StatusSignal<Double> updown_position_signal_ ;
     private StatusSignal<Double> updown_velocity_signal_ ;
     private StatusSignal<Double> updown_current_signal_ ;
-    private StatusSignal<Double> updown_voltage_signal_ ;    
+    private StatusSignal<Double> updown_voltage_signal_ ;
 
     private StatusSignal<Double> tilt_position_signal_ ;
     private StatusSignal<Double> tilt_velocity_signal_ ;
@@ -91,42 +91,43 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         //
         // Initialize all of the hardware
         //
-        initFeederMotor() ;              
+        initFeederMotor() ;
         initUpDownMotor() ;
         initTiltMotor();
         initShooterMotors() ;
         initNoteSensor() ;
         initAbsoluteEncoder(robot) ;
-       
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
-        /////////////////////////////////////////////////////////////////////////////////////////////////                                    
-        checkError("set-intake-signals-update-frequeny-fast", () -> BaseStatusSignal.setUpdateFrequencyForAll(100.0,
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        double freq = XeroRobot.isReal() ? 100.0 : 100.0;
+        checkError("set-intake-signals-update-frequeny-fast", () -> BaseStatusSignal.setUpdateFrequencyForAll(freq,
                                             updown_position_signal_,
                                             updown_velocity_signal_,
-                                            updown_current_signal_,
-                                            updown_voltage_signal_,
                                             tilt_position_signal_,
                                             tilt_velocity_signal_,
-                                            tilt_current_signal_,
-                                            tilt_voltage_signal_,
                                             shooter1_velocity_signal_,
-                                            shooter1_current_signal_,
                                             shooter1_position_signal_,
-                                            shooter1_voltage_signal_,
                                             shooter2_velocity_signal_,
-                                            shooter2_current_signal_,
-                                            shooter2_position_signal_,
-                                            shooter2_voltage_signal_)) ;
+                                            shooter2_position_signal_)) ;
 
         checkError("set-intake-signals-update-frequeny-slow", () -> BaseStatusSignal.setUpdateFrequencyForAll(1.0,
-                                            feeder_current_signal_)) ;                                            
+                                            feeder_current_signal_,
+                                            updown_current_signal_,
+                                            updown_voltage_signal_,
+                                            tilt_current_signal_,
+                                            tilt_voltage_signal_,
+                                            shooter1_current_signal_,
+                                            shooter1_voltage_signal_,
+                                            shooter2_current_signal_,
+                                            shooter2_voltage_signal_)) ;
 
         checkError("updown-optimize-bus", () -> updown_motor_.optimizeBusUtilization()) ;
         checkError("tilt-optimize-bus", () -> tilt_motor_.optimizeBusUtilization()) ;
         checkError("shooter1-optimize-bus", () -> shooter1_motor_.optimizeBusUtilization()) ;
         checkError("shooter2-optimize-bus", () -> shooter2_motor_.optimizeBusUtilization()) ;
-        checkError("feeder-optimize-bus", () -> feeder_motor_.optimizeBusUtilization()) ;      
+        checkError("feeder-optimize-bus", () -> feeder_motor_.optimizeBusUtilization()) ;
     }
 
     public double getShooterPositionAtRisingEdge() {
@@ -168,7 +169,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
         rising_seen_.set(false) ;
         falling_seen_.set(false) ;
-    }  
+    }
 
     public void setUpDownTargetPos(double t) {
         updown_motor_.setControl(new MotionMagicVoltage(t / IntakeShooterConstants.UpDown.kDegreesPerRev)
@@ -183,7 +184,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     public void setUpDownMotorVoltage(double vol) {
         updown_voltage_ = vol ;
         updown_motor_.setControl(new VoltageOut(vol)) ;
-    }    
+    }
 
     public void logUpDownMotor(SysIdRoutineLog log) {
         log.motor("updown")
@@ -209,7 +210,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                             .withSlot(0)
                             .withEnableFOC(true)) ;
         }
-    }    
+    }
 
     public void setTiltMotorPosition(double pos) {
         tilt_motor_.setPosition(pos / IntakeShooterConstants.Tilt.kDegreesPerRev) ;
@@ -226,7 +227,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
             .angularPosition(Units.Revolutions.of(tilt_position_signal_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(tilt_velocity_signal_.refresh().getValueAsDouble()));
     }
- 
+
     public void setShooter1Velocity(double vel) {
         double cvel = vel / IntakeShooterConstants.Shooter.kShooterRevsPerMotorRev ;
         shooter1_motor_.setControl(new MotionMagicVelocityVoltage(cvel)) ;
@@ -242,7 +243,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
             .voltage(Units.Volts.of(shooter1_voltage_))
             .angularPosition(Units.Revolutions.of(shooter1_position_signal_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(shooter1_velocity_signal_.refresh().getValueAsDouble()));
-    }    
+    }
 
     public void setShooter2Velocity(double vel) {
         double cvel = vel / IntakeShooterConstants.Shooter.kShooterRevsPerMotorRev ;
@@ -252,14 +253,14 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     public void setShooter2MotorVoltage(double vol) {
         shooter2_voltage_ = vol ;
         shooter2_motor_.setControl(new VoltageOut(vol)) ;
-    }    
+    }
 
     public void logShooter2Motor(SysIdRoutineLog log) {
         log.motor("shooter2")
             .voltage(Units.Volts.of(shooter2_voltage_))
             .angularPosition(Units.Revolutions.of(shooter2_position_signal_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(shooter2_velocity_signal_.refresh().getValueAsDouble())) ;
-    }      
+    }
 
     public void setFeederMotorVoltage(double v) {
         feeder_voltage_ = v ;
@@ -299,7 +300,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
             msg = msg + " - " + code.toString() ;
             throw new Exception(msg) ;
         }
-    }      
+    }
 
     public Map<String, TalonFX> getCTREMotors() {
         return talon_motors_ ;
@@ -314,8 +315,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Feeder.kMotorId,
                     IntakeShooterConstants.Feeder.kInvert,
                     IntakeShooterConstants.Feeder.kCurrentLimit);
-        talon_motors_.put(IntakeShooterSubsystem.FEEDER_MOTOR_NAME, feeder_motor_) ; 
-        feeder_current_signal_ = feeder_motor_.getSupplyCurrent() ;      
+        talon_motors_.put(IntakeShooterSubsystem.FEEDER_MOTOR_NAME, feeder_motor_) ;
+        feeder_current_signal_ = feeder_motor_.getSupplyCurrent() ;
     }
 
     private void initUpDownMotor() throws Exception {
@@ -323,7 +324,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.UpDown.kMotorId,
                     IntakeShooterConstants.UpDown.kInvert,
                     IntakeShooterConstants.UpDown.kCurrentLimit);
-        talon_motors_.put(IntakeShooterSubsystem.UPDOWN_MOTOR_NAME, updown_motor_) ;                     
+        talon_motors_.put(IntakeShooterSubsystem.UPDOWN_MOTOR_NAME, updown_motor_) ;
 
         if (XeroRobot.isReal()) {
             final Slot0Configs updownslot0cfg = new Slot0Configs()
@@ -342,7 +343,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withMotionMagicJerk(IntakeShooterConstants.UpDown.Real.MotionMagic.kJ) ;
             checkError("updown-set-magic-motion", () -> updown_motor_.getConfigurator().apply(updownmagiccfg)) ;
         }
-        else 
+        else
         {
             final Slot0Configs updownslot0cfg = new Slot0Configs()
                                     .withKP(IntakeShooterConstants.UpDown.Simulated.PID.kP)
@@ -358,7 +359,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withMotionMagicCruiseVelocity(IntakeShooterConstants.UpDown.Simulated.MotionMagic.kV)
                                     .withMotionMagicAcceleration(IntakeShooterConstants.UpDown.Simulated.MotionMagic.kA)
                                     .withMotionMagicJerk(IntakeShooterConstants.UpDown.Simulated.MotionMagic.kJ) ;
-            checkError("updown-set-magic-motion", () -> updown_motor_.getConfigurator().apply(updownmagiccfg)) ;          
+            checkError("updown-set-magic-motion", () -> updown_motor_.getConfigurator().apply(updownmagiccfg)) ;
         }
 
         final SoftwareLimitSwitchConfigs updownlimitcfg = new SoftwareLimitSwitchConfigs()
@@ -377,10 +378,10 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         tilt_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Tilt.kMotorId,
                     IntakeShooterConstants.Tilt.kInvert,
-                    IntakeShooterConstants.Tilt.kCurrentLimit);    
-        talon_motors_.put(IntakeShooterSubsystem.TILT_MOTOR_NAME, tilt_motor_) ; 
+                    IntakeShooterConstants.Tilt.kCurrentLimit);
+        talon_motors_.put(IntakeShooterSubsystem.TILT_MOTOR_NAME, tilt_motor_) ;
 
-        if (XeroRobot.isReal()) 
+        if (XeroRobot.isReal())
         {
             final Slot0Configs tiltslot0cfg = new Slot0Configs()
                                     .withKP(IntakeShooterConstants.Tilt.Real.MovementPIDSlot0.kP)
@@ -412,7 +413,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
             final MotionMagicConfigs tiltmagiccfg = new MotionMagicConfigs().withMotionMagicCruiseVelocity(IntakeShooterConstants.Tilt.Simulated.MotionMagic.kV)
                                     .withMotionMagicAcceleration(IntakeShooterConstants.Tilt.Simulated.MotionMagic.kA)
                                     .withMotionMagicJerk(IntakeShooterConstants.Tilt.Simulated.MotionMagic.kJ) ;
-            checkError("tilt-set-magic-motion", () -> tilt_motor_.getConfigurator().apply(tiltmagiccfg)) ;         
+            checkError("tilt-set-magic-motion", () -> tilt_motor_.getConfigurator().apply(tiltmagiccfg)) ;
         }
 
         final SoftwareLimitSwitchConfigs tiltlimitcfg = new SoftwareLimitSwitchConfigs()
@@ -424,7 +425,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         tilt_position_signal_ = tilt_motor_.getPosition() ;
         tilt_velocity_signal_ = tilt_motor_.getVelocity() ;
         tilt_current_signal_ = tilt_motor_.getSupplyCurrent() ;
-        tilt_voltage_signal_ = tilt_motor_.getMotorVoltage() ;    
+        tilt_voltage_signal_ = tilt_motor_.getMotorVoltage() ;
     }
 
     void initShooterMotors() throws Exception {
@@ -432,7 +433,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                     IntakeShooterConstants.Shooter1.kMotorId,
                     IntakeShooterConstants.Shooter1.kInvert,
                     IntakeShooterConstants.Shooter1.kCurrentLimit);
-        talon_motors_.put(IntakeShooterSubsystem.SHOOTER1_MOTOR_NAME, shooter1_motor_) ;                    
+        talon_motors_.put(IntakeShooterSubsystem.SHOOTER1_MOTOR_NAME, shooter1_motor_) ;
 
         if (XeroRobot.isReal())
         {
@@ -456,7 +457,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withKA(IntakeShooterConstants.Shooter.Simulated.kA)
                                     .withKG(IntakeShooterConstants.Shooter.Simulated.kG)
                                     .withKS(IntakeShooterConstants.Shooter.Simulated.kS) ;
-            checkError("set-shooter1-PID-value", () -> shooter1_motor_.getConfigurator().apply(shooter1slot0cfg)) ;            
+            checkError("set-shooter1-PID-value", () -> shooter1_motor_.getConfigurator().apply(shooter1slot0cfg)) ;
         }
 
         final MotionMagicConfigs shooter1cfg = new MotionMagicConfigs()
@@ -468,17 +469,17 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         shooter1_velocity_signal_ = shooter1_motor_.getVelocity() ;
         shooter1_current_signal_ = shooter1_motor_.getSupplyCurrent() ;
         shooter1_position_signal_ = shooter1_motor_.getPosition() ;
-        shooter1_voltage_signal_ = shooter1_motor_.getMotorVoltage() ;   
-        
+        shooter1_voltage_signal_ = shooter1_motor_.getMotorVoltage() ;
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Shooter2 motor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////         
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         shooter2_motor_ = TalonFXFactory.getFactory().createTalonFX(
                     IntakeShooterConstants.Shooter2.kMotorId,
                     IntakeShooterConstants.Shooter2.kInvert,
                     IntakeShooterConstants.Shooter2.kCurrentLimit);
-        talon_motors_.put(IntakeShooterSubsystem.SHOOTER2_MOTOR_NAME, shooter2_motor_) ;                     
-                  
+        talon_motors_.put(IntakeShooterSubsystem.SHOOTER2_MOTOR_NAME, shooter2_motor_) ;
+
         if (XeroRobot.isReal())
         {
             final Slot0Configs shooter2slot0cfg = new Slot0Configs()
@@ -501,17 +502,17 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
                                     .withKA(IntakeShooterConstants.Shooter.Simulated.kA)
                                     .withKG(IntakeShooterConstants.Shooter.Simulated.kG)
                                     .withKS(IntakeShooterConstants.Shooter.Simulated.kS) ;
-            checkError("set-shooter1-PID-value", () -> shooter2_motor_.getConfigurator().apply(shooter2slot0cfg)) ;            
+            checkError("set-shooter1-PID-value", () -> shooter2_motor_.getConfigurator().apply(shooter2slot0cfg)) ;
         }
 
         final MotionMagicConfigs shooter2cfg = new MotionMagicConfigs()
                                 .withMotionMagicCruiseVelocity(IntakeShooterConstants.Shooter1.Real.MotionMagic.kV)
                                 .withMotionMagicAcceleration(IntakeShooterConstants.Shooter1.Real.MotionMagic.kA)
                                 .withMotionMagicJerk(IntakeShooterConstants.Shooter1.Real.MotionMagic.kJ) ;
-        checkError("updown-set-magic-motion", () -> shooter2_motor_.getConfigurator().apply(shooter2cfg)) ;        
+        checkError("updown-set-magic-motion", () -> shooter2_motor_.getConfigurator().apply(shooter2cfg)) ;
 
         shooter2_velocity_signal_ = shooter2_motor_.getVelocity() ;
-        shooter2_current_signal_ = shooter2_motor_.getSupplyCurrent() ;  
+        shooter2_current_signal_ = shooter2_motor_.getSupplyCurrent() ;
         shooter2_position_signal_ = shooter2_motor_.getPosition() ;
         shooter2_voltage_signal_ = shooter2_motor_.getMotorVoltage() ;
     }
@@ -519,7 +520,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private void initNoteSensor() {
         note_sensor_ = new DigitalInput(IntakeShooterConstants.NoteSensor.kChannel) ;
         note_interrupt_ = new AsynchronousInterrupt(note_sensor_, (rising, falling) -> { noteInterruptHandler(rising, falling); }) ;
-        note_interrupt_.setInterruptEdges(true, true);            
+        note_interrupt_.setInterruptEdges(true, true);
         note_interrupt_.enable();
 
         rising_seen_ = new AtomicBoolean() ;
@@ -536,5 +537,5 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
         encoder_mapper_.calibrate(IntakeShooterConstants.Tilt.AbsoluteEncoder.kRobotCalibrationValue,
                                   IntakeShooterConstants.Tilt.AbsoluteEncoder.kEncoderCalibrationValue(robot)) ;
-    }    
+    }
 }

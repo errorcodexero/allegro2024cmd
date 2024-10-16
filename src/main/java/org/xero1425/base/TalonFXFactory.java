@@ -30,7 +30,7 @@ public class TalonFXFactory {
         TalonFXConfiguration config = new TalonFXConfiguration() ;       
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake ;
 
-        if (limit != Double.NaN) {
+        if (limit != Double.NaN && XeroRobot.isReal()) {
             config.CurrentLimits.SupplyCurrentLimit = limit ;
             config.CurrentLimits.SupplyCurrentLimitEnable = true ;
             config.CurrentLimits.SupplyCurrentThreshold = limit ;

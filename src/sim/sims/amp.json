@@ -8,12 +8,12 @@
                 {
                     "model" : "fms",
                     "instance" : "1",
-                    "values" : 
+                    "values" :
                     {
                         "start" : 0,
                         "autonomous" : 0.0,
                         "between" : 0.0,
-                        "teleop" : 16.0,
+                        "teleop" : 26.0,
                         "fms" : false,
                         "alliance" : "blue1"
                     }
@@ -21,13 +21,13 @@
             ]
         },
         {
-            "time" : 6.1,
+            "time" : 4.0,
             "events" :
             [
                 {
                     "model" : "allegro-oi",
                     "instance" : "1",
-                    "values" : 
+                    "values" :
                     {
                         "comment" : "Set target to the amp",
                         "note-target" : "amp"
@@ -36,91 +36,16 @@
             ]
         },
         {
-            "time" : 6.2,
+            "time" : 4.1,
             "events" :
             [
                 {
                     "model" : "drivergamepad",
                     "instance" : "1",
-                    "values" : 
+                    "values" :
                     {
                         "comment" : "Press the right bumper button",
                         "rb" : true
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 7.0,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note arrived in intake - sensor on",
-                        "note-sensor" : false
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 7.04,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Note left intake - sensor off",
-                        "note-sensor" : true
-                    }
-                }
-            ]
-        },        
-        {
-            "time" : 7.4,
-            "events" :
-            [
-                {
-                    "model" : "drivergamepad",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Release the right bumper button",
-                        "rb" : false
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 8.4,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Back edge of note passes sensor",
-                        "note-sensor" : false
-                    }
-                }
-            ]
-        },
-        {
-            "time" : 8.5,
-            "events" :
-            [
-                {
-                    "model" : "intake-shooter",
-                    "instance" : "1",
-                    "values" : 
-                    {
-                        "comment" : "Back edge of note clears sensor",
-                        "note-sensor" : true
                     }
                 }
             ]
@@ -130,30 +55,159 @@
             "events" :
             [
                 {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Note arrived in intake - sensor on",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 12.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Note left intake - sensor off",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 12.2,
+            "events" :
+            [
+                {
                     "model" : "drivergamepad",
                     "instance" : "1",
-                    "values" : 
+                    "values" :
+                    {
+                        "comment" : "Release the right bumper button",
+                        "rb" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 16.0,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 16.1,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 16.2,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 16.3,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 16.4,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 16.5,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 20.0,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" :
                     {
                         "comment" : "Press the shoot button (a)",
                         "a" : true
                     }
                 }
             ]
-        }, 
+        },
         {
-            "time" : 13.0,
+            "time" : 20.2,
             "events" :
             [
                 {
                     "model" : "drivergamepad",
                     "instance" : "1",
-                    "values" : 
+                    "values" :
                     {
                         "comment" : "Release the shoot button (a)",
                         "a" : false
                     }
                 }
             ]
-        }        
+        }
     ]
 }

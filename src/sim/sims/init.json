@@ -15,7 +15,8 @@
                         "autonomous" : 0.0,
                         "between" : 0.0,
                         "teleop" : 10000.0,
-                        "fms" : false
+                        "fms" : false,
+                        "alliance" : "red1"
                     }
                 }
             ]
@@ -29,7 +30,8 @@
                     "instance" : "1",
                     "values" : 
                     {
-                        "fms" : true
+                        "fms" : true,
+                        "alliance" : "blue1"
                     }
                 }
             ]

@@ -37,8 +37,12 @@ public class TrampModel extends SimulationModel {
     private TalonFX elevator_ ;
     private TalonFX climber_ ;
 
+    private double note_pos_ ;
+
     public TrampModel(SimulationEngine engine, String model, String inst) {
         super(engine, model, inst) ;
+
+        note_pos_ = 0.0 ;
     }
 
     @Override
@@ -71,6 +75,26 @@ public class TrampModel extends SimulationModel {
             logger.add("- expected boolean value, but got " + value.toString()) ;
             logger.endMessage();
         }
+
+        try {
+            if (name.equals("note-position")) {
+                ISubsystemSim simsub = getEngine().getRobot().getSubsystemByName(TrampSubsystem.NAME) ;
+                if (simsub instanceof TrampSubsystem) {
+                    TrampSubsystem sub = (TrampSubsystem)simsub ;
+                    note_pos_ += value.getDouble() ;
+                    sub.setSimulatedThurBoreValue(note_pos_) ;
+                }
+                ret = true ;
+            }
+        }
+        catch(Exception ex) {
+            MessageLogger logger = MessageLogger.getTheMessageLogger() ;
+            logger.startMessage(MessageType.Error) ;
+            logger.add("time", getEngine().getSimulationTime());
+            logger.add("event", name) ;
+            logger.add("- expected boolean value, but got " + value.toString()) ;
+            logger.endMessage();
+        }        
         return ret ;
     }
 
