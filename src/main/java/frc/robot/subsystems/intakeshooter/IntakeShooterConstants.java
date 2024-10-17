@@ -72,6 +72,8 @@ public class IntakeShooterConstants {
             public static final double kStartTracking = 118.0 ;
             public static final double kCollect = -6.0 ;
             public static final double kTransfer = 90.0 ;
+            public static final double kTransferPosTol = 5.0 ;
+            public static final double kTransferVelTol = 5.0 ;                        
             public static final double kShootNominal = 118.0 ;
             public static final double kEject = 118.0 ;
         }
@@ -125,7 +127,7 @@ public class IntakeShooterConstants {
         public static final boolean kInvert = true ;
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 5.0 ;
-        public static final double kTargetVelTolerance = 20.0 ;
+        public static final double kTargetVelTolerance = 5.0 ;
         public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
@@ -168,6 +170,8 @@ public class IntakeShooterConstants {
             public static final double kStartTracking = -50.0 ;
             public static final double kCollect = 50.0 ;
             public static final double kTransfer = 0.0 ;
+            public static final double kTransferPosTol = 10.0 ;
+            public static final double kTransferVelTol = 10.0 ;
 
             public static final double kShootNominal = -50.0 ;
             public static final double kEject = -50.0 ;

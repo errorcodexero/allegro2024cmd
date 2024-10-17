@@ -25,10 +25,10 @@ public class IntakeShooterModel extends SimulationModel {
     private static final double kFeederGearRatio = 1.0 / 1.0 ;
     private static final double kFeederInertia = 0.000001 ;
     
-    private static final double kUpDownGearRatio = 18 ;
+    private static final double kUpDownGearRatio = 2 ;
     private static final double kUpDownInertia = 0.000001 ;
 
-    private static final double kTiltGearRatio = 18.0 ;
+    private static final double kTiltGearRatio = 2.0 ;
     private static final double kTiltInertia = 0.000001 ;
 
     private DCMotorSim shooter1_sim_ ;
