@@ -101,7 +101,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        double freq = XeroRobot.isReal() ? 100.0 : 100.0;
+        double freq = 50.0 ;
         checkError("set-intake-signals-update-frequeny-fast", () -> BaseStatusSignal.setUpdateFrequencyForAll(freq,
                                             updown_position_signal_,
                                             updown_velocity_signal_,

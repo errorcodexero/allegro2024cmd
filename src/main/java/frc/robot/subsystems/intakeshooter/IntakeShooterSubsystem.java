@@ -99,6 +99,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private double auto_manual_shoot_tilt_ ;
 
     private boolean tracking_ ;
+    private boolean ejecting_ ;
     private DoubleSupplier distsupplier_ ;
     private PieceWiseLinear updown_pwl_ ;
     private PieceWiseLinear tilt_pwl_ ;
@@ -122,7 +123,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private State next_state_ ;
     private boolean auto_mode_auto_shoot_ ;
 
-    private Command xfercmd_ ;
 
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
@@ -191,10 +191,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         else {
             io_.setTiltMotorPosition(inputs_.tiltAbsoluteEncoderPosition) ;
         }
-    }
-
-    public void setTransferCmd(Command cmd) {
-        xfercmd_ = cmd ;
     }
 
     public void setAutoModeAutoShoot(boolean b) {
@@ -503,9 +499,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public void eject() {
-        if (xfercmd_ != null) {
-            xfercmd_.cancel() ;
-        }
+        ejecting_ = true ;
         setTracking(false);
         gotoPosition(State.StartEjectOperations,
                      IntakeShooterConstants.UpDown.Positions.kEject, 
@@ -642,7 +636,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         if (!DriverStation.isAutonomous()) {
             NoteDestination dest = getNoteDestination() ;
-            ret = has_note_ && !tracking_ && 
+            ret = has_note_ && !tracking_ && !ejecting_ &&
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
                      (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
         }
@@ -928,6 +922,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             gotoPosition(State.Idle, 
                          IntakeShooterConstants.UpDown.Positions.kStowed, 
                          IntakeShooterConstants.Tilt.Positions.kStowed) ;
+            ejecting_ = false ;
         }
     }
     // #endregion

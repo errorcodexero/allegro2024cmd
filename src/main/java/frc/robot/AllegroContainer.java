@@ -106,10 +106,10 @@ public class AllegroContainer extends XeroContainer {
         // Create subsystems
         //
         db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
-                                                 TunerConstantsCompetition.FrontLeft, 
-                                                 TunerConstantsCompetition.FrontRight, 
-                                                 TunerConstantsCompetition.BackLeft, 
-                                                 TunerConstantsCompetition.BackRight);
+                                                TunerConstantsCompetition.FrontLeft, 
+                                                TunerConstantsCompetition.FrontRight, 
+                                                TunerConstantsCompetition.BackLeft, 
+                                                TunerConstantsCompetition.BackRight);
 
         Supplier<NoteDestination> notesupply = null ;
         Supplier<ShotType> shotsupply = null ;
@@ -132,7 +132,9 @@ public class AllegroContainer extends XeroContainer {
         }
 
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
-        db_.setLimelightName(limelight_name_);
+        if (db_ != null) {
+            db_.setLimelightName(limelight_name_);
+        }
 
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
         tramp_ = new TrampSubsystem(robot, notesupply) ;
@@ -441,7 +443,9 @@ public class AllegroContainer extends XeroContainer {
             }
         }
         else {
-            driveTrainBindings();
+            if (db_ != null) {
+                driveTrainBindings();
+            }
             superStructureBindings() ;
         }
     }

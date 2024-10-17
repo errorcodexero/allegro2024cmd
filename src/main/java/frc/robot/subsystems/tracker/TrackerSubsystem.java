@@ -147,8 +147,11 @@ public class TrackerSubsystem extends XeroSubsystem {
             Pose2d robot ;        
             if (pose_frozen_) {
                 robot = pose_to_use_ ;
-            } else {
+            } else if (db_ != null) {
                 robot = db_.getState().Pose ;
+            }
+            else {
+                robot = new Pose2d() ;
             }
 
             //

@@ -30,7 +30,6 @@ public class TransferNoteCommand extends Command {
 
     @Override
     public void initialize() {
-        intake_shooter_.setTransferCmd(this) ;        
         intake_shooter_.setShooterVelocity(0, 0);
         intake_shooter_.moveToTransferPosition();
         tramp_.moveToTransferPosition();
@@ -65,7 +64,6 @@ public class TransferNoteCommand extends Command {
 
             case MoveTrampToDestination:
                 if (tramp_.isIdle()) {
-                    intake_shooter_.setTransferCmd(null) ;
                     state_ = State.Done ;
                 }
                 break ;
@@ -75,6 +73,13 @@ public class TransferNoteCommand extends Command {
         }
 
         Logger.recordOutput("states:xfer", state_) ;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        if (interrupted) {
+            state_ = State.Done ;
+        }
     }
 
     @Override

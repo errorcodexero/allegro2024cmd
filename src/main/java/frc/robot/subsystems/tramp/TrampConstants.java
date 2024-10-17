@@ -35,31 +35,40 @@ public class TrampConstants {
             public static final double kBasicClimb = 0.2 ;
         }
 
-        public class RealPID {
-            public static final double kP = 8.0 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.0 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.25 ;
-            public static final double kS = 0.0 ;
-        };        
+        public class Real {
+            public class PID {
+                public static final double kP = 8.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.0 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.25 ;
+                public static final double kS = 0.0 ;
+            };        
 
+            public class MotionMagic {
+                public static final double kMaxVelocity = 89.0 ;
+                public static final double kMaxAcceleration = 2246 ;
+                public static final double kJerk = 10000 ;
+            }
+        }
+    
+        public class Simulated {
+            public class PID {
+                public static final double kP = 1.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.25 ;
+                public static final double kA = 0.0 ;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };          
 
-        public class SimPID {
-            public static final double kP = 0.4 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.1 ;
-            public static final double kA = 0.0 ;
-            public static final double kG = 0.25 ;
-            public static final double kS = 0.0 ;
-        };          
-
-        public class MotionMagic {
-            public static final double kMaxVelocity = 89.0 ;
-            public static final double kMaxAcceleration = 2246 ;
-            public static final double kJerk = 10000 ;
+            public class MotionMagic {
+                public static final double kMaxVelocity = 89.0 ;
+                public static final double kMaxAcceleration = 2246 ;
+                public static final double kJerk = 10000 ;
+            }
         }
     }
 
@@ -84,21 +93,41 @@ public class TrampConstants {
             public static final double kTrapAfterDeposit2 = 225 ;  
             public static final double kBasicClimb = 180.0 ;          
         }     
-        
-        public class PID {
-            public static final double kP = 4.0 ;
-            public static final double kI = 0.0 ;
-            public static final double kD = 0.0 ;
-            public static final double kV = 0.1 ;
-            public static final double kA = 0.0;
-            public static final double kG = 0.0 ;
-            public static final double kS = 0.0 ;
-        };        
 
-        public class MotionMagic {
-            public static final double kMaxVelocity = 24.0 ;
-            public static final double kMaxAcceleration = 180.0 ;
-            public static final double kJerk = 10000 ;
+        public class Real {        
+            public class PID {
+                public static final double kP = 4.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.1 ;
+                public static final double kA = 0.0;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };        
+
+            public class MotionMagic {
+                public static final double kMaxVelocity = 24.0 ;
+                public static final double kMaxAcceleration = 180.0 ;
+                public static final double kJerk = 10000 ;
+            }
+        }
+
+        public class Simulated {
+            public class PID {
+                public static final double kP = 1.0 ;
+                public static final double kI = 0.0 ;
+                public static final double kD = 0.0 ;
+                public static final double kV = 0.25 ;
+                public static final double kA = 0.0;
+                public static final double kG = 0.0 ;
+                public static final double kS = 0.0 ;
+            };        
+
+            public class MotionMagic {
+                public static final double kMaxVelocity = 24.0 ;
+                public static final double kMaxAcceleration = 180.0 ;
+                public static final double kJerk = 10000 ;
+            }            
         }
     }
 
