@@ -7,12 +7,12 @@ import org.xero1425.base.LimelightHelpers;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.base.LimelightHelpers.LimelightResults;
 import org.xero1425.math.Pose2dWithRotation;
-import org.xero1425.math.XeroMath;
 import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,8 +40,8 @@ public class AutoTrapCommand extends Command {
 
     private static double kExtraSpacing1 = 1.5 ;
     private static double kExtraSpacing2 = 0.0 ;    
-    private static double kLeftSpacing1 = -0.1 ;
-    private static double kLeftSpacing2 = -0.1;
+    private static double kLeftSpacing1 = 0.1 ;
+    private static double kLeftSpacing2 = 0.1;
     private static double kMaxDistance = 4.0 ;
     private static int kSimulatedTag = 11 ;
 
@@ -92,24 +92,21 @@ public class AutoTrapCommand extends Command {
         return ret;
     }
 
-    private Pose2d projectedAlongHeading(Pose2d p, double projection) {
-        double dx = Math.cos(p.getRotation().getRadians()) * projection ;
-        double dy = Math.sin(p.getRotation().getRadians()) * projection ;
-        return new Pose2d(p.getX() + dx, p.getY() + dy, p.getRotation()) ;
-    }  
+    private Translation2d projectPointAlongHeading(Translation2d p, Rotation2d angle, double projection) {
+        double dx = Math.cos(angle.getRadians()) * projection ;
+        double dy = Math.sin(angle.getRadians()) * projection ;
+        return new Translation2d(p.getX() + dx, p.getY() + dy) ;
+    }
 
     private Pose2d computeProjectedTrapPoint(Pose2d tag, double xspacing, double yspacing) {
         // Find the point projected along the heading given by the tag
-        Pose2d ret1 = projectedAlongHeading(tag, xspacing) ;
-
-        // Find a point at the end of the projection, rotated by 90 degrees
-        Pose2d pt = new Pose2d(ret1.getTranslation(), ret1.getRotation().rotateBy(Rotation2d.fromDegrees(90.0))) ;
+        Translation2d ret1 = projectPointAlongHeading(tag.getTranslation(), tag.getRotation(), xspacing) ;
 
         // Find a point at the end of the offset at the end of the projection
-        Pose2d ret2 = projectedAlongHeading(pt, yspacing) ;
+        Translation2d ret2 = projectPointAlongHeading(ret1, tag.getRotation().rotateBy(Rotation2d.fromDegrees(90.0)), yspacing);
 
         // Take the original heading witht he final point
-        Pose2d ret = new Pose2d(ret2.getTranslation(), tag.getRotation().rotateBy(Rotation2d.fromDegrees(180.0))) ;
+        Pose2d ret = new Pose2d(ret2, tag.getRotation().rotateBy(Rotation2d.fromDegrees(180.0))) ;
 
         return ret ;
     }
