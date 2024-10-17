@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
 import frc.robot.util.ComponentVisualizer;
+import frc.robot.util.NoteVisualizer;
 
 public class TrampSubsystem extends XeroSubsystem {
 
@@ -105,8 +106,9 @@ public class TrampSubsystem extends XeroSubsystem {
     private double manipulator_target_ ;
 
     private ComponentVisualizer visualizer_;
+    private NoteVisualizer noteVisualizer_;
 
-    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest, ComponentVisualizer visualizer) throws Exception {
+    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest, ComponentVisualizer visualizer, NoteVisualizer noteVisualizer) throws Exception {
         super(robot, NAME) ;
 
         io_ = new TrampIOHardware() ;
@@ -132,6 +134,7 @@ public class TrampSubsystem extends XeroSubsystem {
         climber_target_ = 0.0 ;
 
         visualizer_ = visualizer;
+        noteVisualizer_ = noteVisualizer;
     }
 
     public void endNoteTransfer() {
@@ -589,6 +592,8 @@ public class TrampSubsystem extends XeroSubsystem {
         );
 
         visualizer_.updateClimber(Meters.of(inputs_.climberPosition));
+
+        noteVisualizer_.updateArm(has_note_);
 
         if (getVerbose()) {
             Logger.recordOutput("tramp:state", state_ + aux);

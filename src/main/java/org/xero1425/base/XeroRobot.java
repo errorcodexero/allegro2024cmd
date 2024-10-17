@@ -188,7 +188,7 @@ public abstract class XeroRobot extends LoggedRobot {
             Logger.recordOutput("info:match", DriverStation.getMatchType().toString()) ;
             Logger.recordOutput("info:number", Integer.toString(DriverStation.getMatchNumber())) ;
             // Logger.recordOutput("info:alliance", alliance) ;
-            Logger.recordOutput("info:location", Integer.toString(DriverStation.getLocation().getAsInt())) ;            
+            // Logger.recordOutput("info:location", Integer.toString(DriverStation.getLocation().getAsInt())) ;            
 
             if (shouldBeCompetition() || !isTestMode()) {
                 createCompetitionAutoModes() ;

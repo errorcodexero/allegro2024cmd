@@ -16,6 +16,7 @@ import org.xero1425.misc.SettingsValue;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
@@ -33,6 +34,7 @@ import frc.robot.ShotType;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
 import frc.robot.util.ComponentVisualizer;
+import frc.robot.util.NoteVisualizer;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
 
@@ -86,6 +88,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private IntakeShooterIOInputsAutoLogged inputs_ ;
 
     private ComponentVisualizer visualizer_;
+    private NoteVisualizer noteVisualizer_;
 
     private double target_tilt_ ;
     private double target_tilt_tol_ ;
@@ -137,7 +140,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #endregion
 
     // #region constructor
-    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype, ComponentVisualizer visualizer) throws Exception {
+    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype, ComponentVisualizer visualizer, NoteVisualizer noteVisualizer) throws Exception {
         super(robot, NAME) ;
 
         io_ = new IntakeShooterIOHardware(robot) ;
@@ -176,6 +179,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
 
         visualizer_ = visualizer;
+        noteVisualizer_ = noteVisualizer;
     }
     // #endregion
 
@@ -1105,6 +1109,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Degrees.of(-inputs_.updownPosition),
             Degrees.of(-inputs_.tiltAbsoluteEncoderPosition)
         );
+
+        noteVisualizer_.updateIntake(has_note_);
+
+        Logger.recordOutput("Uwu", new Pose3d());
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);

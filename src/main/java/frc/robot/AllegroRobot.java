@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.misc.MessageLogger;
@@ -114,7 +116,11 @@ public class AllegroRobot extends XeroRobot {
         Logger.disableDeterministicTimestamps();
 
         // Logger.addDataReceiver(new NT4Publisher());
-        Logger.addDataReceiver(new WPILOGWriter()) ;
+
+        setUseTiming(false);
+        String logFile = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logFile));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logFile, "_nvis"))) ;
         
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);

@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -122,6 +123,14 @@ public class ComponentVisualizer {
         );
 
         publish();
+    }
+
+    public Pose3d getTiltPose() {
+        return tiltPose_;
+    }
+
+    public Pose3d getArmPose() {
+        return armPose_;
     }
 
 }
