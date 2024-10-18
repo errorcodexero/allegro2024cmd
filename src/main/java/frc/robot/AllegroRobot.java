@@ -55,7 +55,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "amp";
+        return "climbturtle";
     }
 
     @Override

@@ -1,0 +1,80 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "start" : 0,
+                        "autonomous" : 0.0,
+                        "between" : 0.0,
+                        "teleop" : 40.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "climb-up-prep" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.4,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "climb-up-prep" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 22.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "turtle" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 22.4,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "turtle" : false
+                    }
+                }
+            ]
+        }
+    ]
+}

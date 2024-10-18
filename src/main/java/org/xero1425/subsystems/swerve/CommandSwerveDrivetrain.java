@@ -18,9 +18,11 @@ import org.xero1425.paths.XeroPath;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
@@ -154,6 +156,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public XeroRobot getRobot() {
         return robot_ ;
+    }
+
+    public void limitDriveMotorRampRate(double ramprate) {
+        ClosedLoopRampsConfigs configs = new ClosedLoopRampsConfigs() ;
+
+        configs.DutyCycleClosedLoopRampPeriod = 0.0 ;
+        configs.TorqueClosedLoopRampPeriod = 0.0 ;
+        configs.VoltageClosedLoopRampPeriod = ramprate ;
+
+        for(SwerveModule module : Modules) {
+            module.getDriveMotor().getConfigurator().apply(configs) ;
+        }
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier, String name) {

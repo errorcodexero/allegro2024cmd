@@ -168,9 +168,9 @@ public class TrampIOHardware implements TrampIO {
 
         final SoftwareLimitSwitchConfigs armlimitcfg = new SoftwareLimitSwitchConfigs()
                             .withForwardSoftLimitEnable(true)
-                            .withForwardSoftLimitThreshold(TrampConstants.Arm.kMaxPosition)
+                            .withForwardSoftLimitThreshold(TrampConstants.Arm.kMaxPosition / TrampConstants.Arm.kDegreesPerRev)
                             .withReverseSoftLimitEnable(true)
-                            .withReverseSoftLimitThreshold(TrampConstants.Arm.kMinPosition) ;
+                            .withReverseSoftLimitThreshold(TrampConstants.Arm.kMinPosition / TrampConstants.Arm.kDegreesPerRev) ;
         checkError("set-elevator-soft-limit-value", () -> arm_motor_.getConfigurator().apply(armlimitcfg)) ;
 
         arm_pos_sig_ = arm_motor_.getPosition() ;
@@ -190,6 +190,13 @@ public class TrampIOHardware implements TrampIO {
         climber_output_sig_ = climber_motor_.getClosedLoopOutput();
         climber_velocity_sig_ = climber_motor_.getVelocity() ;
         climber_voltage_ = 0.0 ;
+
+        final SoftwareLimitSwitchConfigs climberlimitcfg = new SoftwareLimitSwitchConfigs()
+                            .withForwardSoftLimitEnable(true)
+                            .withForwardSoftLimitThreshold(TrampConstants.Climber.kMaxPosition / TrampConstants.Climber.kMetersPerRev)
+                            .withReverseSoftLimitEnable(true)
+                            .withReverseSoftLimitThreshold(TrampConstants.Climber.kMinPosition / TrampConstants.Climber.kMetersPerRev) ;
+        checkError("set-climber-soft-limit-value", () -> climber_motor_.getConfigurator().apply(climberlimitcfg)) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Manipulator motor initialization
@@ -226,17 +233,19 @@ public class TrampIOHardware implements TrampIO {
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
         /////////////////////////////////////////////////////////////////////////////////////////////////
-        BaseStatusSignal.setUpdateFrequencyForAll(75.0,
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0,
                                 elevator_pos_sig_,
                                 elevator_vel_sig_,
-                                elevator_current_sig_,
-                                elevator_output_sig_,
                                 arm_pos_sig_,
                                 arm_vel_sig_,
+                                climber_pos_sig_) ;
+
+        BaseStatusSignal.setUpdateFrequencyForAll(10.0,
+                                elevator_current_sig_,
+                                elevator_output_sig_,
                                 arm_current_sig_,
                                 arm_output_sig_,
                                 climber_current_sig_,
-                                climber_pos_sig_,
                                 climber_output_sig_,
                                 climber_velocity_sig_) ;
 
@@ -382,7 +391,7 @@ public class TrampIOHardware implements TrampIO {
         climber_motor_.setControl(new VoltageOut(climber_voltage_));
     }
 
-    public double getClimberVoltage() {
+    public double getClimberMotorVoltage() {
         return climber_voltage_;
     }
 

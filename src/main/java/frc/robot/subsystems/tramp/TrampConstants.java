@@ -79,8 +79,8 @@ public class TrampConstants {
         public static final double kDegreesPerRev = 24.30790007 ;
         public static final double kTargetPosTolerance = 4.0 ;
         public static final double kTargetVelTolerance = 100.0 ;
-        public static final double kMinPosition = -0.5 ;
-        public static final double kMaxPosition = 12.5 ;
+        public static final double kMinPosition = -12.0 ;
+        public static final double kMaxPosition = 300.0 ;
 
         public class Positions {
             public static final double kStowed = 0.0 ;
@@ -189,6 +189,8 @@ public class TrampConstants {
         public static final double kClimberUpPosition = 0.5746 ;
         public static final double kClimberDownPosition = 0.0 ;
         public static final double kClimberDownSlowMargin = 0.1 ;
+        public static final double kMaxPosition = 0.5746 ;
+        public static final double kMinPosition = 0.0 ;
         public static final double kMetersPerRev = 0.00000134301757813 * 2048.0 ;
     }
 }

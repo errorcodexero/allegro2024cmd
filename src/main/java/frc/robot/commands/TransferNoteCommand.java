@@ -1,12 +1,16 @@
 package frc.robot.commands;
 
 import org.littletonrobotics.junction.Logger;
+import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 
 public class TransferNoteCommand extends Command {
+
+    private static final double kTransferDBRampRate = 1.0 ;
+
     private enum State {
         MoveToPosition,
         TransferringNote,
@@ -17,13 +21,15 @@ public class TransferNoteCommand extends Command {
 
     private IntakeShooterSubsystem intake_shooter_;
     private TrampSubsystem tramp_ ;
+    private CommandSwerveDrivetrain db_ ;
     private State state_ ;
 
-    public TransferNoteCommand(IntakeShooterSubsystem intake_shooter, TrampSubsystem tramp) {
+    public TransferNoteCommand(CommandSwerveDrivetrain db, IntakeShooterSubsystem intake_shooter, TrampSubsystem tramp) {
         addRequirements(intake_shooter, tramp);
 
         intake_shooter_ = intake_shooter;
         tramp_ = tramp ;
+        db_ = db ;
 
         setName("transfer-note") ;
     }
@@ -34,6 +40,9 @@ public class TransferNoteCommand extends Command {
         intake_shooter_.moveToTransferPosition();
         tramp_.moveToTransferPosition();
         state_ = State.MoveToPosition ;
+        if (db_ != null) {
+            db_.limitDriveMotorRampRate(kTransferDBRampRate) ;
+        }
     }
 
     @Override
@@ -77,8 +86,9 @@ public class TransferNoteCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        if (interrupted) {
-            state_ = State.Done ;
+        state_ = State.Done ;
+        if (db_ != null) {
+            db_.limitDriveMotorRampRate(0.0) ;
         }
     }
 

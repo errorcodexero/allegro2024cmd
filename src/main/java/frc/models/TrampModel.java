@@ -2,6 +2,7 @@ package frc.models;
 
 import java.util.Map;
 
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.ISubsystemSim;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
@@ -26,7 +27,7 @@ public class TrampModel extends SimulationModel {
     private static final double kElevatorGearRatio = 2.0 ;
     private static final double kElevatorInertia = 0.000001 ;      
 
-    private static final double kClimberGearRatio = 250.0 ;
+    private static final double kClimberGearRatio = 5 ;
     private static final double kClimberInertia = 0.000001 ;     
 
     private DCMotorSim arm_sim_ ; ;
@@ -172,6 +173,9 @@ public class TrampModel extends SimulationModel {
 
             st.setRawRotorPosition(climber_sim_.getAngularPositionRotations()) ;
             st.setRotorVelocity(Units.radiansToRotations(climber_sim_.getAngularVelocityRadPerSec())) ;
+
+            Logger.recordOutput("climber:voltage", mv) ;
+            Logger.recordOutput("climber:position", climber_sim_.getAngularPositionRotations()) ;
         }        
     }
 }
