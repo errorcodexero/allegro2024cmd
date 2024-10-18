@@ -31,6 +31,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private enum ClimberDir {
         Up,
         Down,
+        DownTurtle,
         None
     } ;
 
@@ -295,10 +296,9 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     private void basicClimbPrep() {
-        gotoPosition(TrampConstants.Elevator.Positions.kBasicClimb, Double.NaN, Double.NaN, 
-                     TrampConstants.Arm.Positions.kBasicClimb, Double.NaN, Double.NaN);
-
-        next_state_ = State.BasicClimbMovingElevatorArm ;
+        gotoPosition(State.BasicClimbMovingElevatorArm,
+                     TrampConstants.Elevator.Positions.kBasicClimb,
+                     TrampConstants.Arm.Positions.kBasicClimb) ;
     }
 
     private void basicClimbExec() {
@@ -329,23 +329,24 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     public void moveToTransferPosition() {
-        gotoPosition(TrampConstants.Elevator.Positions.kTransfer, Double.NaN, Double.NaN, TrampConstants.Arm.Positions.kTransfer, Double.NaN, Double.NaN);
-        next_state_ = State.HoldingTransferPosition ;
+        gotoPosition(State.HoldingTransferPosition , 
+                     TrampConstants.Elevator.Positions.kTransfer, 
+                     TrampConstants.Arm.Positions.kTransfer);
     }
 
     public void moveToDestinationPosition() {
         NoteDestination dest = destsupplier_.get() ;
         if (dest == NoteDestination.Trap) {
-            gotoPosition(TrampConstants.Elevator.Positions.kTrapBeforeClimb, Double.NaN, Double.NaN, 
-                         TrampConstants.Arm.Positions.kTrapBeforeClimb, Double.NaN, Double.NaN);
+            gotoPosition(State.MoveNote, 
+                        TrampConstants.Elevator.Positions.kTrapBeforeClimb,
+                        TrampConstants.Arm.Positions.kTrapBeforeClimb) ;
             climberUp() ;
-            next_state_ = State.MoveNote ;
         }
         else if (dest == NoteDestination.Amp) {
             climberDown() ;
-            gotoPosition(TrampConstants.Elevator.Positions.kAmp, Double.NaN, Double.NaN, 
-                         TrampConstants.Arm.Positions.kAmp, Double.NaN, Double.NaN);
-            next_state_ = State.HoldingAmpPosition ;                         
+            gotoPosition(State.HoldingAmpPosition,
+                         TrampConstants.Elevator.Positions.kAmp, 
+                         TrampConstants.Arm.Positions.kAmp);
         }
     }
 
@@ -372,9 +373,10 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     public void turtle() {
-        gotoPosition(TrampConstants.Elevator.Positions.kStowed, Double.NaN, Double.NaN, 
-                     TrampConstants.Arm.Positions.kStowed, Double.NaN, Double.NaN);
-        climberDown() ;
+        gotoPosition(State.Idle,
+                     TrampConstants.Elevator.Positions.kStowed, 
+                     TrampConstants.Arm.Positions.kStowed);
+        climberDownTurtle() ;
         next_state_ = State.Idle ;
     }
 
@@ -412,6 +414,15 @@ public class TrampSubsystem extends XeroSubsystem {
             if (inputs_.climberPosition <= climber_target_) {
                 io_.setClimberMotorVoltage(0.0);
                 climber_dir_ = ClimberDir.None ;
+            }
+        }
+        else if (climber_dir_ == ClimberDir.DownTurtle) {
+            if (inputs_.climberPosition <= climber_target_) {
+                io_.setClimberMotorVoltage(0.0);
+                climber_dir_ = ClimberDir.None ;
+            }
+            else if (inputs_.climberPosition <= climber_target_ - TrampConstants.Climber.kClimberDownSlowMargin) {
+                io_.setClimberMotorVoltage(TrampConstants.Climber.kMoveClimberSlowVoltage);
             }
         }
 
@@ -529,23 +540,24 @@ public class TrampSubsystem extends XeroSubsystem {
                 if (shoot_timer_.isExpired()) {
                     io_.setManipulatorVoltage(0.0);
                     has_note_ = false ;
-                    gotoPosition(TrampConstants.Elevator.Positions.kStowed, Double.NaN, Double.NaN,
-                                 TrampConstants.Arm.Positions.kStowed, Double.NaN, Double.NaN) ;
-                    next_state_ = State.Idle ;
+                    gotoPosition(State.Idle, 
+                                 TrampConstants.Elevator.Positions.kStowed,
+                                 TrampConstants.Arm.Positions.kStowed) ;
                 }
                 break ;
 
             case Climbing:
                 if (climber_dir_ == ClimberDir.None) {
-                    gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterClimb1, Double.NaN, Double.NaN,
-                                 TrampConstants.Arm.Positions.kTrapAfterClimb1, Double.NaN, Double.NaN) ;
-                    next_state_ = State.Trap1 ;
+                    gotoPosition(State.Trap1, 
+                                 TrampConstants.Elevator.Positions.kTrapAfterClimb1,
+                                 TrampConstants.Arm.Positions.kTrapAfterClimb1) ;
                 }
                 break ;
 
             case Trap1:
-                gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterClimb2, Double.NaN, Double.NaN,
-                                TrampConstants.Arm.Positions.kTrapAfterClimb2, Double.NaN, Double.NaN) ;
+                gotoPosition(State.DelayTrap1, 
+                                TrampConstants.Elevator.Positions.kTrapAfterClimb2,
+                                TrampConstants.Arm.Positions.kTrapAfterClimb2) ;
                 next_state_ = State.DelayTrap1 ;
                 break ;
 
@@ -571,15 +583,16 @@ public class TrampSubsystem extends XeroSubsystem {
 
             case DepositingNote:
                 if (deposit_trap_timer_.isExpired()) {
-                    gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterDeposit1, Double.NaN, Double.NaN,
-                                TrampConstants.Arm.Positions.kTrapAfterDeposit1, Double.NaN, Double.NaN) ;
-                    next_state_ = State.Trap3 ;                    
+                    gotoPosition(State.Trap3, 
+                                TrampConstants.Elevator.Positions.kTrapAfterDeposit1,
+                                TrampConstants.Arm.Positions.kTrapAfterDeposit1) ;
                 }
                 break ;
 
             case Trap3:
-                gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterDeposit2, Double.NaN, Double.NaN,
-                             TrampConstants.Arm.Positions.kTrapAfterDeposit2, Double.NaN, Double.NaN) ;
+                gotoPosition(State.Idle, 
+                             TrampConstants.Elevator.Positions.kTrapAfterDeposit2,
+                             TrampConstants.Arm.Positions.kTrapAfterDeposit2) ;
                 next_state_ = State.Idle ;
                 break ;
 
@@ -646,6 +659,14 @@ public class TrampSubsystem extends XeroSubsystem {
         }
     }
 
+    private void climberDownTurtle() {
+        if (inputs_.climberPosition > TrampConstants.Climber.kClimberDownPosition) {
+            io_.setClimberMotorVoltage(-TrampConstants.Climber.kMoveClimberVoltage);
+            climber_target_ = TrampConstants.Climber.kClimberDownPosition ;
+            climber_dir_ = ClimberDir.DownTurtle;
+        }
+    }    
+
     private boolean isElevatorReady() {
         return 
             Math.abs(inputs_.elevatorPosition - target_elev_) < elevpostol_ &&
@@ -668,7 +689,12 @@ public class TrampSubsystem extends XeroSubsystem {
         io_.setArmTargetPos(pos);
     }
 
-    private void gotoPosition(double elevpos, double elevpostol, double elevveltol, double armpos, double armpostol, double armveltol) {
+    private void gotoPosition(State next, double elvpos, double armpos) {
+        gotoPosition(next, elvpos, Double.NaN, Double.NaN, armpos, Double.NaN, Double.NaN) ;
+    }
+
+    private void gotoPosition(State next, double elevpos, double elevpostol, double elevveltol, double armpos, double armpostol, double armveltol) {
+        next_state_ = next ;
         if (Double.isNaN(elevpostol))
             elevpostol_ = TrampConstants.Elevator.kTargetPosTolerance ;
         else
