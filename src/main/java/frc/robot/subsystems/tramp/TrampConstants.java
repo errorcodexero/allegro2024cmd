@@ -80,7 +80,7 @@ public class TrampConstants {
         public static final double kTargetPosTolerance = 4.0 ;
         public static final double kTargetVelTolerance = 100.0 ;
         public static final double kMinPosition = -12.0 ;
-        public static final double kMaxPosition = 300.0 ;
+        public static final double kMaxPosition = 270.0 ;
 
         public class Positions {
             public static final double kStowed = 0.0 ;

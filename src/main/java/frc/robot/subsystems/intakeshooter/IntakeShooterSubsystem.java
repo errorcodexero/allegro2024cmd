@@ -619,7 +619,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Turn off the feeder and stop the tilt and updown
             //
             io_.setFeederMotorVoltage(0.0) ;
-            io_.setTiltTargetPos(false, inputs_.tiltPosition);
+            io_.setTiltTargetPos(inputs_.tiltPosition);
             io_.setUpDownTargetPos(inputs_.updownPosition);
             reverse_timer_.start() ;
 
@@ -694,7 +694,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         else
             target_tilt_vel_ = veltol ;
 
-        io_.setTiltTargetPos(tracking_, pos);        
+        io_.setTiltTargetPos(pos);        
     }
 
     private void trackTargetDistance() {

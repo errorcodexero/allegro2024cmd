@@ -19,7 +19,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
@@ -197,19 +196,11 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         return encoder_mapper_.toRobot(absolute_encoder_.getVoltage()) ;
     }
 
-    public void setTiltTargetPos(boolean tracking, double t) {
-        tracking = false ;
-        if (tracking) {
-            tilt_motor_.setControl(new PositionVoltage(t / IntakeShooterConstants.Tilt.kDegreesPerRev)
-                            .withSlot(1)
-                            .withEnableFOC(true)) ;
-        }
-        else {
-            double target = t / IntakeShooterConstants.Tilt.kDegreesPerRev ;
-            tilt_motor_.setControl(new MotionMagicVoltage(target)
-                            .withSlot(0)
-                            .withEnableFOC(true)) ;
-        }
+    public void setTiltTargetPos(double t) {
+        double target = t / IntakeShooterConstants.Tilt.kDegreesPerRev ;
+        tilt_motor_.setControl(new MotionMagicVoltage(target)
+                        .withSlot(0)
+                        .withEnableFOC(true)) ;
     }
 
     public void setTiltMotorPosition(double pos) {
