@@ -38,11 +38,11 @@ public class AutoTrapCommand extends Command {
         Done
     }
 
-    private static double kExtraSpacing1 = 1.5 ;
-    private static double kExtraSpacing2 = 0.0 ;    
-    private static double kLeftSpacing1 = 0.1 ;
-    private static double kLeftSpacing2 = 0.1;
-    private static double kMaxDistance = 4.0 ;
+    private static double kExtraSpacing1 = 1.5 ;      // Off from the april tag toward the robot
+    private static double kExtraSpacing2 = 0.25 ;      // Off from the april tag toward the robot
+    private static double kLeftSpacing1 = 0.0 ;       // Positive moves to the right
+    private static double kLeftSpacing2 = 0.05 ;      // Positive moves to the right
+    private static double kMaxDistance = 2.5 ;
     private static int kSimulatedTag = 11 ;
 
     private String limelight_name_ ;
