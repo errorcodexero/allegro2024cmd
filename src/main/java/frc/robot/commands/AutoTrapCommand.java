@@ -39,7 +39,7 @@ public class AutoTrapCommand extends Command {
     }
 
     private static double kExtraSpacing1 = 1.5 ;      // Off from the april tag toward the robot
-    private static double kExtraSpacing2 = 0.25 ;      // Off from the april tag toward the robot
+    private static double kExtraSpacing2 = 0.22 ;      // Off from the april tag toward the robot
     private static double kLeftSpacing1 = 0.0 ;       // Positive moves to the right
     private static double kLeftSpacing2 = 0.05 ;      // Positive moves to the right
     private static double kMaxDistance = 2.5 ;
@@ -105,7 +105,7 @@ public class AutoTrapCommand extends Command {
         // Find a point at the end of the offset at the end of the projection
         Translation2d ret2 = projectPointAlongHeading(ret1, tag.getRotation().rotateBy(Rotation2d.fromDegrees(90.0)), yspacing);
 
-        // Take the original heading witht he final point
+        // Take the original heading with the final point
         Pose2d ret = new Pose2d(ret2, tag.getRotation().rotateBy(Rotation2d.fromDegrees(180.0))) ;
 
         return ret ;
