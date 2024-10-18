@@ -40,8 +40,8 @@ public class AutoTrapCommand extends Command {
 
     private static double kExtraSpacing1 = 1.5 ;      // Off from the april tag toward the robot
     private static double kExtraSpacing2 = 0.22 ;      // Off from the april tag toward the robot
-    private static double kLeftSpacing1 = 0.0 ;       // Positive moves to the right
-    private static double kLeftSpacing2 = 0.05 ;      // Positive moves to the right
+    private static double kRightSpacing1 = 0.0 ;       // Positive moves to the right
+    private static double kRightSpacing2 = 0.05 ;      // Positive moves to the right
     private static double kMaxDistance = 2.5 ;
     private static int kSimulatedTag = 11 ;
 
@@ -76,11 +76,11 @@ public class AutoTrapCommand extends Command {
 
         Pose2d tagpose = layout_.getTagPose(tag).get().toPose2d() ;
 
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing1, kLeftSpacing1);
+        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing1, kRightSpacing1);
         ptrt = pt.getRotation() ;
         ret[0] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
 
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing2, kLeftSpacing2) ;
+        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing2, kRightSpacing2) ;
         ptrt = pt.getRotation() ;
         ret[1] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
 
