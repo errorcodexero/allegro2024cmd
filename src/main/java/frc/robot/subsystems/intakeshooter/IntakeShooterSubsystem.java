@@ -134,6 +134,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
 
+    private boolean encoders_synced_ ;
+
     private Trigger transfer_note_trigger_ ;
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
@@ -157,7 +159,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         eject_reverse_timer_ = new XeroTimer("eject-reverse", IntakeShooterConstants.Shooter.kEjectReverseTime) ;
         eject_pause_timer_ = new XeroTimer("eject-pause", IntakeShooterConstants.Shooter.kEjectPauseTime) ;
 
-        io_.setTiltMotorPosition(io_.getTiltAbsoluteEncoderPosition());
+
         io_.setUpDownMotorPosition(IntakeShooterConstants.UpDown.Positions.kStowed);
 
         setTracking(false) ;
@@ -178,10 +180,21 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         last_time_ = Timer.getFPGATimestamp() ;
         last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
 
+        encoders_synced_ = false ;
+
         visualizer_ = visualizer;
         noteVisualizer_ = noteVisualizer;
     }
     // #endregion
+
+    public void syncTiltEncoders(boolean b) {
+        if (b) {
+            io_.setTiltMotorPosition(inputs_.tiltAbsoluteEncoderPositionMedian) ;
+        }
+        else {
+            io_.setTiltMotorPosition(inputs_.tiltAbsoluteEncoderPosition) ;
+        }
+    }
 
     public void setTransferCmd(Command cmd) {
         xfercmd_ = cmd ;
@@ -363,7 +376,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public Command turtleCommand() {
         Command ret = new FunctionalCommand(
-                                ()->turtle(),
+                                ()->turtle(false),
                                 () -> {},
                                 (Boolean b) -> {},
                                 ()->isIdle()) ;
@@ -626,8 +639,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     //
     // If we are in the idle state, this method moves the mechanisms to the stowed position.
     //
-    private void turtle() {
-        if (state_ == State.Idle) {
+    public void turtle(boolean force) {
+        if (state_ == State.Idle || force) {
             //
             // Move the updown and tilt to the collect position
             //
@@ -667,7 +680,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         if (!DriverStation.isAutonomous()) {
             NoteDestination dest = getNoteDestination() ;
-            ret = has_note_ && 
+            ret = has_note_ && !tracking_ && 
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
                      (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
         }
@@ -851,7 +864,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Start the shooter wheels so that the shooter is up to speed when the updown/tilt reach the
             // transfer position
             //
-            if (dest == NoteDestination.Amp) {
+            if (dest == NoteDestination.Amp || dest == NoteDestination.Trap) {
                 setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol) ;
             }
         }
@@ -917,8 +930,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     private void ejectPauseState() {
         if (eject_pause_timer_.isExpired()) {
-            setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
-            io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
+            setShooterVelocity(IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+            io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
             eject_reverse_timer_.start() ;
             state_ = State.EjectReverse ;
         }
@@ -943,18 +956,46 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     @Override
     public void periodic() {
         io_.updateInputs(inputs_);
+
+        boolean synced = false ;
+        if (!encoders_synced_ && getRobot().isEnabled()) {
+            syncTiltEncoders(true) ;
+            encoders_synced_ = true ;
+            synced = true ;
+        }
+
+        if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
+            average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
+            syncTiltEncoders(false) ;
+            encoders_synced_ = false ;
+            synced = true ;
+        }
+
+        Logger.recordOutput("intake:synced", synced) ;
         Logger.processInputs("intake-shooter", inputs_);
 
         if (average_filter_ != null) {
             double now = Timer.getFPGATimestamp() ;
-            double vel = (inputs_.tiltAbsoluteEncoderPosition - last_value_) / (now - last_time_) ;
+            double vel = (inputs_.tiltAbsoluteEncoderPositionMedian - last_value_) / (now - last_time_) ;
             average_value_ = average_filter_.calculate(vel) ;
 
             Logger.recordOutput("tilt-abs-velocity", average_value_) ;
             Logger.recordOutput("tilt-raw-vel", vel) ;
 
             last_time_ = now ;
-            last_value_ = inputs_.tiltAbsoluteEncoderPosition ;
+            last_value_ = inputs_.tiltAbsoluteEncoderPositionMedian ;
+        }
+        
+        NoteDestination dest = getNoteDestination() ;
+        if (tracking_ && (dest == NoteDestination.Amp || dest == NoteDestination.Trap)) {
+            //
+            // We are transitioning from shoot to Amp or Trap, turn off tracking
+            // and stop the shooter wheels
+            //
+            setTracking(false) ;
+            io_.setShooter1MotorVoltage(0.0) ;
+            io_.setShooter2MotorVoltage(0.0) ;
+            moveToTransferPosition() ;
         }
 
         switch(state_) {
@@ -1056,8 +1097,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 
             case GoToEjectPosition:
                 if (isTiltReady() && isUpDownReady()) {
-                    setShooterVelocity(IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
-                    io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kEjectVoltage) ;
+                    setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+                    io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
                     eject_forward_timer_.start() ;
                     has_note_ = false ;
                     state_ = State.EjectForward ;

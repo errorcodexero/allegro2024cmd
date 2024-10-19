@@ -143,6 +143,19 @@ public class IntakeShooterConstants {
         // Each tap is 20ms long and therefore
         public static final int kMaxAbsoluteTiltMovingAverageTaps = 7 ;
 
+        public class Resync {
+            //
+            // The position of the tilt must be less than this value, as measured by the
+            // absolute encoder, in order to be considered in the resync position.
+            //
+            public static final double kPosThreshold = -30.0 ;
+
+            //
+            // The angular velocity of the tilt in degrees/second must be less than this
+            // value to be considered for resync.
+            public static final double kVelThreshold = 0.25 ;
+        }
+
         public class Positions {
             public static final double kStowed = -72.0 ;
             public static final double kStartTracking = -50.0 ;
@@ -240,7 +253,7 @@ public class IntakeShooterConstants {
         public static final double kEjectForwardTime = 1.0 ;
         public static final double kEjectPauseTime = 0.5 ;
         public static final double kEjectReverseTime = 1.0 ;
-        public static final double kEjectVelocity = 95.0 ;
+        public static final double kEjectVelocity = 60.0 ;
 
         public static final double kAutoShootVelocityTol = 5.0 ;            
 

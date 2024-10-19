@@ -55,6 +55,8 @@ public class TrampSubsystem extends XeroSubsystem {
         HoldingTrapPosition,
         Climbing,
         Trap1,
+        DelayTrap1,
+        DelayTrap2,
         StartDepositNote,
         DepositingNote,
         Trap3,
@@ -94,6 +96,7 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
     private XeroTimer hold_note_timer_ ;
+    private XeroTimer delay_trap_timer_ ;
 
     private Trigger ready_for_amp_trigger_ ;
     private Trigger ready_for_trap_trigger_ ;
@@ -122,6 +125,7 @@ public class TrampSubsystem extends XeroSubsystem {
         shoot_timer_ = new XeroTimer("tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer("tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
         hold_note_timer_ = new XeroTimer("hold-note-timer", TrampConstants.Manipulator.kHoldNoteTime) ;
+        delay_trap_timer_ = new XeroTimer("delay-trap-timer", TrampConstants.Trap.kDelayTime) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
         ready_for_trap_trigger_ = new Trigger(() -> state_ == State.HoldingTrapPosition) ; 
@@ -330,8 +334,8 @@ public class TrampSubsystem extends XeroSubsystem {
     public void moveToDestinationPosition() {
         NoteDestination dest = destsupplier_.get() ;
         if (dest == NoteDestination.Trap) {
-            gotoPosition(TrampConstants.Elevator.Positions.kTrap, Double.NaN, Double.NaN, 
-                         TrampConstants.Arm.Positions.kTrap, Double.NaN, Double.NaN);
+            gotoPosition(TrampConstants.Elevator.Positions.kTrapBeforeClimb, Double.NaN, Double.NaN, 
+                         TrampConstants.Arm.Positions.kTrapBeforeClimb, Double.NaN, Double.NaN);
             climberUp() ;
             next_state_ = State.MoveNote ;
         }
@@ -521,16 +525,27 @@ public class TrampSubsystem extends XeroSubsystem {
 
             case Climbing:
                 if (climber_dir_ == ClimberDir.None) {
-                    gotoPosition(TrampConstants.Elevator.Positions.kTrap1, Double.NaN, Double.NaN,
-                                 TrampConstants.Arm.Positions.kTrap1, Double.NaN, Double.NaN) ;
+                    gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterClimb1, Double.NaN, Double.NaN,
+                                 TrampConstants.Arm.Positions.kTrapAfterClimb1, Double.NaN, Double.NaN) ;
                     next_state_ = State.Trap1 ;
                 }
                 break ;
 
             case Trap1:
-                gotoPosition(TrampConstants.Elevator.Positions.kTrap2, Double.NaN, Double.NaN,
-                                TrampConstants.Arm.Positions.kTrap2, Double.NaN, Double.NaN) ;
-                next_state_ = State.StartDepositNote ;
+                gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterClimb2, Double.NaN, Double.NaN,
+                                TrampConstants.Arm.Positions.kTrapAfterClimb2, Double.NaN, Double.NaN) ;
+                next_state_ = State.DelayTrap1 ;
+                break ;
+
+            case DelayTrap1:
+                delay_trap_timer_.start() ;
+                state_ = State.DelayTrap2 ;
+                break ;
+
+            case DelayTrap2:
+                if (delay_trap_timer_.isExpired()) {
+                    state_ = State.StartDepositNote ;
+                }
                 break ;
 
             case StartDepositNote:
@@ -544,15 +559,15 @@ public class TrampSubsystem extends XeroSubsystem {
 
             case DepositingNote:
                 if (deposit_trap_timer_.isExpired()) {
-                    gotoPosition(TrampConstants.Elevator.Positions.kTrap3, Double.NaN, Double.NaN,
-                                TrampConstants.Arm.Positions.kTrap3, Double.NaN, Double.NaN) ;
+                    gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterDeposit1, Double.NaN, Double.NaN,
+                                TrampConstants.Arm.Positions.kTrapAfterDeposit1, Double.NaN, Double.NaN) ;
                     next_state_ = State.Trap3 ;                    
                 }
                 break ;
 
             case Trap3:
-                gotoPosition(TrampConstants.Elevator.Positions.kTrap4, Double.NaN, Double.NaN,
-                             TrampConstants.Arm.Positions.kTrap4, Double.NaN, Double.NaN) ;
+                gotoPosition(TrampConstants.Elevator.Positions.kTrapAfterDeposit2, Double.NaN, Double.NaN,
+                             TrampConstants.Arm.Positions.kTrapAfterDeposit2, Double.NaN, Double.NaN) ;
                 next_state_ = State.Idle ;
                 break ;
 

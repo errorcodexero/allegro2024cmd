@@ -179,17 +179,6 @@ public abstract class XeroRobot extends LoggedRobot {
         }
 
         if (!auto_modes_created_) {
-            // String alliance = "?????" ;
-            // Optional<DriverStation.Alliance> a = DriverStation.getAlliance() ;
-            // if (a.isPresent()) {
-            //     alliance = a.get().toString() ;
-            // }
-            Logger.recordOutput("info:event", DriverStation.getEventName()) ;
-            Logger.recordOutput("info:match", DriverStation.getMatchType().toString()) ;
-            Logger.recordOutput("info:number", Integer.toString(DriverStation.getMatchNumber())) ;
-            // Logger.recordOutput("info:alliance", alliance) ;
-            // Logger.recordOutput("info:location", Integer.toString(DriverStation.getLocation().getAsInt())) ;            
-
             if (shouldBeCompetition() || !isTestMode()) {
                 createCompetitionAutoModes() ;
             }

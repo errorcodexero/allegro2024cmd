@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -31,7 +30,6 @@ import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
-import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -73,6 +71,7 @@ public class AllegroContainer extends XeroContainer {
     // OI related devices
     //
     private final CommandXboxController driver_controller_ ;
+    private boolean driver_controller_enabled_ ;
 
     //
     // Telemetry related
@@ -104,6 +103,8 @@ public class AllegroContainer extends XeroContainer {
      */
     public AllegroContainer(AllegroRobot robot) throws Exception {
         super(robot) ;
+
+        driver_controller_enabled_ = true ;
 
         //
         // Create subsystems
@@ -152,6 +153,10 @@ public class AllegroContainer extends XeroContainer {
         configureBindings(robot);
     }
     // #endregion
+
+    public void enableGamePad(boolean b) {
+        driver_controller_enabled_ = b ;
+    }
 
     public XboxController getController() {
         return driver_controller_.getHID() ;
@@ -289,6 +294,9 @@ public class AllegroContainer extends XeroContainer {
 
     // #region Drive Train Bindings
     private double getLeftX() {
+        if (!driver_controller_enabled_)
+            return 0.0 ;
+
         double y = -driver_controller_.getLeftX() ;
 
         if (driver_controller_.getHID().getXButton()) {
@@ -302,6 +310,9 @@ public class AllegroContainer extends XeroContainer {
     }
 
     private double getLeftY() {
+        if (!driver_controller_enabled_)
+            return 0.0 ;
+
         double x = -driver_controller_.getLeftY() ;
 
         if (driver_controller_.getHID().getXButton()) {
@@ -315,6 +326,9 @@ public class AllegroContainer extends XeroContainer {
     }
 
     private double getRightX() {
+        if (!driver_controller_enabled_)
+            return 0.0 ;
+
         double x = -driver_controller_.getRightX() ;
 
         if (driver_controller_.getHID().getXButton()) {
@@ -389,7 +403,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the intake
         //
-        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(oi_, tracker_, db_, intake_shooter_)) ;
+        oi_.shoot().or(driver_controller_.a()).and(intake_shooter_.readyToShoot()).onTrue(new ShootCommand(this, oi_, tracker_, db_, intake_shooter_)) ;
 
         //
         // Shoot command, bound to the shoot button on the OI and only targeting the tramp (AMP)
@@ -410,15 +424,15 @@ public class AllegroContainer extends XeroContainer {
         oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
         oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
 
-        Command ferry = intake_shooter_.manualShootCommand(
-                IntakeShooterConstants.ManualShotFerry.kUpDownPos,
-                IntakeShooterConstants.ManualShotFerry.kUpDownPosTolerance,
-                IntakeShooterConstants.ManualShotFerry.kUpDownVelTolerance,
-                IntakeShooterConstants.ManualShotFerry.kTiltPos,
-                IntakeShooterConstants.ManualShotFerry.kTiltPosTolerance,
-                IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
-                IntakeShooterConstants.ManualShotFerry.kShooterVel,
-                IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
+        // Command ferry = intake_shooter_.manualShootCommand(
+        //         IntakeShooterConstants.ManualShotFerry.kUpDownPos,
+        //         IntakeShooterConstants.ManualShotFerry.kUpDownPosTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kUpDownVelTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kTiltPos,
+        //         IntakeShooterConstants.ManualShotFerry.kTiltPosTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
+        //         IntakeShooterConstants.ManualShotFerry.kShooterVel,
+        //         IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
         // driver_controller_.leftTrigger().onTrue(ferry) ;
     }
     // #endregion

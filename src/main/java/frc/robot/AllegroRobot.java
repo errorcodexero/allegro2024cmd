@@ -4,9 +4,8 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.misc.MessageLogger;
@@ -34,6 +33,8 @@ import frc.robot.subsystems.oi.OIConstants;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
+    private static final boolean kLogToNetworkTables = false ;
+
     private AllegroContainer container_;
 
     public AllegroRobot() {
@@ -54,7 +55,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "autothreepaths";
+        return "collectshootxfer";
     }
 
     @Override
@@ -84,7 +85,8 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void createCompetitionAutoModes() {
         if (container_ != null && container_.getDriveTrain() != null) {
-            addAutoMode(new FourNoteDynamicCommand(this, container_));
+            addAutoMode(new FourNoteDynamicCommand(this, container_, 0.0));
+            addAutoMode(new FourNoteDynamicCommand(this, container_, 1.0));
             addAutoMode(new FourNoteQuickCommand(this, container_, true)) ;
             addAutoMode(new FourNoteQuickCommand(this, container_, false)) ;            
             addAutoMode(new ThreeNotePathsCommand(this, container_)) ;
@@ -115,12 +117,10 @@ public class AllegroRobot extends XeroRobot {
 
         Logger.disableDeterministicTimestamps();
 
-        // Logger.addDataReceiver(new NT4Publisher());
-
-        setUseTiming(false);
-        String logFile = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logFile));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logFile, "_nvis"))) ;
+        if (kLogToNetworkTables || XeroRobot.isSimulation()) {
+            Logger.addDataReceiver(new NT4Publisher());
+        }
+        Logger.addDataReceiver(new WPILOGWriter()) ;
         
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
