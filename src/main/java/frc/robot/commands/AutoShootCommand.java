@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 
@@ -83,7 +84,7 @@ public class AutoShootCommand extends Command {
         }
 
         Logger.recordOutput("states:autoshoot", str) ;
-        oi_.setLEDState(OILed.DBReady, dbready);
+        oi_.setLEDState(OILed.DBReady, dbready ? LEDState.On : LEDState.Off) ;
     }
 
     @Override

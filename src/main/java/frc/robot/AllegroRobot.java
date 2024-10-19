@@ -15,13 +15,17 @@ import org.xero1425.simulator.engine.ModelFactory;
 import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.competition.FourNoteQuickCommand;
 import frc.robot.automodes.competition.JustShootCommand;
 import frc.robot.automodes.competition.ThreeNotePathsCommand;
+import frc.robot.commands.AutoTrapCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
+import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -165,6 +169,35 @@ public class AllegroRobot extends XeroRobot {
         if (!RobotConstants.kCharMode) {
             Logger.recordOutput("oi:buttons", container_.getDriveControllerOIString()) ;
             Logger.recordOutput("oi:rumble", getRumble());
+        }
+
+        if (container_ != null && container_.getTramp() != null && container_.getTramp().isInTrapPosition()) {
+            int [] tags = AutoTrapCommand.getApplicableTags() ;
+            if (tags != null) {
+                int tag = AutoTrapCommand.seeAprilTag(container_.limelight_name_, tags) ;
+                if (tag != -1) {
+                    Pose2d tagpose = getFieldLayout().getTagPose(tag).get().toPose2d() ;
+                    double dist = tagpose.getTranslation().getDistance(container_.getDriveTrain().getState().Pose.getTranslation()) ;
+                    if (dist < AutoTrapCommand.kMaxDistance) {
+                        //
+                        // We are good to go, just hit the autotrap button to execute.
+                        //
+                        container_.getOI().setLEDState(OILed.AutoTrapExecEnabled, LEDState.On) ;
+                    }
+                    else {
+                        //
+                        // We have a note and we see the april tag, but we are too far away
+                        //
+                        container_.getOI().setLEDState(OILed.AutoTrapExecEnabled, LEDState.Fast) ;
+                    }
+                }
+                else {
+                    //
+                    // Slow blink, we have a note in the trap position, but don't see the april tag
+                    //
+                    container_.getOI().setLEDState(OILed.AutoTrapExecEnabled, LEDState.Slow) ;
+                }
+            }
         }
     }
 }

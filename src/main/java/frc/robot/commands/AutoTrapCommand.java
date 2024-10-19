@@ -42,7 +42,7 @@ public class AutoTrapCommand extends Command {
     private static double kExtraSpacing2 = 0.22 ;      // Off from the april tag toward the robot
     private static double kRightSpacing1 = 0.0 ;       // Positive moves to the right
     private static double kRightSpacing2 = 0.05 ;      // Positive moves to the right
-    private static double kMaxDistance = 2.5 ;
+    public static double kMaxDistance = 2.5 ;
     private static int kSimulatedTag = 11 ;
 
     private String limelight_name_ ;
@@ -55,7 +55,7 @@ public class AutoTrapCommand extends Command {
     private AprilTagFieldLayout layout_ ;
     private State state_ ;
     private int target_tag_ ;
-    private int[] desired_tags_ = new int[3] ;
+    private static int[] desired_tags_ = null ;
 
     public AutoTrapCommand(String name, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
         limelight_name_ = name ;
@@ -67,6 +67,28 @@ public class AutoTrapCommand extends Command {
         state_ = State.Starting ;
 
         computeTarget(11) ;
+    }
+
+    public static int[] getApplicableTags() {
+        int [] ret = null ;
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+
+        if (alliance.isPresent()) {
+            ret = new int[3] ;
+
+            if (alliance.get() == Alliance.Red) {
+                ret[0] = 11 ;
+                ret[1] = 12 ;
+                ret[2] = 13 ;
+            }
+            else {
+                ret[0] = 14 ;
+                ret[1] = 15 ;
+                ret[2] = 16 ;
+            }
+        }
+
+        return ret ;
     }
 
     private Pose2dWithRotation[] computeTarget(int tag) {
@@ -115,23 +137,16 @@ public class AutoTrapCommand extends Command {
     public void initialize() {
         target_tag_ = -1 ;
 
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty()) {
-            desired_tags_[0] = -1 ;
-            desired_tags_[1] = -1 ; 
-            desired_tags_[2] = -1 ;
+        if (desired_tags_ == null) {
+            desired_tags_ = getApplicableTags() ;
         }
-        else if (alliance.get() == Alliance.Red) {
-            desired_tags_[0] = 11 ;
-            desired_tags_[1] = 12 ;
-            desired_tags_[2] = 13 ;
+
+        if (desired_tags_ == null) {
+            state_ = State.Done ;
         }
         else {
-            desired_tags_[0] = 14 ;
-            desired_tags_[1] = 15 ;
-            desired_tags_[2] = 16 ;
+            state_ = State.LookForAprilTag ;
         }
-        state_ = State.LookForAprilTag ;
     }
 
     @Override
@@ -195,22 +210,28 @@ public class AutoTrapCommand extends Command {
         db_.stopPath() ;
     }
 
+    public static int seeAprilTag(String name, int [] tags) {
+        int ret = -1 ;
+        LimelightResults results = LimelightHelpers.getLatestResults(name) ;
+
+        for(int i = 0 ; i < results.targets_Fiducials.length ; i++) {
+            for(int j = 0 ; j < desired_tags_.length ; j++) {
+                if (results.targets_Fiducials[i].fiducialID == desired_tags_[j]) {
+                    ret = desired_tags_[j] ;
+                    break ;
+                }
+            }
+        }        
+
+        return ret ;
+    }
+
     private void lookForAprilTag() {
         if (XeroRobot.isReal()) {
             //
             // Find the april tag based on what we see
             //
-            LimelightResults results = LimelightHelpers.getLatestResults(limelight_name_) ;
-            target_tag_ = -1 ;
-
-            for(int i = 0 ; i < results.targets_Fiducials.length ; i++) {
-                for(int j = 0 ; j < desired_tags_.length ; j++) {
-                    if (results.targets_Fiducials[i].fiducialID == desired_tags_[j]) {
-                        target_tag_ = desired_tags_[j] ;
-                        break ;
-                    }
-                }
-            }
+            target_tag_ = seeAprilTag(limelight_name_, desired_tags_) ;
         }
         else {
             //
@@ -234,6 +255,4 @@ public class AutoTrapCommand extends Command {
             state_ = State.Done ;
         }
     }
-
-  
 }

@@ -2,6 +2,8 @@ package frc.robot.subsystems.oi;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
+
 public interface OIIos {
     @AutoLog
     public static class OIIosInputs {
@@ -22,6 +24,6 @@ public interface OIIos {
     public default void updateInputs(OIIosInputs inputs) {
     }
 
-    public default void setLED(int index, boolean on) {
+    public default void setLED(int index, LEDState on) {
     }
 }

@@ -228,7 +228,7 @@ public class TrackerSubsystem extends XeroSubsystem {
             AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
             OISubsystem oi = container.getOI() ;
             if (oi != null) {
-                oi.setLEDState(OILed.TrackerReady, isOkToShoot()) ;  
+                oi.setLEDState(OILed.TrackerReady, isOkToShoot() ? OISubsystem.LEDState.On : OISubsystem.LEDState.Off) ;
             }
         }
 

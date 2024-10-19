@@ -65,7 +65,7 @@ public class AllegroContainer extends XeroContainer {
     //
     // Limelight name
     //
-    private final String limelight_name_ = "limelight" ;
+    public final String limelight_name_ = "limelight" ;
 
     //
     // OI related devices

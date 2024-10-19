@@ -30,6 +30,7 @@ import frc.robot.AllegroContainer;
 import frc.robot.NoteDestination;
 import frc.robot.ShotType;
 import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
@@ -1126,8 +1127,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         OISubsystem oi = container.getOI() ;
 
         if (oi != null) {
-            oi.setLEDState(OILed.ShooterReady, isShooterReady()) ;
-            oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
+            oi.setLEDState(OILed.ShooterReady, isShooterReady() ? LEDState.On : LEDState.Off) ;
+            oi.setLEDState(OILed.TiltReady, isTiltReady() ? LEDState.On : LEDState.Off) ;
         }
 
         if (getVerbose()) {

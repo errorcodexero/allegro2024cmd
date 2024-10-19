@@ -133,7 +133,7 @@ public class ShootCommand extends Command {
         }
 
         Logger.recordOutput("state:shoot", str) ;
-        oi_.setLEDState(OILed.DBReady, dbready);
+        oi_.setLEDState(OILed.DBReady, dbready ? OISubsystem.LEDState.On : OISubsystem.LEDState.Off) ;
     }
 
     @Override
