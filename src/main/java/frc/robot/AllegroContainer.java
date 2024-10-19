@@ -139,7 +139,7 @@ public class AllegroContainer extends XeroContainer {
 
         visualizer_ = new ComponentVisualizer("Component3d");
 
-        noteVisualizer_ = new NoteVisualizer("NoteVisualizer", visualizer_, () -> new Pose2d());
+        noteVisualizer_ = new NoteVisualizer("NoteVisualizer", visualizer_, () -> db_.getState().Pose);
 
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         if (db_ != null) {

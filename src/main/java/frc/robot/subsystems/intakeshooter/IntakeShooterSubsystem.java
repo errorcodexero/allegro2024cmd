@@ -16,7 +16,6 @@ import org.xero1425.misc.SettingsValue;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Time;
 import edu.wpi.first.units.Units ;
@@ -1146,8 +1145,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         );
 
         noteVisualizer_.updateIntake(has_note_);
-
-        Logger.recordOutput("Uwu", new Pose3d());
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);
