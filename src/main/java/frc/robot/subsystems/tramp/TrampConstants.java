@@ -8,7 +8,7 @@ public class TrampConstants {
     }
 
     public class Trap {
-        public static final double kDelayTime = 0.5 ;
+        public static final double kDelayTime = 1.0 ;
     }
 
     public class Elevator {
@@ -81,6 +81,7 @@ public class TrampConstants {
         public static final double kTargetVelTolerance = 100.0 ;
         public static final double kMinPosition = -12.0 ;
         public static final double kMaxPosition = 270.0 ;
+        public static final double kStartPosition = 0.0 ;
 
         public class Positions {
             public static final double kStowed = 0.0 ;
@@ -139,12 +140,12 @@ public class TrampConstants {
         public static final double kEjectTime = 0.5 ;
         public static final double kShootTime = 0.8 ;
         public static final double kShootPower = -5.0 ;
-        public static final double kTrapMoveNoteDistance = 0.2 ;
+        public static final double kTrapMoveNoteDistance = 0.3 ;
         public static final double kTrapMoveNoteVelocity = 5.0 ;
         public static final double kDepositTime = 1.5 ;
         public static final double kDepositVelocity = 10 ;
         public static final double kHoldNoteTime = 0.2 ;
-        public static final double kFreeWheelTransferDistance = 0.5 ;
+        public static final double kFreeWheelTransferDistance = 0.45 ;
 
         public static final double kTransferVoltage = 1.2 ;
         public static final double kTransferVelocity = 25.0 ;
@@ -158,7 +159,7 @@ public class TrampConstants {
         }
 
         public class PositionPID {
-            public static final double kP = 10 ;
+            public static final double kP = 20 ;
             public static final double kI = 0.0 ;
             public static final double kD = 0.0 ;
             public static final double kV = 0.0 ;

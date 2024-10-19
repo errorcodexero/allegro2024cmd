@@ -9,7 +9,7 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 
 public class TransferNoteCommand extends Command {
 
-    private static final double kTransferDBRampRate = 1.0 ;
+    private static final double kTransferDBRampRate = 0.25 ;
 
     private enum State {
         MoveToPosition,
@@ -40,9 +40,6 @@ public class TransferNoteCommand extends Command {
         intake_shooter_.moveToTransferPosition();
         tramp_.moveToTransferPosition();
         state_ = State.MoveToPosition ;
-        if (db_ != null) {
-            db_.limitDriveMotorRampRate(kTransferDBRampRate) ;
-        }
     }
 
     @Override
@@ -50,6 +47,9 @@ public class TransferNoteCommand extends Command {
         switch(state_) {
             case MoveToPosition:
                 if (intake_shooter_.isInTransferPosition() && tramp_.isInTransferPosition()) {
+                    if (db_ != null) {
+                        db_.limitDriveMotorRampRate(kTransferDBRampRate) ;
+                    }                    
                     intake_shooter_.doTransferNote();
                     tramp_.transferNote();
                     state_ = State.TransferringNote ;
@@ -72,7 +72,7 @@ public class TransferNoteCommand extends Command {
                 break ;
 
             case MoveTrampToDestination:
-                if (tramp_.isIdle()) {
+                if (tramp_.isInAmpPosition() || tramp_.isInTrapPosition()) {
                     state_ = State.Done ;
                 }
                 break ;

@@ -73,6 +73,14 @@ public class OISubsystem extends XeroSubsystem {
         climb_up_prep_trigger_ = new Trigger(() -> inputs_.climbUpPrep) ;
         climb_up_exec_trigger_ = new Trigger(() -> inputs_.climbUpExec) ;
         auto_trap_trigger_ = new Trigger(() -> inputs_.autoTrap) ;
+
+        setLEDState(OILed.AutoTrapExecEnabled, LEDState.Off);
+        setLEDState(OILed.ClimbUpExecEnabled, LEDState.Off);
+        setLEDState(OILed.ClimbUpPrepEnabled, LEDState.Off);
+        setLEDState(OILed.DBReady, LEDState.Off);
+        setLEDState(OILed.ShooterReady, LEDState.Off);
+        setLEDState(OILed.TiltReady, LEDState.Off);
+        setLEDState(OILed.TrackerReady, LEDState.Off);        
     }
 
     public boolean isAbortPressed() {

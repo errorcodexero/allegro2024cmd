@@ -129,6 +129,7 @@ public class TrampIOHardware implements TrampIO {
         arm_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Arm.kMotorId,
                                                                TrampConstants.Arm.kInverted,
                                                                TrampConstants.Arm.kCurrentLimit);
+        arm_motor_.setPosition(0.0) ;
         motors_.put(TrampSubsystem.ARM_MOTOR_NAME, arm_motor_) ;
 
         if (XeroRobot.isReal()) {
@@ -184,6 +185,7 @@ public class TrampIOHardware implements TrampIO {
         climber_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Climber.kMotorId,
                                                                    TrampConstants.Climber.kInverted,
                                                                    TrampConstants.Climber.kCurrentLimit);
+        climber_motor_.setPosition(0.0) ;
         motors_.put(TrampSubsystem.CLIMBER_MOTOR_NAME, climber_motor_) ;
         climber_pos_sig_ = climber_motor_.getPosition() ;
         climber_current_sig_ = climber_motor_.getSupplyCurrent() ;

@@ -162,6 +162,7 @@ public class AllegroRobot extends XeroRobot {
      * and
      * SmartDashboard integrated updating.
      */
+    static int lasttag = -1 ;
     @Override
     public void robotPeriodic() {
         super.robotPeriodic();      
@@ -176,9 +177,11 @@ public class AllegroRobot extends XeroRobot {
             if (tags != null) {
                 int tag = AutoTrapCommand.seeAprilTag(container_.limelight_name_, tags) ;
                 if (tag != -1) {
+                    lasttag = tag ;
                     Pose2d tagpose = getFieldLayout().getTagPose(tag).get().toPose2d() ;
                     double dist = tagpose.getTranslation().getDistance(container_.getDriveTrain().getState().Pose.getTranslation()) ;
-                    if (dist < AutoTrapCommand.kMaxDistance) {
+                    Logger.recordOutput("autotrap:dist", dist) ;
+                    if (dist < AutoTrapCommand.kMaxDistance && dist > AutoTrapCommand.kMinDistance) {
                         //
                         // We are good to go, just hit the autotrap button to execute.
                         //
@@ -192,6 +195,10 @@ public class AllegroRobot extends XeroRobot {
                     }
                 }
                 else {
+                    Pose2d tagpose = getFieldLayout().getTagPose(lasttag).get().toPose2d() ;
+                    double dist = tagpose.getTranslation().getDistance(container_.getDriveTrain().getState().Pose.getTranslation()) ;
+                    Logger.recordOutput("autotrap:dist", dist) ;
+
                     //
                     // Slow blink, we have a note in the trap position, but don't see the april tag
                     //

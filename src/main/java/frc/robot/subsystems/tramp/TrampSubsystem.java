@@ -113,7 +113,7 @@ public class TrampSubsystem extends XeroSubsystem {
         io_ = new TrampIOHardware() ;
         inputs_ = new TrampIOInputsAutoLogged() ;
 
-        io_.setArmPosition(TrampConstants.Arm.kMinPosition);
+        io_.setArmPosition(TrampConstants.Arm.kStartPosition);
 
         destsupplier_ = dest ;
 
@@ -335,6 +335,7 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     public void moveToDestinationPosition() {
+        io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
         NoteDestination dest = destsupplier_.get() ;
         if (dest == NoteDestination.Trap) {
             gotoPosition(State.MoveNote, 
