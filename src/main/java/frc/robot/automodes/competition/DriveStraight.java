@@ -80,7 +80,7 @@ public class DriveStraight extends XeroAutoCommand {
             case Delay:
                 if (delay_.isExpired()) {
                     state_ = State.Drive ;
-                    container_.getDriveTrain().drivePath(path1_, 0.1) ;
+                    container_.getDriveTrain().drivePathWithTraj(path1_, 2.0, 2.0, 0.0, 0.0, 0.1);
                 }
                 break ;
 

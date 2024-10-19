@@ -32,6 +32,7 @@ import frc.robot.AllegroContainer;
 import frc.robot.NoteDestination;
 import frc.robot.ShotType;
 import frc.robot.subsystems.oi.OISubsystem;
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
 import frc.robot.util.ComponentVisualizer;
 import frc.robot.util.NoteVisualizer;
@@ -63,7 +64,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         WaitingToShoot,
         WaitForShotFinish,
 
-        GoToEjectPosition,
+        StartEjectOperations,
         EjectForward,
         EjectPause,
         EjectReverse,
@@ -106,6 +107,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private double auto_manual_shoot_tilt_ ;
 
     private boolean tracking_ ;
+    private boolean ejecting_ ;
     private DoubleSupplier distsupplier_ ;
     private PieceWiseLinear updown_pwl_ ;
     private PieceWiseLinear tilt_pwl_ ;
@@ -129,7 +131,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private State next_state_ ;
     private boolean auto_mode_auto_shoot_ ;
 
-    private Command xfercmd_ ;
 
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
@@ -139,6 +140,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private Trigger transfer_note_trigger_ ;
     private Trigger ready_for_shoot_trigger_ ;
     private boolean collect_after_manual_ ;
+
+    private boolean firing_ ;
     // #endregion
 
     // #region constructor
@@ -151,6 +154,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         destsupplier_ = destsupplier ;
         shot_type_supplier_ = shottype ;
         auto_mode_auto_shoot_ = false ;
+
+        firing_ = false ;
 
         capture_timer_ = new XeroTimer("collect-timer", IntakeShooterConstants.kCollectDelayTime) ;
         reverse_timer_ = new XeroTimer("reverse-timer", IntakeShooterConstants.kReverseDelayTime) ;
@@ -172,7 +177,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         next_state_ = State.Invalid ;
 
         transfer_note_trigger_ = new Trigger(()-> canTransferNote()) ;
-        ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot) ;
+        ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot || tracking_ ) ;
+
+
 
         need_stop_manipulator_ = false ;
 
@@ -194,10 +201,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         else {
             io_.setTiltMotorPosition(inputs_.tiltAbsoluteEncoderPosition) ;
         }
-    }
-
-    public void setTransferCmd(Command cmd) {
-        xfercmd_ = cmd ;
     }
 
     public void setAutoModeAutoShoot(boolean b) {
@@ -337,19 +340,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #region public methods to set the state of the subsystem
     public void setTiltToAngle(double t, double tiltpostol, double tiltveltol) {
         setTracking(false) ;
-        setTiltTarget(t) ;
-
-        target_tilt_tol_ = tiltpostol ;
-        target_tilt_vel_ = tiltveltol ;
+        setTiltTarget(t, tiltpostol, tiltveltol) ;
     }
 
     public void setUpDownToAngle(double pos, double updownpostol, double updownveltol) {
         setTracking(false) ;
-        io_.setUpDownTargetPos(pos);
-
-        target_updown_ = pos ;
-        target_updown_tol_ = updownpostol ;
-        target_updown_vel_ = updownveltol ;
+        setUpDownTarget(pos, updownpostol, updownveltol);
     }
     //#endregion
 
@@ -359,7 +355,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->collect(),
                                 () -> {},
                                 (Boolean b) -> { if (b) stopCollect(); },
-                                ()->isIdle() || hasNote()) ;
+                                ()->isIdle() || hasNote(),
+                                this) ;
         cmd.setName("collect") ;        
         return cmd ;
     }
@@ -369,7 +366,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->eject(),
                                 () -> {},
                                 (Boolean b) -> {},
-                                ()->isIdle()) ;
+                                ()-> { return isIdle() || isStowing(); } ,
+                                this) ;
         ret.setName("eject") ;        
         return ret ;
     }
@@ -379,7 +377,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                                 ()->turtle(false),
                                 () -> {},
                                 (Boolean b) -> {},
-                                ()->isIdle()) ;
+                                ()->isIdle() ,
+                                this) ;
         ret.setName("turtle") ;
         return ret ;
     }
@@ -389,7 +388,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             ()->manualShoot(updown, updownpostol, updownveltol, tilt, tiltpostol, tiltveltol, shooter, shooterveltol, true, false),
             ()-> {},
             (Boolean b) -> { },
-            () -> hasShotLeft());
+            () -> hasShotLeft(), 
+            this);
         ret.setName("manual-shoot");
         return ret ;
     }
@@ -420,13 +420,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Move the updown and tilt to the collect position
             //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kCollect, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kCollect, Double.NaN, Double.NaN) ;
-            
-            //
-            // And set the state for after we reach the collect position
-            //
-            next_state_ = State.WaitForNote ;                         
+            gotoPosition(State.WaitForNote,
+                         IntakeShooterConstants.UpDown.Positions.kCollect, 
+                         IntakeShooterConstants.Tilt.Positions.kCollect) ;
         }
     }
 
@@ -475,19 +471,20 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Move the updown and tilt to the transfer position
             //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kTransfer, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kTransfer, 10.0, 10.0) ;
-            
-            //
-            // And set the state for after we reach the transfer position
-            //
-            next_state_ = State.HoldingTransferPosition ;                         
+            gotoPosition(State.HoldingTransferPosition, 
+                         IntakeShooterConstants.UpDown.Positions.kTransfer, 
+                         IntakeShooterConstants.UpDown.Positions.kTransferPosTol,
+                         IntakeShooterConstants.UpDown.Positions.kTransferPosTol,
+                         IntakeShooterConstants.Tilt.Positions.kTransfer, 
+                         IntakeShooterConstants.Tilt.Positions.kTransferPosTol,
+                         IntakeShooterConstants.Tilt.Positions.kTransferVelTol) ;
         }
     }
 
     public void manualShoot(double updown, double updownpostol, double updownveltol, double tilt, double tiltpostol, double tiltveltol, double shooter, double shooterveltol, boolean immd, boolean collect) {
+        State st = immd ? State.WaitingToShoot : State.HoldForShoot ; 
         setTracking(false);
-        gotoPosition(updown, updownpostol, updownveltol, tilt, tiltpostol, tiltveltol) ;
+        gotoPosition(st, updown, updownpostol, updownveltol, tilt, tiltpostol, tiltveltol) ;
         setShooterVelocity(shooter, shooterveltol);
 
         //
@@ -500,12 +497,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         // useful in automodes to shoot now without any user interaction.  If immd is false, every things gets ready for the
         // shot, but we wait on the drive team to press the button to shoot.
         //
-        if (immd) {
-            next_state_ = State.WaitingToShoot ;
-        }
-        else {
-            next_state_ = State.HoldForShoot ;
-        }
+
     }
 
     public void finishShot() {
@@ -517,13 +509,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     }
 
     public void eject() {
-        if (xfercmd_ != null) {
-            xfercmd_.cancel() ;
-        }
+        ejecting_ = true ;
         setTracking(false);
-        gotoPosition(IntakeShooterConstants.UpDown.Positions.kEject, 5.0, 100.0, 
-                     IntakeShooterConstants.Tilt.Positions.kEject, 8.0, 100.0) ;
-        state_ = State.GoToEjectPosition ;
+        gotoPosition(State.StartEjectOperations,
+                     IntakeShooterConstants.UpDown.Positions.kEject, 
+                     IntakeShooterConstants.Tilt.Positions.kEject) ;
     }
 
     //
@@ -582,35 +572,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return ret;
     }
 
-    public void gotoPositionThenIdle(double updown, double updowntol, double updownvel, double tilt, double tilttol, double tiltvel) {
-        next_state_ = State.Idle ;
-        gotoPosition(updown, updowntol, updownvel, tilt, tilttol, tiltvel);
+    private void gotoPosition(State st, double updown, double tilt) {
+        gotoPosition(st, updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
     }
 
-    private void gotoPosition(double updown, double updowntol, double updownvel, double tilt, double tilttol, double tiltvel) {
-
-        next_tilt_ = tilt ;
-        next_updown_ = updown ;
-
-        if (Double.isNaN(updowntol))
-            target_updown_tol_ = IntakeShooterConstants.UpDown.kTargetPosTolerance ;
-        else
-            target_updown_tol_ = updowntol ;
-
-        if (Double.isNaN(updownvel))
-            target_updown_vel_ = IntakeShooterConstants.UpDown.kTargetVelTolerance ;
-        else
-            target_updown_vel_ = updownvel ;
-
-        if (Double.isNaN(tilttol))
-            target_tilt_tol_ = IntakeShooterConstants.Tilt.kTargetPosTolerance ;
-        else
-            target_tilt_tol_ = tilttol ;
-
-        if (Double.isNaN(tiltvel))
-            target_tilt_vel_ = IntakeShooterConstants.Tilt.kTargetVelTolerance ;
-        else
-            target_tilt_vel_ = tiltvel ;
+    private void gotoPosition(State st, double updown, double updowntol, double updownvel, double tilt, double tilttol, double tiltvel) {
+        next_state_ = st ;
 
         //
         // Compute the tilt position that would be required based on where the current updown
@@ -621,16 +588,19 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (Math.abs(inputs_.tiltPosition - desired_tilt) > IntakeShooterConstants.Tilt.kAllowedDeviationFromTrack) {
             //
             // First align tilt to the desired position, then move them to the desired position together
+            // We set the up down to its current position so it doesn't move, but this also sets the tolerance
+            // values to be used when we switch to moving the updown
             //
-            setTiltTarget(desired_tilt) ;
+            setUpDownTarget(inputs_.updownPosition, updowntol, updownvel);
+            setTiltTarget(desired_tilt, tilttol, tiltvel) ;
             state_ = State.MoveTiltToPosition ;            
         }
         else {
             //
             // Single move of updown/tilt together
             //
-            setUpDownTarget(updown);
-            setTiltTarget(tilt);
+            setUpDownTarget(updown, updowntol, updownvel) ;
+            setTiltTarget(tilt, tilttol, tiltvel) ;
             state_ = State.MoveBothToPosition ;            
         }
     }
@@ -644,13 +614,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Move the updown and tilt to the collect position
             //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-            
-            //
-            // And set the state for after we reach the collect position
-            //
-            next_state_ = State.Idle ;
+            gotoPosition(State.Idle,
+                         IntakeShooterConstants.UpDown.Positions.kStowed, 
+                         IntakeShooterConstants.Tilt.Positions.kStowed) ;
         }
     }    
 
@@ -663,7 +629,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Turn off the feeder and stop the tilt and updown
             //
             io_.setFeederMotorVoltage(0.0) ;
-            io_.setTiltTargetPos(false, inputs_.tiltPosition);
+            io_.setTiltTargetPos(inputs_.tiltPosition);
             io_.setUpDownTargetPos(inputs_.updownPosition);
             reverse_timer_.start() ;
 
@@ -680,7 +646,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         if (!DriverStation.isAutonomous()) {
             NoteDestination dest = getNoteDestination() ;
-            ret = has_note_ && !tracking_ && 
+            ret = has_note_ && !tracking_ && !ejecting_ &&
                      (dest == NoteDestination.Trap ||  dest == NoteDestination.Amp) &&
                      (state_ == State.Idle || state_ == State.MoveTiltToPosition || state_ == State.MoveBothToPosition || state_ == State.HoldForShoot) ;
         }
@@ -709,14 +675,36 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return ShotType.Auto ;
     }
 
-    private void setUpDownTarget(double pos) {
+    private void setUpDownTarget(double pos, double postol, double veltol) {
         target_updown_ = pos ;
+
+        if (Double.isNaN(postol))
+            target_updown_tol_ = IntakeShooterConstants.UpDown.kTargetPosTolerance ;
+        else
+            target_updown_tol_ = postol ;
+
+        if (Double.isNaN(veltol))
+            target_updown_vel_ = IntakeShooterConstants.UpDown.kTargetVelTolerance ;
+        else
+            target_updown_vel_ = veltol ;
+
         io_.setUpDownTargetPos(pos);
     }
 
-    private void setTiltTarget(double pos) {
-        io_.setTiltTargetPos(tracking_, pos);
+    private void setTiltTarget(double pos, double postol, double veltol) {
         target_tilt_ = pos ;
+
+        if (Double.isNaN(postol))
+            target_tilt_tol_ = IntakeShooterConstants.Tilt.kTargetPosTolerance ;
+        else
+            target_tilt_tol_ = postol ;
+
+        if (Double.isNaN(veltol))
+            target_tilt_vel_ = IntakeShooterConstants.Tilt.kTargetVelTolerance ;
+        else
+            target_tilt_vel_ = veltol ;
+
+        io_.setTiltTargetPos(pos);        
     }
 
     private void trackTargetDistance() {
@@ -726,8 +714,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
-        setUpDownTarget(updown);
-        setTiltTarget(tilt) ;
+        if (dist > 5.0) {
+            velocity = 0.0 ;
+        }
+
+        setUpDownTarget(updown, IntakeShooterConstants.UpDown.kTargetPosTolerance, IntakeShooterConstants.UpDown.kTargetVelTolerance) ;
+        setTiltTarget(tilt, IntakeShooterConstants.Tilt.kTargetPosTolerance, IntakeShooterConstants.Tilt.kTargetVelTolerance) ;
         setShooterVelocity(velocity, IntakeShooterConstants.Shooter.kAutoShootVelocityTol) ;
     }    
 
@@ -741,8 +733,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     //
     private void moveTiltToPositionState() {
         if (isTiltReady()) {
-            setUpDownTarget(next_updown_);
-            setTiltTarget(next_tilt_);
+            //
+            // This is part of a goto position call the tolerances are already set.  We just
+            // reuse the existing values.
+            //
+            setUpDownTarget(next_updown_, target_updown_tol_, target_updown_vel_) ;
+            setTiltTarget(next_tilt_, target_tilt_tol_, target_tilt_vel_) ;
             state_ = State.MoveBothToPosition ;
         }
     }
@@ -756,6 +752,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             has_note_ = true ;
             capture_timer_.start() ;
             state_ = State.WaitForCapture ;
+            next_state_ = State.Invalid ;
         }
         else if (isTiltReady() && isUpDownReady()) {
             state_ = next_state_ ;
@@ -780,13 +777,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Move the updown and tilt to the stowed position
             //
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-            //
-            // And set the state for after we reach the stowed position
-            //
-            next_state_ = State.Idle ;
+            gotoPosition(State.Idle,
+                         IntakeShooterConstants.UpDown.Positions.kStowed, 
+                         IntakeShooterConstants.Tilt.Positions.kStowed) ;
         }
     }    
 
@@ -800,24 +793,19 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             //
             // Move the updown and tilt to the stowed position
             //
-            double updown ;
-            double tilt ;
-            
             NoteDestination dest = getNoteDestination();
             switch(dest) {
                 case AutoDefinedSpeaker:
-                    next_state_ = State.Idle ;
-                    gotoPosition(auto_manual_shoot_updown_, Double.NaN, Double.NaN, auto_manual_shoot_tilt_, Double.NaN, Double.NaN) ; 
+                    gotoPosition(State.Idle, auto_manual_shoot_updown_, auto_manual_shoot_tilt_) ; 
                     break ;
                 case Speaker:
                     {
                         ShotType type = getShotType() ;
                         if (type == ShotType.Auto) {
-                            updown = IntakeShooterConstants.UpDown.Positions.kStartTracking ;
-                            tilt = IntakeShooterConstants.Tilt.Positions.kStartTracking;          
-                            gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;
+                            gotoPosition(State.HoldForShoot,
+                                         IntakeShooterConstants.UpDown.Positions.kStartTracking,
+                                         IntakeShooterConstants.Tilt.Positions.kStartTracking) ;
                             setTracking(true) ;
-                            next_state_ = State.HoldForShoot ;
                         }
                         else if (type == ShotType.Podium) {
                             manualShoot(IntakeShooterConstants.ManualShotPodium.kUpDownPos, 
@@ -846,17 +834,19 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
                 case Trap:
                 case Amp:
-                    updown = IntakeShooterConstants.UpDown.Positions.kTransfer ;
-                    tilt = IntakeShooterConstants.Tilt.Positions.kTransfer ;
-                    next_state_ = State.Idle ;                        
-                    gotoPosition(updown, 3.0, 10.0, tilt, 3.0, 1e32) ;                    
+                    gotoPosition(State.Idle,
+                                 IntakeShooterConstants.UpDown.Positions.kTransfer,
+                                 IntakeShooterConstants.UpDown.Positions.kTransferPosTol, 
+                                 IntakeShooterConstants.UpDown.Positions.kTransferVelTol,
+                                 IntakeShooterConstants.Tilt.Positions.kTransfer,
+                                 IntakeShooterConstants.Tilt.Positions.kTransferPosTol,
+                                 IntakeShooterConstants.Tilt.Positions.kTransferVelTol) ;  
                     break ;
 
                 default:
-                    updown = IntakeShooterConstants.UpDown.Positions.kStowed ;
-                    tilt = IntakeShooterConstants.Tilt.Positions.kStowed ;
-                    next_state_ = State.Idle ;
-                    gotoPosition(updown, Double.NaN, Double.NaN, tilt, Double.NaN, Double.NaN) ;                    
+                    gotoPosition(State.Idle,
+                                 IntakeShooterConstants.UpDown.Positions.kStowed, 
+                                 IntakeShooterConstants.Tilt.Positions.kStowed) ;
                     break ;
             }
 
@@ -870,9 +860,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
     }
 
-
     public void waitingToShootState() {
         if (isTiltReady() && isUpDownReady() && isShooterReady()) {
+            firing_ = true ;
             io_.setFeederMotorVoltage(IntakeShooterConstants.Feeder.kShootVoltage) ;
             shoot_timer_.start() ;
             state_ = State.WaitForShotFinish ;
@@ -885,6 +875,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             // Indicate the note has left the robot
             //
             has_note_ = false ;
+
+            firing_ = false ;
 
             //
             // Turn off the feeder and shooter
@@ -899,13 +891,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 //
                 // Move the updown and tilt to the stowed position
                 //
-                gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                             IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
-
-                //
-                // And set the state for after we reach the stowed position
-                //
-                next_state_ = State.Idle ;                             
+                gotoPosition(State.Idle, 
+                             IntakeShooterConstants.UpDown.Positions.kStowed, 
+                             IntakeShooterConstants.Tilt.Positions.kStowed) ;
             }
             else {
                 //
@@ -941,34 +929,42 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         if (eject_reverse_timer_.isExpired()) {
             setShooterVelocity(0.0, 0.0);
             io_.setFeederMotorVoltage(0.0);
-            next_state_ = State.Idle ;
-            gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                         IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
+            gotoPosition(State.Idle, 
+                         IntakeShooterConstants.UpDown.Positions.kStowed, 
+                         IntakeShooterConstants.Tilt.Positions.kStowed) ;
+            ejecting_ = false ;
         }
     }
     // #endregion
 
-    int counter = 0 ;
-    double lasttime = 0.0 ;
-    boolean lastone = false ;
+    public void endNoteTransfer() {
+        has_note_ = false ;                    
+        state_ = State.TransferRunToShooterStop ;        
+    }
 
     // #region periodic method that evaluates the state machine each robot loop
     @Override
     public void periodic() {
+        super.startPeriodic() ;
         io_.updateInputs(inputs_);
 
         boolean synced = false ;
+        double motortilt = inputs_.tiltPosition ;
         if (!encoders_synced_ && getRobot().isEnabled()) {
             syncTiltEncoders(true) ;
+            motortilt = inputs_.tiltAbsoluteEncoderPositionMedian ;
             encoders_synced_ = true ;
             synced = true ;
         }
 
+        double tiltdiff = Math.abs(inputs_.tiltAbsoluteEncoderPosition - motortilt) ;
         if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
-            average_value_ < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle) {
-            syncTiltEncoders(false) ;
-            encoders_synced_ = false ;
-            synced = true ;
+            Math.abs(average_value_) < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle &&
+            encoders_synced_ && tiltdiff > IntakeShooterConstants.Tilt.Resync.kPosDiffThreshold) { 
+            if (!XeroRobot.isSimulation()) {
+                syncTiltEncoders(false) ;
+                synced = true ;
+            }
         }
 
         Logger.recordOutput("intake:synced", synced) ;
@@ -979,13 +975,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             double vel = (inputs_.tiltAbsoluteEncoderPositionMedian - last_value_) / (now - last_time_) ;
             average_value_ = average_filter_.calculate(vel) ;
 
-            Logger.recordOutput("tilt-abs-velocity", average_value_) ;
-            Logger.recordOutput("tilt-raw-vel", vel) ;
+            Logger.recordOutput("intake:tilt-abs-velocity", average_value_) ;
+            Logger.recordOutput("intake:tilt-raw-vel", vel) ;
 
             last_time_ = now ;
             last_value_ = inputs_.tiltAbsoluteEncoderPositionMedian ;
         }
-        
+
         NoteDestination dest = getNoteDestination() ;
         if (tracking_ && (dest == NoteDestination.Amp || dest == NoteDestination.Trap)) {
             //
@@ -1089,20 +1085,18 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
                     io_.setFeederMotorVoltage(0.0);
                     setShooterVelocity(0.0, 0.0);
-                    next_state_ = State.Idle ;                    
-                    gotoPosition(IntakeShooterConstants.UpDown.Positions.kStowed, Double.NaN, Double.NaN,
-                                 IntakeShooterConstants.Tilt.Positions.kStowed, Double.NaN, Double.NaN) ;
+                    gotoPosition(State.Idle, 
+                                 IntakeShooterConstants.UpDown.Positions.kStowed, 
+                                 IntakeShooterConstants.Tilt.Positions.kStowed) ;
                 }
                 break ;
                 
-            case GoToEjectPosition:
-                if (isTiltReady() && isUpDownReady()) {
-                    setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
-                    io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
-                    eject_forward_timer_.start() ;
-                    has_note_ = false ;
-                    state_ = State.EjectForward ;
-                }
+            case StartEjectOperations:
+                setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
+                io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
+                eject_forward_timer_.start() ;
+                has_note_ = false ;
+                state_ = State.EjectForward ;
                 break ;
             
             case HoldForShoot:
@@ -1142,8 +1136,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         OISubsystem oi = container.getOI() ;
 
         if (oi != null) {
-            oi.setLEDState(OILed.ShooterReady, isShooterReady()) ;
-            oi.setLEDState(OILed.TiltReady, isTiltReady()) ;
+            oi.setLEDState(OILed.ShooterReady, isShooterReady() ? LEDState.On : LEDState.Off) ;
+            oi.setLEDState(OILed.TiltReady, isTiltReady() ? LEDState.On : LEDState.Off) ;
         }
 
         visualizer_.updateIntakeShooter(
@@ -1182,7 +1176,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
 
             Logger.recordOutput("intake:cappos", io_.getShooterPositionAtRisingEdge());
+
+            Logger.recordOutput("intake:firing", firing_);
         }        
+
+        endPeriodic();
     }
 
     // #endregion

@@ -20,6 +20,14 @@ public abstract class XeroSubsystem extends SubsystemBase implements ISubsystemS
         robot_.registerSubsystem(name, this) ;
     }
 
+    public void startPeriodic() {
+        getRobot().startPeriodic(getName()) ;
+    }
+
+    public void endPeriodic() {
+        getRobot().endPeriodic(getName()) ;
+    }
+
     public void setVerbose(boolean value) {
         verbose_ = value ;
     }

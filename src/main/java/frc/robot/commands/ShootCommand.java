@@ -51,6 +51,7 @@ public class ShootCommand extends Command {
         shoot_ = null ;
         rotate_ = null ;
 
+        container_.enableGamePad(false);
         if (oi_.getShotType() == ShotType.Podium) {
             shoot_ = intake_.manualShootCommand(
                                 IntakeShooterConstants.ManualShotPodium.kUpDownPos,
@@ -61,7 +62,6 @@ public class ShootCommand extends Command {
                                 IntakeShooterConstants.ManualShotPodium.kTiltVelTolerance,
                                 IntakeShooterConstants.ManualShotPodium.kShooterVel,
                                 IntakeShooterConstants.ManualShotPodium.kShooterVelTolerance) ;
-            container_.enableGamePad(false);
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
@@ -75,7 +75,6 @@ public class ShootCommand extends Command {
                                 IntakeShooterConstants.ManualShotSubwoofer.kTiltVelTolerance,
                                 IntakeShooterConstants.ManualShotSubwoofer.kShooterVel,
                                 IntakeShooterConstants.ManualShotSubwoofer.kShooterVelTolerance) ;
-            container_.enableGamePad(false);                                
             CommandScheduler.getInstance().schedule(shoot_);
             rotate_ = null ;
         }
@@ -87,7 +86,6 @@ public class ShootCommand extends Command {
             CommandScheduler.getInstance().schedule(rotate_);
         }
     }
-
 
     @Override
     public void execute() {
@@ -103,7 +101,6 @@ public class ShootCommand extends Command {
                 str = "aborted" ;
             }
             else if (rotate_.isFinished()) {
-                container_.enableGamePad(false);
                 if (!tracker_.isFrozen()) {
                     tracker_.freezePose(true);                
                 }
@@ -136,7 +133,7 @@ public class ShootCommand extends Command {
         }
 
         Logger.recordOutput("state:shoot", str) ;
-        oi_.setLEDState(OILed.DBReady, dbready);
+        oi_.setLEDState(OILed.DBReady, dbready ? OISubsystem.LEDState.On : OISubsystem.LEDState.Off) ;
     }
 
     @Override

@@ -18,14 +18,14 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.units.Units ;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-
-import com.revrobotics.CANSparkBase.IdleMode;
 
 public class TrampIOHardware implements TrampIO {
     private final static int kApplyTries = 5 ;
@@ -59,47 +59,57 @@ public class TrampIOHardware implements TrampIO {
     private double arm_voltage_ ;
     private double elevator_voltage_ ;
 
+    private Encoder thru_bore_encoder_ ;
+
     public TrampIOHardware() throws Exception {
 
         motors_ = new HashMap<>() ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Elevator motor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////            
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         elevator_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Elevator.kMotorId,
                                                                     TrampConstants.Elevator.kInverted,
                                                                     TrampConstants.Elevator.kCurrentLimit);
                                                                     elevator_motor_.setPosition(0.0) ;
         motors_.put(TrampSubsystem.ELEVATOR_MOTOR_NAME, elevator_motor_) ;
         final Slot0Configs elevatorcfg ;
-        
+
         if (XeroRobot.isReal()) {
-            elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.RealPID.kP)
-                                    .withKI(TrampConstants.Elevator.RealPID.kI)
-                                    .withKD(TrampConstants.Elevator.RealPID.kD)
-                                    .withKV(TrampConstants.Elevator.RealPID.kV)
-                                    .withKA(TrampConstants.Elevator.RealPID.kA)
-                                    .withKG(TrampConstants.Elevator.RealPID.kG)
-                                    .withKS(TrampConstants.Elevator.RealPID.kS)
+            elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.Real.PID.kP)
+                                    .withKI(TrampConstants.Elevator.Real.PID.kI)
+                                    .withKD(TrampConstants.Elevator.Real.PID.kD)
+                                    .withKV(TrampConstants.Elevator.Real.PID.kV)
+                                    .withKA(TrampConstants.Elevator.Real.PID.kA)
+                                    .withKG(TrampConstants.Elevator.Real.PID.kG)
+                                    .withKS(TrampConstants.Elevator.Real.PID.kS)
                                     .withGravityType(GravityTypeValue.Elevator_Static) ;
+            checkError("set-elevator-PID-value", () -> elevator_motor_.getConfigurator().apply(elevatorcfg)) ;
+
+            final MotionMagicConfigs mmcfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(TrampConstants.Elevator.Real.MotionMagic.kMaxVelocity)
+                                .withMotionMagicAcceleration(TrampConstants.Elevator.Real.MotionMagic.kMaxAcceleration)
+                                .withMotionMagicJerk(TrampConstants.Elevator.Real.MotionMagic.kJerk) ;
+            checkError("set-elevator-motion-magic", () -> elevator_motor_.getConfigurator().apply(mmcfg)) ;
+
         }
         else {
-            elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.SimPID.kP)
-                                    .withKI(TrampConstants.Elevator.SimPID.kI)
-                                    .withKD(TrampConstants.Elevator.SimPID.kD)
-                                    .withKV(TrampConstants.Elevator.SimPID.kV)
-                                    .withKA(TrampConstants.Elevator.SimPID.kA)
-                                    .withKG(TrampConstants.Elevator.SimPID.kG)
-                                    .withKS(TrampConstants.Elevator.SimPID.kS)
+            elevatorcfg = new Slot0Configs().withKP(TrampConstants.Elevator.Simulated.PID.kP)
+                                    .withKI(TrampConstants.Elevator.Simulated.PID.kI)
+                                    .withKD(TrampConstants.Elevator.Simulated.PID.kD)
+                                    .withKV(TrampConstants.Elevator.Simulated.PID.kV)
+                                    .withKA(TrampConstants.Elevator.Simulated.PID.kA)
+                                    .withKG(TrampConstants.Elevator.Simulated.PID.kG)
+                                    .withKS(TrampConstants.Elevator.Simulated.PID.kS)
                                     .withGravityType(GravityTypeValue.Elevator_Static) ;
-        }
-        checkError("set-elevator-PID-value", () -> elevator_motor_.getConfigurator().apply(elevatorcfg)) ;
+            checkError("set-elevator-PID-value", () -> elevator_motor_.getConfigurator().apply(elevatorcfg)) ;
 
-        final MotionMagicConfigs mmcfg = new MotionMagicConfigs()
-                            .withMotionMagicCruiseVelocity(TrampConstants.Elevator.MotionMagic.kMaxVelocity)
-                            .withMotionMagicAcceleration(TrampConstants.Elevator.MotionMagic.kMaxAcceleration)
-                            .withMotionMagicJerk(TrampConstants.Elevator.MotionMagic.kJerk) ;
-        checkError("set-elevator-motion-magic", () -> elevator_motor_.getConfigurator().apply(mmcfg)) ;
+            final MotionMagicConfigs mmcfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(TrampConstants.Elevator.Simulated.MotionMagic.kMaxVelocity)
+                                .withMotionMagicAcceleration(TrampConstants.Elevator.Simulated.MotionMagic.kMaxAcceleration)
+                                .withMotionMagicJerk(TrampConstants.Elevator.Simulated.MotionMagic.kJerk) ;
+            checkError("set-elevator-motion-magic", () -> elevator_motor_.getConfigurator().apply(mmcfg)) ;
+        }
 
         final SoftwareLimitSwitchConfigs elevlimitcfg = new SoftwareLimitSwitchConfigs()
                             .withForwardSoftLimitEnable(true)
@@ -115,32 +125,52 @@ public class TrampIOHardware implements TrampIO {
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Arm motor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////         
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         arm_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Arm.kMotorId,
                                                                TrampConstants.Arm.kInverted,
                                                                TrampConstants.Arm.kCurrentLimit);
-        motors_.put(TrampSubsystem.ARM_MOTOR_NAME, arm_motor_) ;                                                               
-        final Slot0Configs armcfg = new Slot0Configs().withKP(TrampConstants.Arm.PID.kP)
-                                .withKI(TrampConstants.Arm.PID.kI)
-                                .withKD(TrampConstants.Arm.PID.kD)
-                                .withKV(TrampConstants.Arm.PID.kV)
-                                .withKA(TrampConstants.Arm.PID.kA)
-                                .withKG(TrampConstants.Arm.PID.kG)
-                                .withKS(TrampConstants.Arm.PID.kS)
-                                .withGravityType(GravityTypeValue.Arm_Cosine) ;
-        checkError("set-arm-PID-value", () -> arm_motor_.getConfigurator().apply(armcfg)) ;
+        motors_.put(TrampSubsystem.ARM_MOTOR_NAME, arm_motor_) ;
 
-        final MotionMagicConfigs armmmcfg = new MotionMagicConfigs()
-                            .withMotionMagicCruiseVelocity(TrampConstants.Arm.MotionMagic.kMaxVelocity)
-                            .withMotionMagicAcceleration(TrampConstants.Arm.MotionMagic.kMaxAcceleration)
-                            .withMotionMagicJerk(TrampConstants.Arm.MotionMagic.kJerk) ;
-        checkError("set-elevator-motion-magic", () -> arm_motor_.getConfigurator().apply(armmmcfg)) ;
+        if (XeroRobot.isReal()) {
+            final Slot0Configs armcfg = new Slot0Configs().withKP(TrampConstants.Arm.Real.PID.kP)
+                                    .withKI(TrampConstants.Arm.Real.PID.kI)
+                                    .withKD(TrampConstants.Arm.Real.PID.kD)
+                                    .withKV(TrampConstants.Arm.Real.PID.kV)
+                                    .withKA(TrampConstants.Arm.Real.PID.kA)
+                                    .withKG(TrampConstants.Arm.Real.PID.kG)
+                                    .withKS(TrampConstants.Arm.Real.PID.kS)
+                                    .withGravityType(GravityTypeValue.Arm_Cosine) ;
+            checkError("set-arm-PID-value", () -> arm_motor_.getConfigurator().apply(armcfg)) ;
+
+            final MotionMagicConfigs armmmcfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(TrampConstants.Arm.Real.MotionMagic.kMaxVelocity)
+                                .withMotionMagicAcceleration(TrampConstants.Arm.Real.MotionMagic.kMaxAcceleration)
+                                .withMotionMagicJerk(TrampConstants.Arm.Real.MotionMagic.kJerk) ;
+            checkError("set-elevator-motion-magic", () -> arm_motor_.getConfigurator().apply(armmmcfg)) ;
+        }
+        else {
+            final Slot0Configs armcfg = new Slot0Configs().withKP(TrampConstants.Arm.Simulated.PID.kP)
+                                    .withKI(TrampConstants.Arm.Simulated.PID.kI)
+                                    .withKD(TrampConstants.Arm.Simulated.PID.kD)
+                                    .withKV(TrampConstants.Arm.Simulated.PID.kV)
+                                    .withKA(TrampConstants.Arm.Simulated.PID.kA)
+                                    .withKG(TrampConstants.Arm.Simulated.PID.kG)
+                                    .withKS(TrampConstants.Arm.Simulated.PID.kS)
+                                    .withGravityType(GravityTypeValue.Arm_Cosine) ;
+            checkError("set-arm-PID-value", () -> arm_motor_.getConfigurator().apply(armcfg)) ;
+
+            final MotionMagicConfigs armmmcfg = new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(TrampConstants.Arm.Simulated.MotionMagic.kMaxVelocity)
+                                .withMotionMagicAcceleration(TrampConstants.Arm.Simulated.MotionMagic.kMaxAcceleration)
+                                .withMotionMagicJerk(TrampConstants.Arm.Simulated.MotionMagic.kJerk) ;
+            checkError("set-elevator-motion-magic", () -> arm_motor_.getConfigurator().apply(armmmcfg)) ;
+        }
 
         final SoftwareLimitSwitchConfigs armlimitcfg = new SoftwareLimitSwitchConfigs()
                             .withForwardSoftLimitEnable(true)
-                            .withForwardSoftLimitThreshold(TrampConstants.Arm.kMaxPosition)
+                            .withForwardSoftLimitThreshold(TrampConstants.Arm.kMaxPosition / TrampConstants.Arm.kDegreesPerRev)
                             .withReverseSoftLimitEnable(true)
-                            .withReverseSoftLimitThreshold(TrampConstants.Arm.kMinPosition) ;
+                            .withReverseSoftLimitThreshold(TrampConstants.Arm.kMinPosition / TrampConstants.Arm.kDegreesPerRev) ;
         checkError("set-elevator-soft-limit-value", () -> arm_motor_.getConfigurator().apply(armlimitcfg)) ;
 
         arm_pos_sig_ = arm_motor_.getPosition() ;
@@ -150,30 +180,37 @@ public class TrampIOHardware implements TrampIO {
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Climber motor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////          
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         climber_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Climber.kMotorId,
                                                                    TrampConstants.Climber.kInverted,
                                                                    TrampConstants.Climber.kCurrentLimit);
-        motors_.put(TrampSubsystem.CLIMBER_MOTOR_NAME, climber_motor_) ;                                                                      
+        motors_.put(TrampSubsystem.CLIMBER_MOTOR_NAME, climber_motor_) ;
         climber_pos_sig_ = climber_motor_.getPosition() ;
         climber_current_sig_ = climber_motor_.getSupplyCurrent() ;
         climber_output_sig_ = climber_motor_.getClosedLoopOutput();
         climber_velocity_sig_ = climber_motor_.getVelocity() ;
         climber_voltage_ = 0.0 ;
 
+        final SoftwareLimitSwitchConfigs climberlimitcfg = new SoftwareLimitSwitchConfigs()
+                            .withForwardSoftLimitEnable(true)
+                            .withForwardSoftLimitThreshold(TrampConstants.Climber.kMaxPosition / TrampConstants.Climber.kMetersPerRev)
+                            .withReverseSoftLimitEnable(true)
+                            .withReverseSoftLimitThreshold(TrampConstants.Climber.kMinPosition / TrampConstants.Climber.kMetersPerRev) ;
+        checkError("set-climber-soft-limit-value", () -> climber_motor_.getConfigurator().apply(climberlimitcfg)) ;
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Manipulator motor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////           
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         manipulator_motor_ = new CANSparkFlex(TrampConstants.Manipulator.kMotorId, CANSparkFlex.MotorType.kBrushless);
         manipulator_motor_.setInverted(TrampConstants.Manipulator.kInverted);
         manipulator_motor_.setSmartCurrentLimit(60) ;
         manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
         manipulator_motor_.enableVoltageCompensation(11.0) ;
         manipulator_encoder_ = manipulator_motor_.getEncoder() ;
-        manipulator_encoder_.setVelocityConversionFactor(1.0 / 60.0) ;  // Convert from RPM to RPS  
+        manipulator_encoder_.setVelocityConversionFactor(1.0 / 60.0) ;  // Convert from RPM to RPS
         manipulator_voltage_ = 0.0 ;
         manipulator_pid_ = manipulator_motor_.getPIDController() ;
-        
+
         manipulator_pid_.setP(TrampConstants.Manipulator.PositionPID.kP, 0) ;
         manipulator_pid_.setI(TrampConstants.Manipulator.PositionPID.kI, 0) ;
         manipulator_pid_.setD(TrampConstants.Manipulator.PositionPID.kD, 0) ;
@@ -185,19 +222,30 @@ public class TrampIOHardware implements TrampIO {
         manipulator_pid_.setFF(TrampConstants.Manipulator.VelocityPID.kV, 1) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+        // Thru Bore Encoder
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        thru_bore_encoder_ = new Encoder(TrampConstants.Manipulator.ThruBoreEncoder.kEncoderA,
+                                            TrampConstants.Manipulator.ThruBoreEncoder.kEncoderB,
+                                            TrampConstants.Manipulator.ThruBoreEncoder.kEncoderInverted,
+                                            Encoder.EncodingType.k1X) ;
+        thru_bore_encoder_.setDistancePerPulse(TrampConstants.Manipulator.ThruBoreEncoder.kEncoderDistancePerPulse) ;
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         // Overall Phoenix 6 signal optimization
-        /////////////////////////////////////////////////////////////////////////////////////////////////            
-        BaseStatusSignal.setUpdateFrequencyForAll(75.0,
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0,
                                 elevator_pos_sig_,
                                 elevator_vel_sig_,
-                                elevator_current_sig_,
-                                elevator_output_sig_,
                                 arm_pos_sig_,
                                 arm_vel_sig_,
+                                climber_pos_sig_) ;
+
+        BaseStatusSignal.setUpdateFrequencyForAll(10.0,
+                                elevator_current_sig_,
+                                elevator_output_sig_,
                                 arm_current_sig_,
                                 arm_output_sig_,
                                 climber_current_sig_,
-                                climber_pos_sig_,
                                 climber_output_sig_,
                                 climber_velocity_sig_) ;
 
@@ -208,7 +256,7 @@ public class TrampIOHardware implements TrampIO {
 
     public void updateInputs(TrampIOInputs inputs) {
         double enc ;
-        
+
         enc = elevator_pos_sig_.refresh().getValueAsDouble() ;
         inputs.elevatorPosition = enc * TrampConstants.Elevator.kMetersPerRev ;
         inputs.elevatorVelocity = elevator_vel_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;
@@ -224,7 +272,7 @@ public class TrampIOHardware implements TrampIO {
         inputs.armEncoder = enc ;
 
         enc = climber_pos_sig_.refresh().getValueAsDouble() ;
-        inputs.climberPosition = enc * TrampConstants.Climber.kMetersPerRev ;      
+        inputs.climberPosition = enc * TrampConstants.Climber.kMetersPerRev ;
         inputs.climberCurrent = climber_current_sig_.refresh().getValueAsDouble() ;
         inputs.climberOutput = climber_output_sig_.refresh().getValueAsDouble() ;
         inputs.climberVelocity = climber_velocity_sig_.refresh().getValueAsDouble() ;
@@ -233,6 +281,8 @@ public class TrampIOHardware implements TrampIO {
         inputs.manipulatorPosition = manipulator_encoder_.getPosition() ;
         inputs.manipulatorVelocity = manipulator_encoder_.getVelocity() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
+
+        inputs.manipulatorFreeWheelPosition = thru_bore_encoder_.getDistance() ;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -270,7 +320,7 @@ public class TrampIOHardware implements TrampIO {
     //
     // Arm
     //
-    ////////////////////////////////////////////////////////////////////////////    
+    ////////////////////////////////////////////////////////////////////////////
 
     public void setArmTargetPos(double pos) {
         arm_motor_.setControl(new MotionMagicVoltage(pos / TrampConstants.Arm.kDegreesPerRev)
@@ -296,13 +346,13 @@ public class TrampIOHardware implements TrampIO {
             .voltage(Units.Volts.of(arm_voltage_))
             .angularPosition(Units.Revolutions.of(arm_pos_sig_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(arm_vel_sig_.refresh().getValueAsDouble())) ;
-    }    
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     //
     // Manipulator
     //
-    ////////////////////////////////////////////////////////////////////////////    
+    ////////////////////////////////////////////////////////////////////////////
 
     public void setManipulatorTargetPosition(double pos) {
         manipulator_pid_.setReference(pos, CANSparkBase.ControlType.kPosition, 0) ;
@@ -321,27 +371,27 @@ public class TrampIOHardware implements TrampIO {
 
     public double getManipulatorVoltage() {
         return manipulator_voltage_ ;
-    } 
+    }
 
     public void logManipulatorMotor(SysIdRoutineLog log) {
         log.motor("climber")
             .voltage(Units.Volts.of(manipulator_voltage_))
             .angularPosition(Units.Revolutions.of(manipulator_encoder_.getPosition()))
             .angularVelocity(Units.RevolutionsPerSecond.of(manipulator_encoder_.getVelocity())) ;
-    }     
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     //
     // Climber
     //
-    ////////////////////////////////////////////////////////////////////////////    
+    ////////////////////////////////////////////////////////////////////////////
 
     public void setClimberMotorVoltage(double volts) {
         climber_voltage_ = volts ;
         climber_motor_.setControl(new VoltageOut(climber_voltage_));
     }
 
-    public double getClimberVoltage() {
+    public double getClimberMotorVoltage() {
         return climber_voltage_;
     }
 
@@ -350,7 +400,7 @@ public class TrampIOHardware implements TrampIO {
             .voltage(Units.Volts.of(climber_voltage_))
             .angularPosition(Units.Revolutions.of(climber_pos_sig_.refresh().getValueAsDouble()))
             .angularVelocity(Units.RevolutionsPerSecond.of(climber_velocity_sig_.refresh().getValueAsDouble())) ;
-    }    
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -369,7 +419,7 @@ public class TrampIOHardware implements TrampIO {
             msg = msg + " - " + code.toString() ;
             throw new Exception(msg) ;
         }
-    }     
+    }
 
     public Map<String, TalonFX> getCTREMotors() {
         return motors_ ;

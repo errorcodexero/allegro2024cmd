@@ -18,17 +18,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AutoAmp;
-import frc.robot.commands.AutoTrap;
+import frc.robot.commands.AutoTrapCommand;
+import frc.robot.commands.AutoTrapWithRotateCommand;
 import frc.robot.commands.ConditionalVibrateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
+import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
@@ -47,7 +50,7 @@ import frc.robot.util.NoteVisualizer;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class AllegroContainer extends XeroContainer {
-    private final static boolean kAutoTrap = false ;
+    private static int kAutoTrap = 1 ;
 
     // #region private member variables
     //
@@ -64,7 +67,7 @@ public class AllegroContainer extends XeroContainer {
     //
     // Limelight name
     //
-    private final String limelight_name_ = "limelight" ;
+    public final String limelight_name_ = "limelight" ;
 
     //
     // OI related devices
@@ -109,10 +112,10 @@ public class AllegroContainer extends XeroContainer {
         // Create subsystems
         //
         db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
-                                                 TunerConstantsCompetition.FrontLeft, 
-                                                 TunerConstantsCompetition.FrontRight, 
-                                                 TunerConstantsCompetition.BackLeft, 
-                                                 TunerConstantsCompetition.BackRight);
+                                                TunerConstantsCompetition.FrontLeft, 
+                                                TunerConstantsCompetition.FrontRight, 
+                                                TunerConstantsCompetition.BackLeft, 
+                                                TunerConstantsCompetition.BackRight);
 
         Supplier<NoteDestination> notesupply = null ;
         Supplier<ShotType> shotsupply = null ;
@@ -139,7 +142,9 @@ public class AllegroContainer extends XeroContainer {
         noteVisualizer_ = new NoteVisualizer("NoteVisualizer", visualizer_, () -> new Pose2d());
 
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
-        db_.setLimelightName(limelight_name_);
+        if (db_ != null) {
+            db_.setLimelightName(limelight_name_);
+        }
 
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply, visualizer_, noteVisualizer_) ;
         tramp_ = new TrampSubsystem(robot, notesupply, visualizer_, noteVisualizer_) ;
@@ -367,8 +372,11 @@ public class AllegroContainer extends XeroContainer {
 
         driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_, "brake").ignoringDisable(true)) ;
         driver_controller_.rightTrigger().or(oi_.autoTrap()).and(tramp_.readyForAmp()).onTrue(new AutoAmp(getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
-        if (kAutoTrap) {
-            oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrap(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
+        if (kAutoTrap == 1) {
+            oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrapCommand(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
+        }
+        else if (kAutoTrap == 2) {
+           oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrapWithRotateCommand(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
         }
 
         driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
@@ -418,21 +426,21 @@ public class AllegroContainer extends XeroContainer {
         // If a note is collected and the target is the trap or amp, this trigger is fired to complete
         // the transfer action.  The transfer action moves the note from the intake to the manipulator.
         //
-        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(intake_shooter_, tramp_)) ;
+        intake_shooter_.readyForTransferNote().onTrue(new TransferNoteCommand(db_, intake_shooter_, tramp_)) ;
 
         oi_.climbUpPrep().and(tramp_.isClimberDown()).onTrue(tramp_.climberUpCmd()) ;
         oi_.climbUpExec().and(tramp_.isBasicClimbReady()).onTrue(tramp_.basicClimbCmd()) ;
 
-        // Command ferry = intake_shooter_.manualShootCommand(
-        //         IntakeShooterConstants.ManualShotFerry.kUpDownPos,
-        //         IntakeShooterConstants.ManualShotFerry.kUpDownPosTolerance,
-        //         IntakeShooterConstants.ManualShotFerry.kUpDownVelTolerance,
-        //         IntakeShooterConstants.ManualShotFerry.kTiltPos,
-        //         IntakeShooterConstants.ManualShotFerry.kTiltPosTolerance,
-        //         IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
-        //         IntakeShooterConstants.ManualShotFerry.kShooterVel,
-        //         IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
-        // driver_controller_.leftTrigger().onTrue(ferry) ;
+        Command ferry = intake_shooter_.manualShootCommand(
+                IntakeShooterConstants.ManualShotFerry.kUpDownPos,
+                IntakeShooterConstants.ManualShotFerry.kUpDownPosTolerance,
+                IntakeShooterConstants.ManualShotFerry.kUpDownVelTolerance,
+                IntakeShooterConstants.ManualShotFerry.kTiltPos,
+                IntakeShooterConstants.ManualShotFerry.kTiltPosTolerance,
+                IntakeShooterConstants.ManualShotFerry.kTiltVelTolerance,
+                IntakeShooterConstants.ManualShotFerry.kShooterVel,
+                IntakeShooterConstants.ManualShotFerry.kShooterVelTolerance) ;
+        driver_controller_.leftTrigger().onTrue(ferry) ;
     }
     // #endregion
 
@@ -445,7 +453,9 @@ public class AllegroContainer extends XeroContainer {
             }
         }
         else {
-            driveTrainBindings();
+            if (db_ != null) {
+                driveTrainBindings();
+            }
             superStructureBindings() ;
         }
     }

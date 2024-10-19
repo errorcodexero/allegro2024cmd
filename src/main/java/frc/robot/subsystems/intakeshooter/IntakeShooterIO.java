@@ -61,7 +61,7 @@ public interface IntakeShooterIO {
     public default void logUpdownMotor(SysIdRoutineLog log) {
     }    
 
-    public default void setTiltTargetPos(boolean tracking, double pos) {
+    public default void setTiltTargetPos(double pos) {
     }
 
     public default void setTiltMotorPosition(double pos) {

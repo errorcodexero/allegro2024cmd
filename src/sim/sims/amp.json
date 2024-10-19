@@ -1,0 +1,114 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "start" : 0,
+                        "autonomous" : 0.0,
+                        "between" : 0.0,
+                        "teleop" : 20.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Set target to the amp",
+                        "note-target" : "amp"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.1,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Press the right bumper button",
+                        "rb" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.0,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Note arrived in intake - sensor on",
+                        "note-sensor" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.1,
+            "events" :
+            [
+                {
+                    "model" : "intake-shooter",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Note left intake - sensor off",
+                        "note-sensor" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 6.2,
+            "events" :
+            [
+                {
+                    "model" : "drivergamepad",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Release the right bumper button",
+                        "rb" : false
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 8.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "comment" : "Press the eject button",
+                        "eject" : true
+                    }
+                }
+            ]
+        }
+    ]
+}

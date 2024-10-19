@@ -15,13 +15,17 @@ import org.xero1425.simulator.engine.ModelFactory;
 import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.automodes.competition.FourNoteDynamicCommand;
 import frc.robot.automodes.competition.FourNoteQuickCommand;
 import frc.robot.automodes.competition.JustShootCommand;
 import frc.robot.automodes.competition.ThreeNotePathsCommand;
+import frc.robot.commands.AutoTrapCommand;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
+import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -33,7 +37,7 @@ import frc.robot.subsystems.oi.OIConstants;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
-    private static final boolean kLogToNetworkTables = false ;
+    private static final boolean kLogToNetworkTables = true ;
 
     private AllegroContainer container_;
 
@@ -45,7 +49,7 @@ public class AllegroRobot extends XeroRobot {
     protected void addRobotSimulationModels() {
         ModelFactory factory = SimulationEngine.getInstance().getModelFactory();
         factory.registerModel("intake-shooter", "frc.models.IntakeShooterModel");
-        factory.registerModel("amp-trap", "frc.models.AmpTrapModel");
+        factory.registerModel("tramp", "frc.models.TrampModel");
         factory.registerModel("allegro-oi", "frc.models.AllegroOIModel");    
     }      
 
@@ -55,12 +59,12 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "collectshootxfer";
+        return "climbturtle";
     }
 
     @Override
     public String getSimulationAutoMode() {
-        return "three-note-paths" ;
+        return "four-note-1.0" ;
     }
 
     @Override
@@ -117,25 +121,25 @@ public class AllegroRobot extends XeroRobot {
 
         Logger.disableDeterministicTimestamps();
 
-        if (kLogToNetworkTables || XeroRobot.isSimulation()) {
+        if (XeroRobot.isSimulation() || kLogToNetworkTables) {
             Logger.addDataReceiver(new NT4Publisher());
         }
         Logger.addDataReceiver(new WPILOGWriter()) ;
-        
+
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
         Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
         Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-        
-        Logger.start() ;
 
+        Logger.start() ;             
+        
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
         // autonomous chooser on the dashboard.
         try {
             container_ = new AllegroContainer(this);
-            setDriveController(container_.getController());
+            setDriveController(container_.getController()); 
             enableMessages() ;
 
         } catch (Exception e) {
@@ -165,6 +169,35 @@ public class AllegroRobot extends XeroRobot {
         if (!RobotConstants.kCharMode) {
             Logger.recordOutput("oi:buttons", container_.getDriveControllerOIString()) ;
             Logger.recordOutput("oi:rumble", getRumble());
+        }
+
+        if (container_ != null && container_.getTramp() != null && container_.getTramp().isInTrapPosition()) {
+            int [] tags = AutoTrapCommand.getApplicableTags() ;
+            if (tags != null) {
+                int tag = AutoTrapCommand.seeAprilTag(container_.limelight_name_, tags) ;
+                if (tag != -1) {
+                    Pose2d tagpose = getFieldLayout().getTagPose(tag).get().toPose2d() ;
+                    double dist = tagpose.getTranslation().getDistance(container_.getDriveTrain().getState().Pose.getTranslation()) ;
+                    if (dist < AutoTrapCommand.kMaxDistance) {
+                        //
+                        // We are good to go, just hit the autotrap button to execute.
+                        //
+                        container_.getOI().setLEDState(OILed.AutoTrapExecEnabled, LEDState.On) ;
+                    }
+                    else {
+                        //
+                        // We have a note and we see the april tag, but we are too far away
+                        //
+                        container_.getOI().setLEDState(OILed.AutoTrapExecEnabled, LEDState.Fast) ;
+                    }
+                }
+                else {
+                    //
+                    // Slow blink, we have a note in the trap position, but don't see the april tag
+                    //
+                    container_.getOI().setLEDState(OILed.AutoTrapExecEnabled, LEDState.Slow) ;
+                }
+            }
         }
     }
 }

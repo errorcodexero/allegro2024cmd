@@ -129,106 +129,118 @@ public class TrackerSubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
-        if (true /*!has_target_info_*/) {
-            has_target_info_ = getTargetPose() ;
-            if (!has_target_info_) {
-                //
-                // We have no target, so we can't do anything
-                //
-                return ;
-            }
-        }
+        startPeriodic();
 
         io_.updateInputs(inputs_) ;
         Logger.processInputs("tracker", inputs_);
 
-        if (inputs_.tag_count_ > 0) {
-            last_april_tag_time_ = Timer.getFPGATimestamp() ;
-            last_april_tag_pose_ = db_.getState().Pose ;
+        if (has_target_info_ == false && getRobot().isEnabled()) {
+            has_target_info_ = getTargetPose() ;
         }
 
-        Pose2d robot ;        
-        if (pose_frozen_) {
-            robot = pose_to_use_ ;
-        } else {
-            robot = db_.getState().Pose ;
-        }
+        if (has_target_info_) {
+            if (inputs_.tag_count_ > 0) {
+                last_april_tag_time_ = Timer.getFPGATimestamp() ;
+                last_april_tag_pose_ = db_.getState().Pose ;
+            }
 
-        //
-        // We do not see the april tag of interest, use the pose of the robot
-        // to aim at the target.
-        distance_to_target_ = robot.getTranslation().getDistance(target_pose_.getTranslation()) ;
+            Pose2d robot ;        
+            if (pose_frozen_) {
+                robot = pose_to_use_ ;
+            } else if (db_ != null) {
+                robot = db_.getState().Pose ;
+            }
+            else {
+                robot = new Pose2d() ;
+            }
 
-        //
-        // When do we say its ok to shoot just based on pose?
-        //
-        ready_distance_to_target_ = true; 
-        if (distance_to_target_ >= TrackerConstants.kMaximumShotDistance) {
-            ready_distance_to_target_ = false;
-        }
+            //
+            // We do not see the april tag of interest, use the pose of the robot
+            // to aim at the target.
+            distance_to_target_ = robot.getTranslation().getDistance(target_pose_.getTranslation()) ;
 
-        Translation2d diff = target_pose_.getTranslation().minus(robot.getTranslation()) ;
+            //
+            // When do we say its ok to shoot just based on pose?
+            //
+            ready_distance_to_target_ = true; 
+            if (distance_to_target_ >= TrackerConstants.kMaximumShotDistance) {
+                ready_distance_to_target_ = false;
+            }
 
-        //
-        // This is the angle from the center of the robot to the center of the target
-        //
-        Rotation2d robot2target = new Rotation2d(diff.getX(), diff.getY()) ;
+            Translation2d diff = target_pose_.getTranslation().minus(robot.getTranslation()) ;
 
-        //
-        // Since we shoot out the back, we need to rotate the angle by 180 degrees
-        //
-        Rotation2d rheading = robot2target.plus(Rotation2d.fromDegrees(180.0)) ;
+            //
+            // This is the angle from the center of the robot to the center of the target
+            //
+            Rotation2d robot2target = new Rotation2d(diff.getX(), diff.getY()) ;
 
-        ready_angle_to_target_ = true;
-        if (alliance_.isPresent()) {
-            if (alliance_.get() == Alliance.Blue) {
-                if (Math.abs(rheading.getDegrees()) > TrackerConstants.kMaximumShotAngle) {
-                    ready_angle_to_target_ = false ;
+            //
+            // Since we shoot out the back, we need to rotate the angle by 180 degrees
+            //
+            Rotation2d rheading = robot2target.plus(Rotation2d.fromDegrees(180.0)) ;
+
+            ready_angle_to_target_ = true;
+            if (alliance_.isPresent()) {
+                if (alliance_.get() == Alliance.Blue) {
+                    if (Math.abs(rheading.getDegrees()) > TrackerConstants.kMaximumShotAngle) {
+                        ready_angle_to_target_ = false ;
+                    }
+                }
+                else {
+                    //
+                    // On the red end, we are facing the other way to shoot, so the conditions for shooting
+                    // are different.
+                    //
+                    if (Math.abs(rheading.getDegrees()) < 180.0 - TrackerConstants.kMaximumShotAngle) {
+                        ready_angle_to_target_ = false ;
+                    }
                 }
             }
             else {
-                //
-                // On the red end, we are facing the other way to shoot, so the conditions for shooting
-                // are different.
-                //
-                if (Math.abs(rheading.getDegrees()) < 180.0 - TrackerConstants.kMaximumShotAngle) {
-                    ready_angle_to_target_ = false ;
+                ready_angle_to_target_ = false ;
+            }
+            
+
+            //
+            // Now, find the adjustment based on the original
+            //
+            Rotation2d rfinal = rheading.plus(getPositionBasedAdj(robot2target)) ;
+
+            //
+            // Convert the final rotation to degrees
+            //
+            angle_to_target_  = rfinal.getDegrees() ;
+
+            ready_time_and_distance_ = checkTimeAndDistance() ;
+
+            if (getVerbose()) {
+                Logger.recordOutput("tracker:angle-to-target", angle_to_target_) ;
+                Logger.recordOutput("tracker:distance-to-target", distance_to_target_) ;
+                Logger.recordOutput("tracker:frozen", pose_frozen_) ;
+                Logger.recordOutput("tracker:ready", isOkToShoot()) ;
+                Logger.recordOutput("tracker:ready_distance_to_target", ready_distance_to_target_) ;
+                Logger.recordOutput("tracker:ready_heading", ready_angle_to_target_) ;
+                Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance_) ;
+                Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;       
+                Logger.recordOutput("tracker:tags", inputs_.tags_) ; 
+            }
+
+            AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
+            OISubsystem oi = container.getOI() ;
+            if (oi != null) {
+                if (!ready_time_and_distance_) {
+                    oi.setLEDState(OILed.TrackerReady, OISubsystem.LEDState.Off) ;
+                } else if (!ready_angle_to_target_) {
+                    oi.setLEDState(OILed.TrackerReady, OISubsystem.LEDState.Slow) ;
+                } else if (!ready_distance_to_target_) {
+                    oi.setLEDState(OILed.TrackerReady, OISubsystem.LEDState.Fast) ;
+                } else {
+                    oi.setLEDState(OILed.TrackerReady, OISubsystem.LEDState.On) ;
                 }
             }
         }
-        else {
-            ready_angle_to_target_ = false ;
-        }
-        
 
-        //
-        // Now, find the adjustment based on the original
-        //
-        Rotation2d rfinal = rheading.plus(getPositionBasedAdj(robot2target)) ;
-
-        //
-        // Convert the final rotation to degrees
-        //
-        angle_to_target_  = rfinal.getDegrees() ;
-
-        ready_time_and_distance_ = checkTimeAndDistance() ;
-
-        if (getVerbose()) {
-            Logger.recordOutput("tracker:angle-to-target", angle_to_target_) ;
-            Logger.recordOutput("tracker:distance-to-target", distance_to_target_) ;
-            Logger.recordOutput("tracker:frozen", pose_frozen_) ;
-            Logger.recordOutput("tracker:ready", isOkToShoot()) ;
-            Logger.recordOutput("tracker:ready_distance_to_target", ready_distance_to_target_) ;
-            Logger.recordOutput("tracker:ready_heading", ready_angle_to_target_) ;
-            Logger.recordOutput("tracker:ready_time_and_distance",  ready_time_and_distance_) ;
-            Logger.recordOutput("tracker:tagcount", inputs_.tag_count_) ;         
-        }
-
-        AllegroContainer container = (AllegroContainer)getRobot().getContainer() ;
-        OISubsystem oi = container.getOI() ;
-        if (oi != null) {
-            oi.setLEDState(OILed.TrackerReady, isOkToShoot()) ;  
-        }
+        endPeriodic();
     }
 
     public double distance() {

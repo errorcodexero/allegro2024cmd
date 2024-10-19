@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,12 +69,16 @@ public abstract class XeroRobot extends LoggedRobot {
     private double rumble_ ;
     private double stop_rumble_time_ ;
 
+    private HashMap<String, Double> periodic_times_ ;
+
     private HashMap<String, ISubsystemSim> subsystems_ ;
 
     public XeroRobot(int gp, int oi) {
         if (robot_ != null) {
             throw new RuntimeException("XeroRobot is a singleton class") ;
         }
+
+        periodic_times_ = new HashMap<>() ;
 
         gamepad_port_ = gp ;
         oi_port_ = oi ;
@@ -112,6 +115,19 @@ public abstract class XeroRobot extends LoggedRobot {
             logger_.startMessage(MessageType.Error) ;
             logger_.add("caught exception reading path files -").add(ex.getMessage()).endMessage();
         }
+    }
+
+    public void startPeriodic(String name) {
+        periodic_times_.put(name, Timer.getFPGATimestamp()) ;
+    }
+
+    public void endPeriodic(String name) {
+        double runtime = Double.NaN;
+        if (periodic_times_.containsKey(name)) {
+            runtime = Timer.getFPGATimestamp() - periodic_times_.get(name) ;
+        }
+
+        Logger.recordOutput("timingsMS:" + name, 1000 * runtime) ;
     }
 
     public ISubsystemSim getSubsystemByName(String name) {
@@ -265,17 +281,7 @@ public abstract class XeroRobot extends LoggedRobot {
                 rumble_ = 0.0 ;
                 gamepad_.setRumble(RumbleType.kBothRumble, 0.0);
             }
-        }
-
-        // Temporarily log alliance color in every robot loop to check if it ever changes
-        String alliance = "?????" ;
-        Optional<DriverStation.Alliance> a = DriverStation.getAlliance() ;
-        if (a.isPresent()) {
-            alliance = a.get().toString() ;
-        }
-        Logger.recordOutput("info:alliance", alliance) ;
-
-        Logger.recordOutput("info:isFMSAttached", DriverStation.isFMSAttached()) ;
+        }        
     }
 
     public void registerSubsystem(String name, ISubsystemSim subsystem) {

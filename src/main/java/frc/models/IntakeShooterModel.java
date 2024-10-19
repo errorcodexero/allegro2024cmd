@@ -25,11 +25,11 @@ public class IntakeShooterModel extends SimulationModel {
     private static final double kFeederGearRatio = 1.0 / 1.0 ;
     private static final double kFeederInertia = 0.000001 ;
     
-    private static final double kUpDownGearRatio = 4.0 ; ;
-    private static final double kUpDownInertia = 0.0001 ;
+    private static final double kUpDownGearRatio = 2 ;
+    private static final double kUpDownInertia = 0.000001 ;
 
-    private static final double kTiltGearRatio = 4.0 ;
-    private static final double kTiltInertia = 0.0001 ;
+    private static final double kTiltGearRatio = 2.0 ;
+    private static final double kTiltInertia = 0.000001 ;
 
     private DCMotorSim shooter1_sim_ ;
     private DCMotorSim shooter2_sim_ ;
@@ -177,8 +177,10 @@ public class IntakeShooterModel extends SimulationModel {
             updown_sim_.setInputVoltage(mv) ;
             updown_sim_.update(dt) ;
 
-            st.setRawRotorPosition(updown_sim_.getAngularPositionRotations()) ;
-            st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;            
+
+            double pos = updown_sim_.getAngularPositionRotations() ;
+            st.setRawRotorPosition(pos) ;
+            st.setRotorVelocity(Units.radiansToRotations(updown_sim_.getAngularVelocityRadPerSec())) ;    
         }
 
         if (tilt_ != null && tilt_sim_!= null) {

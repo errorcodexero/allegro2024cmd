@@ -18,9 +18,11 @@ import org.xero1425.paths.XeroPath;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.ApplyChassisSpeeds;
@@ -156,6 +158,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         return robot_ ;
     }
 
+    public void limitDriveMotorRampRate(double ramprate) {
+        ClosedLoopRampsConfigs configs = new ClosedLoopRampsConfigs() ;
+
+        configs.DutyCycleClosedLoopRampPeriod = 0.0 ;
+        configs.TorqueClosedLoopRampPeriod = 0.0 ;
+        configs.VoltageClosedLoopRampPeriod = ramprate ;
+
+        for(SwerveModule module : Modules) {
+            module.getDriveMotor().getConfigurator().apply(configs) ;
+        }
+    }
+
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier, String name) {
         Command cmd = run(() -> this.setControl(requestSupplier.get()));
         cmd.setName(name) ;
@@ -195,6 +209,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     @Override
     public void periodic() {
+
+        startPeriodic();
 
         Command cmd = CommandScheduler.getInstance().requiring(this) ;
         if (cmd != null) {
@@ -238,16 +254,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         dumpOutput() ;
+
+        endPeriodic();
+    }
+
+    public void startPeriodic() {
+        robot_.startPeriodic(NAME) ;
+    }
+
+    public void endPeriodic() {
+        robot_.endPeriodic(NAME) ;
     }
 
     public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
         follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
         follower_.driveTo(pathname, imd, dest, maxv, maxa, pre_rot_time, post_rot_time, to);
-    }
-
-    public void drivePath(XeroPath path, double to) {
-        follower_ = new HolonomicPathFollower(createHolonimicPathFollowerConfig());
-        follower_.drivePath(path, to) ;
     }
 
     public void drivePathWithTraj(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {

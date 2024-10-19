@@ -35,6 +35,13 @@ public class OISubsystem extends XeroSubsystem {
         }
     }
 
+    public enum LEDState {
+        On,
+        Off,
+        Slow,
+        Fast
+    }
+
     private NoteDestination note_dest_;
     private ShotType shot_type_ ;
 
@@ -76,8 +83,8 @@ public class OISubsystem extends XeroSubsystem {
         return inputs_.autoTrap ;
     }
 
-    public void setLEDState(OILed led, boolean b) {
-        ios_.setLED(led.value, b) ;
+    public void setLEDState(OILed led, LEDState st) {
+        ios_.setLED(led.value, st) ;
     }
 
     public String getPressedString() {
@@ -180,6 +187,8 @@ public class OISubsystem extends XeroSubsystem {
 
     @Override
     public void periodic() {
+        startPeriodic();
+
         ios_.updateInputs(inputs_) ;
         Logger.processInputs("oi", inputs_);
 
@@ -190,6 +199,8 @@ public class OISubsystem extends XeroSubsystem {
             Logger.recordOutput("oi:note-dest", note_dest_) ;
             Logger.recordOutput("oi:shoot-type", shot_type_) ;
         }
+
+        endPeriodic();
     }
 
     private NoteDestination mapNoteDestination(boolean b1, boolean b2)

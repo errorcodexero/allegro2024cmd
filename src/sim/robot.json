@@ -36,7 +36,7 @@
             }
         },
         {
-            "model" : "amp-trap",
+            "model" : "tramp",
             "instance" : "1",
             "props" : {
             }

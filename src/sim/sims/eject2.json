@@ -1,0 +1,109 @@
+{
+    "stimulus" :
+    [
+        {
+            "time" : 0.0,
+            "events" :
+            [
+                {
+                    "model" : "fms",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "start" : 0,
+                        "autonomous" : 0.0,
+                        "between" : 0.0,
+                        "teleop" : 100.0,
+                        "fms" : false,
+                        "alliance" : "blue1"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set target to the speaker",
+                        "note-target" : "speaker",
+                        "shoot-type" : "auto"
+                    }
+                },
+                {
+                    "model" : "swervedrive",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Set the drive pose to the test location",
+                        "pose" : "3.0,2.54789,0.0"
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 4.2,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the eject button",
+                        "eject" : true
+                    }
+                }
+            ]
+        },  
+        {
+            "time" : 4.4,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the eject button",
+                        "eject" : false
+                    }
+                }
+            ]
+        },          
+        {
+            "time" :4.8,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Press the eject button",
+                        "eject" : true
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 5.0,
+            "events" :
+            [
+                {
+                    "model" : "allegro-oi",
+                    "instance" : "1",
+                    "values" : 
+                    {
+                        "comment" : "Release the eject button",
+                        "eject" : false
+                    }
+                }
+            ]
+        }          
+    ]
+}
