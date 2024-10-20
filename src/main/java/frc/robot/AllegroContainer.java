@@ -23,11 +23,12 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AutoAmp;
-import frc.robot.commands.AutoTrapCommand;
-import frc.robot.commands.AutoTrapWithRotateCommand;
 import frc.robot.commands.ConditionalVibrateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TransferNoteCommand;
+import frc.robot.commands.trapcmds.AutoTrap1Command;
+import frc.robot.commands.trapcmds.AutoTrap2Command;
+import frc.robot.commands.trapcmds.AutoTrap3Command;
 import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
 import frc.robot.subsystems.intakeshooter.CmdTuneShooter;
@@ -48,8 +49,8 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class AllegroContainer extends XeroContainer {
-    private static int kAutoTrap = 1 ;
-
+    private static int kAutoTrap = 4 ;
+    
     // #region private member variables
     //
     // Subsystems
@@ -363,12 +364,14 @@ public class AllegroContainer extends XeroContainer {
         driver_controller_.leftBumper().whileTrue(db_.applyRequest(() -> brake_, "brake").ignoringDisable(true)) ;
         driver_controller_.rightTrigger().or(oi_.autoTrap()).and(tramp_.readyForAmp()).onTrue(new AutoAmp(getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
         if (kAutoTrap == 1) {
-            oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrapCommand(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
+            oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrap1Command(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
         }
         else if (kAutoTrap == 2) {
-           oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrapWithRotateCommand(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
+           oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrap2Command(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
         }
-
+        else if (kAutoTrap == 3) {
+           oi_.autoTrap().and(tramp_.readyForTrap()).onTrue(new AutoTrap3Command(limelight_name_, getRobot().getFieldLayout(), oi_, tramp_, db_)) ;
+        }
         driver_controller_.pov(0).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0), "pov0")) ;
         driver_controller_.pov(90).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(0.0).withVelocityY(-0.5), "pov90")) ;        
         driver_controller_.pov(180).whileTrue(db_.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0), "pov180")) ;

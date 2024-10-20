@@ -1,10 +1,11 @@
-package frc.robot.commands;
+package frc.robot.commands.trapcmds;
 
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.LimelightHelpers;
 import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroTimer;
 import org.xero1425.base.LimelightHelpers.LimelightResults;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.math.XeroMath;
@@ -24,20 +25,22 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 
-public class AutoTrapWithRotateCommand extends Command {
+//
+// This version of auto trap looks for an april tag and then creates a path to a first point
+// which is kExtraSpacing1 away from the tag.  It then rotates the robot to face the tag and
+// then drives to a second point which is kExtraSpacing2 away from the tag.  The robot then
+// waits for the driver to press the auto trap button to start the trapping process.  This approach
+// keeps the amount of path following to a minimum after the big rotation.
+//
 
-    //
-    // April Tags
-    //
-    // Red: 11, 12, 13
-    // Blue: 14, 15, 16
-    //
+public class AutoTrap2Command extends AutoTrapBase {
 
     private enum State {
         Starting,
         LookForAprilTag,
         DriveToTrap1,
         Rotate,
+        Delay,
         DriveToTrap2,
         Wait,
         Trapping,
@@ -46,12 +49,9 @@ public class AutoTrapWithRotateCommand extends Command {
 
     private static double kExtraSpacing1 = 1.5 ;
     private static double kExtraSpacing2 = 0.0 ;
-    private static double kMaxDistance = 4.0 ;
+    private static double kMaxDistance = 3.5 ;
+    private static double kMinDistance = 2.0 ;
     private static int kSimulatedTag = 11 ;
-    private static double kForwardVelocity = 0.5 ;
-    private static double kForwardDistance = 1.5 ;
-
-    private String limelight_name_ ;
 
     private OISubsystem oi_ ;
     private TrampSubsystem tramp_ ;
@@ -64,17 +64,17 @@ public class AutoTrapWithRotateCommand extends Command {
     private int[] desired_tags_ = new int[3] ;
     private Pose2dWithRotation [] waypoints_ = null ;
     private SwerveRotateToAngle rotate_ = null ;
-    private SwerveRequest.RobotCentric forward = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.Velocity);
-    private Pose2d starting_pose_ ;
+    private XeroTimer delay_timer_ ;
 
-    public AutoTrapWithRotateCommand(String name, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
-        limelight_name_ = name ;
+    public AutoTrap2Command(String limelight, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
+        super(dt, limelight, layout, kMaxDistance, kMinDistance) ;
         db_ = dt ;
         oi_ = oi ;
         tramp_ = tramp ;
         layout_ = layout ;
         addRequirements(db_) ;
         state_ = State.Starting ;
+        delay_timer_ = new XeroTimer("delay-timer", 1.0) ;
     }
 
     @Override
@@ -135,6 +135,17 @@ public class AutoTrapWithRotateCommand extends Command {
                 }            
                 break; 
 
+            case Delay:
+                if (oi_.isAbortPressed()) {
+                    db_.stopPath() ;
+                    state_ = State.Done ;
+                }
+                else if (delay_timer_.isExpired()) {
+                    db_.driveTo("auto-trap2", null, waypoints_[1], 1.0, 1.0, 0.0, 0.0, 1.0) ;
+                    state_ = State.DriveToTrap2 ;
+                }
+                break ;
+
             case DriveToTrap2:
                 if (oi_.isAbortPressed()) {
                     rotate_.cancel();
@@ -182,19 +193,16 @@ public class AutoTrapWithRotateCommand extends Command {
     }
 
     private void driveToTrap2State() {
-        double dist = db_.getState().Pose.getTranslation().getDistance(starting_pose_.getTranslation());
-        if (dist > kForwardDistance) {
-            db_.setControl(new SwerveRequest.Idle()) ;
-            state_ = State.Wait;
+        if (!db_.isFollowingPath()) {
+            return ;
         }
     }
 
     private void rotateState() {
         if (rotate_.isFinished()) {
             rotate_ = null ;
-            state_ = State.DriveToTrap2 ;
-            starting_pose_ = db_.getState().Pose ;
-            db_.setControl(forward.withVelocityX(kForwardVelocity)) ;
+            delay_timer_.start() ;
+            state_ = State.Delay ;
         }
     }
 
@@ -212,7 +220,7 @@ public class AutoTrapWithRotateCommand extends Command {
             //
             // Find the april tag based on what we see
             //
-            LimelightResults results = LimelightHelpers.getLatestResults(limelight_name_) ;
+            LimelightResults results = LimelightHelpers.getLatestResults(getLimelightName()) ;
             target_tag_ = -1 ;
 
             for(int i = 0 ; i < results.targets_Fiducials.length ; i++) {
