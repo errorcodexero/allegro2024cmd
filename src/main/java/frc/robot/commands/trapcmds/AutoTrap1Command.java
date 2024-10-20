@@ -121,8 +121,8 @@ public class AutoTrap1Command extends AutoTrapBase {
                 break ;
         }
 
-        Logger.recordOutput("auto-trap:tag", Integer.toString(target_tag_)) ;
-        Logger.recordOutput("auto-trap:state", state_) ;
+        Logger.recordOutput("autotrap1:tag", Integer.toString(target_tag_)) ;
+        Logger.recordOutput("autotrap1:state", state_) ;
     }
 
     @Override
@@ -133,22 +133,6 @@ public class AutoTrap1Command extends AutoTrapBase {
     @Override
     public void end(boolean interrupted) {
         db_.stopPath() ;
-    }
-
-    public static int seeAprilTag(String name, int [] tags) {
-        int ret = -1 ;
-        LimelightResults results = LimelightHelpers.getLatestResults(name) ;
-
-        for(int i = 0 ; i < results.targets_Fiducials.length ; i++) {
-            for(int j = 0 ; j < desired_tags_.length ; j++) {
-                if (results.targets_Fiducials[i].fiducialID == desired_tags_[j]) {
-                    ret = desired_tags_[j] ;
-                    break ;
-                }
-            }
-        }        
-
-        return ret ;
     }
 
     private void lookForAprilTag() {

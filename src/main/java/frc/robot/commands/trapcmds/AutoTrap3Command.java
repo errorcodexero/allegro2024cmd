@@ -120,8 +120,8 @@ public class AutoTrap3Command extends AutoTrapBase {
                 break;
         }
 
-        Logger.recordOutput("auto-trap:tag", Integer.toString(target_tag_));
-        Logger.recordOutput("auto-trap:state", state_);
+        Logger.recordOutput("autotrap3:tag", Integer.toString(target_tag_));
+        Logger.recordOutput("autotrap3:state", state_);
     }
 
     @Override

@@ -66,6 +66,29 @@ public class TrampIOHardware implements TrampIO {
         motors_ = new HashMap<>() ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
+        // Manipulator motor initialization
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        manipulator_motor_ = new CANSparkFlex(TrampConstants.Manipulator.kMotorId, CANSparkFlex.MotorType.kBrushless);
+        manipulator_motor_.setInverted(TrampConstants.Manipulator.kInverted);
+        manipulator_motor_.setSmartCurrentLimit(60) ;
+        manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
+        manipulator_motor_.enableVoltageCompensation(11.0) ;
+        manipulator_encoder_ = manipulator_motor_.getEncoder() ;
+        manipulator_encoder_.setVelocityConversionFactor(1.0 / 60.0) ;  // Convert from RPM to RPS
+        manipulator_voltage_ = 0.0 ;
+        manipulator_pid_ = manipulator_motor_.getPIDController() ;
+
+        manipulator_pid_.setP(TrampConstants.Manipulator.PositionPID.kP, 0) ;
+        manipulator_pid_.setI(TrampConstants.Manipulator.PositionPID.kI, 0) ;
+        manipulator_pid_.setD(TrampConstants.Manipulator.PositionPID.kD, 0) ;
+        manipulator_pid_.setFF(TrampConstants.Manipulator.PositionPID.kV, 0) ;
+
+        manipulator_pid_.setP(TrampConstants.Manipulator.VelocityPID.kP, 1) ;
+        manipulator_pid_.setI(TrampConstants.Manipulator.VelocityPID.kI, 1) ;
+        manipulator_pid_.setD(TrampConstants.Manipulator.VelocityPID.kD, 1) ;
+        manipulator_pid_.setFF(TrampConstants.Manipulator.VelocityPID.kV, 1) ;        
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         // Elevator motor initialization
         /////////////////////////////////////////////////////////////////////////////////////////////////
         elevator_motor_ = TalonFXFactory.getFactory().createTalonFX(TrampConstants.Elevator.kMotorId,
@@ -200,28 +223,7 @@ public class TrampIOHardware implements TrampIO {
                             .withReverseSoftLimitThreshold(TrampConstants.Climber.kMinPosition / TrampConstants.Climber.kMetersPerRev) ;
         checkError("set-climber-soft-limit-value", () -> climber_motor_.getConfigurator().apply(climberlimitcfg)) ;
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        // Manipulator motor initialization
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        manipulator_motor_ = new CANSparkFlex(TrampConstants.Manipulator.kMotorId, CANSparkFlex.MotorType.kBrushless);
-        manipulator_motor_.setInverted(TrampConstants.Manipulator.kInverted);
-        manipulator_motor_.setSmartCurrentLimit(60) ;
-        manipulator_motor_.setIdleMode(IdleMode.kBrake) ;
-        manipulator_motor_.enableVoltageCompensation(11.0) ;
-        manipulator_encoder_ = manipulator_motor_.getEncoder() ;
-        manipulator_encoder_.setVelocityConversionFactor(1.0 / 60.0) ;  // Convert from RPM to RPS
-        manipulator_voltage_ = 0.0 ;
-        manipulator_pid_ = manipulator_motor_.getPIDController() ;
 
-        manipulator_pid_.setP(TrampConstants.Manipulator.PositionPID.kP, 0) ;
-        manipulator_pid_.setI(TrampConstants.Manipulator.PositionPID.kI, 0) ;
-        manipulator_pid_.setD(TrampConstants.Manipulator.PositionPID.kD, 0) ;
-        manipulator_pid_.setFF(TrampConstants.Manipulator.PositionPID.kV, 0) ;
-
-        manipulator_pid_.setP(TrampConstants.Manipulator.VelocityPID.kP, 1) ;
-        manipulator_pid_.setI(TrampConstants.Manipulator.VelocityPID.kI, 1) ;
-        manipulator_pid_.setD(TrampConstants.Manipulator.VelocityPID.kD, 1) ;
-        manipulator_pid_.setFF(TrampConstants.Manipulator.VelocityPID.kV, 1) ;
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         // Thru Bore Encoder
@@ -283,8 +285,6 @@ public class TrampIOHardware implements TrampIO {
         inputs.manipulatorPosition = manipulator_encoder_.getPosition() ;
         inputs.manipulatorVelocity = manipulator_encoder_.getVelocity() ;
         inputs.manipulatorCurrent = manipulator_motor_.getOutputCurrent() ;
-
-        inputs.manipulatorFreeWheelPosition = thru_bore_encoder_.getDistance() ;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -307,6 +307,14 @@ public class TrampIOHardware implements TrampIO {
     public double getElevatorMotorVoltage() {
         return elevator_voltage_ ;
     }
+
+    public void resetFreeWheelEncoder() {
+        thru_bore_encoder_.reset() ;
+    }
+
+    public double getFreeWheelEncoder() {
+        return thru_bore_encoder_.getDistance() ;
+    }    
 
     public void logElevatorMotor(SysIdRoutineLog log) {
         double pos = elevator_pos_sig_.refresh().getValueAsDouble() * TrampConstants.Elevator.kMetersPerRev ;

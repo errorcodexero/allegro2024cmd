@@ -148,7 +148,7 @@ public class TrampConstants {
         public static final double kFreeWheelTransferDistance = 0.45 ;
 
         public static final double kTransferVoltage = 1.2 ;
-        public static final double kTransferVelocity = 25.0 ;
+        public static final double kTransferVelocity = 15.0 ;
         public static final double kTransferTime = 0.2;
 
         public class ThruBoreEncoder {
@@ -186,10 +186,10 @@ public class TrampConstants {
         public static final double kSimGearRatio = 2.0 ;      
         public static final double kSimMotorLoad = 0.00001 ;  
         public static final double kMoveClimberVoltage = 12.0 ;
-        public static final double kMoveClimberSlowVoltage = 4.0 ;        
+        public static final double kMoveClimberSlowVoltage = 2.0 ;        
         public static final double kClimberUpPosition = 0.5746 ;
         public static final double kClimberDownPosition = 0.0 ;
-        public static final double kClimberDownSlowMargin = 0.1 ;
+        public static final double kClimberDownSlowMargin = 0.05 ;
         public static final double kMaxPosition = 0.5746 ;
         public static final double kMinPosition = 0.0 ;
         public static final double kMetersPerRev = 0.00000134301757813 * 2048.0 ;

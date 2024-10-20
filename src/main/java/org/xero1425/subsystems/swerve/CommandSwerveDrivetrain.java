@@ -70,6 +70,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    private boolean mega_tag_2_ ;
+
     private String limelight_name_ ;
 
     // Path follower for this drive base
@@ -133,17 +135,21 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         super(driveTrainConstants, 250, modules);
 
         robot_ = robot ;
+        mega_tag_2_ = true ;
 
         CommandScheduler.getInstance().registerSubsystem(this);
         robot.registerSubsystem(NAME, this);
 
         tareEverything();
         seedFieldRelative(new Pose2d(0, 0, Rotation2d.fromDegrees(180.0)));
-        setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
 
         if (Utils.isSimulation()) {
             startSimThread();
         }
+    }
+
+    public void setMegaTag2(boolean v) {
+        mega_tag_2_ = v ;
     }
 
     public SettingsValue getProperty(String name) {
@@ -232,18 +238,30 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             });
         }
 
-        // //
-        // // Feed the robot heading (e.g. gyro angle) to the limelight megatag2 algorithm
-        // //
-        Rotation2d robotHeading = getState().Pose.getRotation();
-        LimelightHelpers.SetRobotOrientation(limelight_name_, robotHeading.getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0) ;
+        if (mega_tag_2_) {
+            setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
 
-        // //
-        // // Now, feed the limelight pose to the pose estimator to update our pose accuracy
-        // //
-        PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
-        if (estimate != null && estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
-            addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
+            //
+            // Feed the robot heading (e.g. gyro angle) to the limelight megatag2 algorithm
+            //
+            Rotation2d robotHeading = getState().Pose.getRotation();
+            LimelightHelpers.SetRobotOrientation(limelight_name_, robotHeading.getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0) ;
+
+            // //
+            // // Now, feed the limelight pose to the pose estimator to update our pose accuracy
+            // //
+            PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight_name_) ;
+            if (estimate != null && estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
+                addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
+            }
+        }
+        else {
+            setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 0.7));
+
+            PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight_name_) ;
+            if (estimate != null && estimate.tagCount > 0 && m_angularVelocity.refresh().getValueAsDouble() < 360.0) {
+                addVisionMeasurement(estimate.pose, estimate.timestampSeconds) ;
+            }            
         }
 
         if (follower_ != null) {

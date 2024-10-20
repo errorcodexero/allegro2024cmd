@@ -25,7 +25,7 @@ public class AutoTrapBase extends Command {
     private static double kRightSpacing1 = 0.0 ;       // Positive moves to the right
     private static double kRightSpacing2 = 0.05 ;      // Positive moves to the right
 
-    private static int lasttag_ ;                       // The last valid stage tag we have seen
+    private static int lasttag_ = -1 ;                       // The last valid stage tag we have seen
 
     private CommandSwerveDrivetrain db_ ;
     private AprilTagFieldLayout layout_ ;
@@ -69,8 +69,13 @@ public class AutoTrapBase extends Command {
                 }
             }
             else {
-                Pose2d tagpose = layout.getTagPose(lasttag_).get().toPose2d() ;
-                dist = tagpose.getTranslation().getDistance(dt.getState().Pose.getTranslation()) ;
+                if (lasttag_ != -1) {
+                    Pose2d tagpose = layout.getTagPose(lasttag_).get().toPose2d() ;
+                    dist = tagpose.getTranslation().getDistance(dt.getState().Pose.getTranslation()) ;
+                }
+                else {
+                    dist = 0.0 ;
+                }
 
                 //
                 // Slow blink, we have a note in the trap position, but don't see the april tag
@@ -123,17 +128,21 @@ public class AutoTrapBase extends Command {
     }    
 
     protected Pose2dWithRotation[] computeTarget(int tag) {
+        return computeTarget(tag, kExtraSpacing1, kRightSpacing1, kExtraSpacing2, kRightSpacing2) ;
+    }
+
+    protected Pose2dWithRotation[] computeTarget(int tag, double ke1, double kr1, double ke2, double kr2) {
         Pose2dWithRotation[] ret = new Pose2dWithRotation[2];
         Pose2d pt;
         Rotation2d ptrt;
 
         Pose2d tagpose = layout_.getTagPose(tag).get().toPose2d();
 
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing1, kRightSpacing1);
+        pt = computeProjectedTrapPoint(tagpose, ke1, kr1);
         ptrt = pt.getRotation();
         ret[0] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt);
 
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing2, kRightSpacing2);
+        pt = computeProjectedTrapPoint(tagpose, ke2, kr2);
         ptrt = pt.getRotation();
         ret[1] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt);
 
@@ -143,7 +152,7 @@ public class AutoTrapBase extends Command {
         }
 
         return ret;
-    }
+    }    
 
     protected Translation2d projectPointAlongHeading(Translation2d p, Rotation2d angle, double projection) {
         double dx = Math.cos(angle.getRadians()) * projection;

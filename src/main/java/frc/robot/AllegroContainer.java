@@ -49,7 +49,7 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class AllegroContainer extends XeroContainer {
-    private static int kAutoTrap = 4 ;
+    private static int kAutoTrap = 2 ;
     
     // #region private member variables
     //
@@ -106,11 +106,7 @@ public class AllegroContainer extends XeroContainer {
         //
         // Create subsystems
         //
-        db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
-                                                TunerConstantsCompetition.FrontLeft, 
-                                                TunerConstantsCompetition.FrontRight, 
-                                                TunerConstantsCompetition.BackLeft, 
-                                                TunerConstantsCompetition.BackRight);
+
 
         Supplier<NoteDestination> notesupply = null ;
         Supplier<ShotType> shotsupply = null ;
@@ -132,13 +128,20 @@ public class AllegroContainer extends XeroContainer {
             oi_ = null ;
         }
 
+        tramp_ = new TrampSubsystem(robot, notesupply) ;        
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
+
+        db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
+                                                TunerConstantsCompetition.FrontLeft, 
+                                                TunerConstantsCompetition.FrontRight, 
+                                                TunerConstantsCompetition.BackLeft, 
+                                                TunerConstantsCompetition.BackRight);        
+
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         if (db_ != null) {
             db_.setLimelightName(limelight_name_);
-        }
+        }        
 
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
-        tramp_ = new TrampSubsystem(robot, notesupply) ;
 
         //
         // Create OI devices
