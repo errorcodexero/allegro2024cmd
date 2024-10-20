@@ -23,6 +23,8 @@ import frc.robot.automodes.competition.ThreeNotePathsCommand;
 import frc.robot.commands.trapcmds.AutoTrapBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
+import frc.robot.subsystems.oi.OISubsystem.LEDState;
+import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -170,7 +172,11 @@ public class AllegroRobot extends XeroRobot {
         }
 
         if (container_ != null && container_.getTramp() != null && container_.getTramp().isInTrapPosition()) {
+            container_.getOI().setLEDState(OILed.ClimbUpExecEnabled, LEDState.On);
             AutoTrapBase.setLEDs(container_.limelight_name_, getFieldLayout(), container_.getDriveTrain(), container_.getOI());
+        }
+        else {
+            container_.getOI().setLEDState(OILed.ClimbUpExecEnabled, LEDState.Off);            
         }
     }
 }
