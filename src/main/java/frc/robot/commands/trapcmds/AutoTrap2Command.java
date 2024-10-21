@@ -1,21 +1,17 @@
-package frc.robot.commands;
+package frc.robot.commands.trapcmds;
 
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.LimelightHelpers;
 import org.xero1425.base.XeroRobot;
+import org.xero1425.base.XeroTimer;
 import org.xero1425.base.LimelightHelpers.LimelightResults;
 import org.xero1425.math.Pose2dWithRotation;
-import org.xero1425.math.XeroMath;
 import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 import org.xero1425.subsystems.swerve.SwerveRotateToAngle;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -24,57 +20,60 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
 
-public class AutoTrapWithRotateCommand extends Command {
+//
+// This version of auto trap looks for an april tag and then creates a path to a first point
+// which is kExtraSpacing1 away from the tag.  It then rotates the robot to face the tag and
+// then drives to a second point which is kExtraSpacing2 away from the tag.  The robot then
+// waits for the driver to press the auto trap button to start the trapping process.  This approach
+// keeps the amount of path following to a minimum after the big rotation.
+//
 
-    //
-    // April Tags
-    //
-    // Red: 11, 12, 13
-    // Blue: 14, 15, 16
-    //
+public class AutoTrap2Command extends AutoTrapBase {
+
+    private static double kExtra2Spacing1 = 1.5 ;       // Off from the april tag toward the robot
+    private static double kExtra2Spacing2 = 0.17 ;      // Off from the april tag toward the robot
+    private static double kRight2Spacing1 = 0.0 ;       // Positive moves to the right
+    private static double kRight2Spacing2 = 0.0 ;      // Positive moves to the right    
 
     private enum State {
         Starting,
         LookForAprilTag,
+        Delay1,
         DriveToTrap1,
         Rotate,
+        Delay2,
         DriveToTrap2,
         Wait,
         Trapping,
         Done
     }
 
-    private static double kExtraSpacing1 = 1.5 ;
-    private static double kExtraSpacing2 = 0.0 ;
-    private static double kMaxDistance = 4.0 ;
+    private static double kMaxDistance = 3.5 ;
+    private static double kMinDistance = 2.0 ;
     private static int kSimulatedTag = 11 ;
-    private static double kForwardVelocity = 0.5 ;
-    private static double kForwardDistance = 1.5 ;
-
-    private String limelight_name_ ;
 
     private OISubsystem oi_ ;
     private TrampSubsystem tramp_ ;
     private CommandSwerveDrivetrain db_ ;
 
     private Command trap_command_ ;
-    private AprilTagFieldLayout layout_ ;
     private State state_ ;
     private int target_tag_ ;
     private int[] desired_tags_ = new int[3] ;
     private Pose2dWithRotation [] waypoints_ = null ;
     private SwerveRotateToAngle rotate_ = null ;
-    private SwerveRequest.RobotCentric forward = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.Velocity);
-    private Pose2d starting_pose_ ;
+    private XeroTimer delay1_timer_ ;
+    private XeroTimer delay2_timer_ ;
 
-    public AutoTrapWithRotateCommand(String name, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
-        limelight_name_ = name ;
+    public AutoTrap2Command(String limelight, AprilTagFieldLayout layout, OISubsystem oi, TrampSubsystem tramp, CommandSwerveDrivetrain dt) {
+        super(dt, limelight, layout, kMaxDistance, kMinDistance) ;
         db_ = dt ;
         oi_ = oi ;
         tramp_ = tramp ;
-        layout_ = layout ;
         addRequirements(db_) ;
         state_ = State.Starting ;
+        delay2_timer_ = new XeroTimer("delay2-timer", 1.0) ;
+        delay1_timer_ = new XeroTimer("delay1-timer", 1.0) ;
     }
 
     @Override
@@ -115,6 +114,17 @@ public class AutoTrapWithRotateCommand extends Command {
                 }
                 break; 
 
+            case Delay1:
+                if (delay1_timer_.isExpired()) {
+                    db_.setMegaTag2(true) ;
+
+                    Rotation2d angle = waypoints_[0].getRobotRotation().rotateBy(Rotation2d.fromDegrees(180.0)) ;
+                    rotate_ = new SwerveRotateToAngle(db_, angle, 1.0, 1.0) ;
+                    state_ = State.Rotate ;
+                    CommandScheduler.getInstance().schedule(rotate_);
+                }
+                break ;
+
             case DriveToTrap1:
                 if (oi_.isAbortPressed()) {
                     db_.stopPath() ;
@@ -135,9 +145,19 @@ public class AutoTrapWithRotateCommand extends Command {
                 }            
                 break; 
 
+            case Delay2:
+                if (oi_.isAbortPressed()) {
+                    state_ = State.Done ;
+                }
+                else if (delay2_timer_.isExpired()) {
+                    db_.driveTo("auto-trap2", null, waypoints_[1], 1.0, 1.0, 0.0, 0.0, 1.0) ;
+                    state_ = State.DriveToTrap2 ;
+                }
+                break ;
+
             case DriveToTrap2:
                 if (oi_.isAbortPressed()) {
-                    rotate_.cancel();
+                    db_.stopPath();
                     state_ = State.Done ;
                 }
                 else {
@@ -167,8 +187,8 @@ public class AutoTrapWithRotateCommand extends Command {
                 break ;
         }
 
-        Logger.recordOutput("auto-trap:tag", Integer.toString(target_tag_)) ;
-        Logger.recordOutput("auto-trap:state", state_) ;
+        Logger.recordOutput("autotrap2:tag", Integer.toString(target_tag_)) ;
+        Logger.recordOutput("autotrap2:state", state_) ;
     }
 
     @Override
@@ -182,37 +202,33 @@ public class AutoTrapWithRotateCommand extends Command {
     }
 
     private void driveToTrap2State() {
-        double dist = db_.getState().Pose.getTranslation().getDistance(starting_pose_.getTranslation());
-        if (dist > kForwardDistance) {
-            db_.setControl(new SwerveRequest.Idle()) ;
-            state_ = State.Wait;
+        if (!db_.isFollowingPath()) {
+            return ;
         }
     }
 
     private void rotateState() {
         if (rotate_.isFinished()) {
             rotate_ = null ;
-            state_ = State.DriveToTrap2 ;
-            starting_pose_ = db_.getState().Pose ;
-            db_.setControl(forward.withVelocityX(kForwardVelocity)) ;
+            delay2_timer_.start() ;
+            state_ = State.Delay2 ;
         }
     }
 
     private void driveToTrap1State() {
         if (!db_.isFollowingPath()) {
-            Rotation2d angle = waypoints_[0].getRobotRotation().rotateBy(Rotation2d.fromDegrees(180.0)) ;
-            rotate_ = new SwerveRotateToAngle(db_, angle, 1.0, 1.0) ;
-            state_ = State.Rotate ;
-            CommandScheduler.getInstance().schedule(rotate_);
+            state_ = State.Delay1 ;
+            delay1_timer_.start() ;
         }
     }
+
 
     private void lookForAprilTag() {
         if (XeroRobot.isReal()) {
             //
             // Find the april tag based on what we see
             //
-            LimelightResults results = LimelightHelpers.getLatestResults(limelight_name_) ;
+            LimelightResults results = LimelightHelpers.getLatestResults(getLimelightName()) ;
             target_tag_ = -1 ;
 
             for(int i = 0 ; i < results.targets_Fiducials.length ; i++) {
@@ -232,7 +248,7 @@ public class AutoTrapWithRotateCommand extends Command {
         }
 
         if (target_tag_ != -1) {
-            waypoints_ = computeTarget() ;
+            waypoints_ = computeTarget(target_tag_) ;
             if (waypoints_ != null) {
                 db_.driveTo("auto-amp", null, waypoints_[0], 1.0, 1.0, 0.0, 1.0, 1.0) ;
                 state_ = State.DriveToTrap1 ;
@@ -246,33 +262,14 @@ public class AutoTrapWithRotateCommand extends Command {
         }
     }
 
-    private Pose2dWithRotation[] computeTarget() {
-        Pose2dWithRotation [] ret = new Pose2dWithRotation[2] ;
-        Pose2d pt ;
-        Rotation2d ptrt ;
+    protected Pose2dWithRotation [] computeTarget(int tag) {
+        Pose2dWithRotation [] pts = super.computeTarget(tag, kExtra2Spacing1, kRight2Spacing1, kExtra2Spacing2, kRight2Spacing2) ;
 
-        Pose2d tagpose = layout_.getTagPose(target_tag_).get().toPose2d() ;
-
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing1);
-        ptrt = pt.getRotation().rotateBy(Rotation2d.fromDegrees(180.0));
-        ret[0] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
-
-        pt = computeProjectedTrapPoint(tagpose, kExtraSpacing2) ;
-        ptrt = pt.getRotation() ;
-        ret[1] = new Pose2dWithRotation(pt.getTranslation(), ptrt, ptrt) ;
-
-        double dist = ret[0].getTranslation().getDistance(db_.getState().Pose.getTranslation()) ;
-        if (dist > kMaxDistance) {
-            ret = null ;
+        if (pts != null) {
+            Rotation2d robotrot = pts[0].getRobotRotation().rotateBy(Rotation2d.fromDegrees(180.0)) ;
+            pts[0] = new Pose2dWithRotation(pts[0].getTranslation(), pts[0].getRotation(), robotrot) ;
         }
 
-        return ret;
+        return pts ;
     }
-
-    private Pose2d computeProjectedTrapPoint(Pose2d p, double projection) {
-        double dx = Math.cos(p.getRotation().getRadians()) * projection ;
-        double dy = Math.sin(p.getRotation().getRadians()) * projection ;
-        double angle = XeroMath.normalizeAngleDegrees(p.getRotation().getDegrees() + 180.0) ;
-        return new Pose2d(p.getX() + dx, p.getY() + dy, Rotation2d.fromDegrees(angle)) ;
-    }    
 }

@@ -121,7 +121,7 @@ public class TrampSubsystem extends XeroSubsystem {
         io_ = new TrampIOHardware() ;
         inputs_ = new TrampIOInputsAutoLogged() ;
 
-        io_.setArmPosition(TrampConstants.Arm.kMinPosition);
+        io_.setArmPosition(TrampConstants.Arm.kStartPosition);
 
         destsupplier_ = dest ;
 
@@ -346,6 +346,7 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     public void moveToDestinationPosition() {
+        io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
         NoteDestination dest = destsupplier_.get() ;
         if (dest == NoteDestination.Trap) {
             gotoPosition(State.MoveNote, 
@@ -372,13 +373,17 @@ public class TrampSubsystem extends XeroSubsystem {
     }
     
     public boolean needStopManipulator() {
-        return inputs_.manipulatorFreeWheelPosition > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance ;
+
+        boolean ret = io_.getFreeWheelEncoder() > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance ;
+        Logger.recordOutput("needman", ret);
+        return ret ;
     }
 
     public void transferNote() {
         if (state_ == State.HoldingTransferPosition) {
             state_ = State.TransferStartManipulator ;
-            manipulator_start_pos_ = inputs_.manipulatorFreeWheelPosition ;
+            io_.resetFreeWheelEncoder() ;
+            manipulator_start_pos_ = 0 ;
             io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
         }
     }
@@ -410,9 +415,6 @@ public class TrampSubsystem extends XeroSubsystem {
         startPeriodic();
 
         io_.updateInputs(inputs_) ;
-        if (XeroRobot.isSimulation()) {
-            inputs_.manipulatorFreeWheelPosition = simulated_thru_bore_value_ ;
-        }
         Logger.processInputs("tramp", inputs_);
 
         if (climber_dir_ == ClimberDir.Up) {
@@ -432,8 +434,8 @@ public class TrampSubsystem extends XeroSubsystem {
                 io_.setClimberMotorVoltage(0.0);
                 climber_dir_ = ClimberDir.None ;
             }
-            else if (inputs_.climberPosition <= climber_target_ - TrampConstants.Climber.kClimberDownSlowMargin) {
-                io_.setClimberMotorVoltage(TrampConstants.Climber.kMoveClimberSlowVoltage);
+            else if (inputs_.climberPosition <= climber_target_ + TrampConstants.Climber.kClimberDownSlowMargin) {
+                io_.setClimberMotorVoltage(-TrampConstants.Climber.kMoveClimberSlowVoltage);
             }
         }
 
@@ -656,7 +658,8 @@ public class TrampSubsystem extends XeroSubsystem {
             Logger.recordOutput("tramp:is-arm-ready", isArmReady());
             Logger.recordOutput("tramp:readyForAmp", readyForAmp().getAsBoolean());
             Logger.recordOutput("tramp:hasnote", hasNote()) ;  
-            Logger.recordOutput("tramp:mantarget", manipulator_target_) ;   
+            Logger.recordOutput("tramp:mantarget", manipulator_target_) ;
+            Logger.recordOutput("tramp:freewheel", io_.getFreeWheelEncoder()) ;
         }
 
         endPeriodic();
