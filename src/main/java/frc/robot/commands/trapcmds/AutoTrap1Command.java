@@ -1,9 +1,7 @@
 package frc.robot.commands.trapcmds;
 
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.base.LimelightHelpers;
 import org.xero1425.base.XeroRobot;
-import org.xero1425.base.LimelightHelpers.LimelightResults;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 

@@ -155,7 +155,7 @@ public class TrampSubsystem extends XeroSubsystem {
     }
 
     private void transferWaitForHoldPosition() {
-        if (hold_note_timer_.isExpired()) {
+       if (hold_note_timer_.isExpired()) {
             io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
             state_ = State.Idle ;
         }
@@ -360,10 +360,32 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_.start();
         state_ = State.Eject ;
     }
+
+    private void resetFreeWheelEncoder() {
+        if (XeroRobot.isSimulation()) {
+            simulated_thru_bore_value_ = 0.0 ;
+        }
+        else {
+            io_.resetFreeWheelEncoder() ;
+        }
+    }
+
+    private double getFreeWheelEncoder() {
+        double ret ;
+
+        if (XeroRobot.isSimulation()) {
+            ret = simulated_thru_bore_value_ ;
+        }
+        else {
+            ret = io_.getFreeWheelEncoder() ;
+        }
+
+        return ret ;
+    }
     
     public boolean needStopManipulator() {
 
-        boolean ret = io_.getFreeWheelEncoder() > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance ;
+        boolean ret = getFreeWheelEncoder() > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance ;
         Logger.recordOutput("needman", ret);
         return ret ;
     }
@@ -371,7 +393,7 @@ public class TrampSubsystem extends XeroSubsystem {
     public void transferNote() {
         if (state_ == State.HoldingTransferPosition) {
             state_ = State.TransferStartManipulator ;
-            io_.resetFreeWheelEncoder() ;
+            resetFreeWheelEncoder() ;
             manipulator_start_pos_ = 0 ;
             io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
         }
@@ -639,7 +661,7 @@ public class TrampSubsystem extends XeroSubsystem {
             Logger.recordOutput("tramp:readyForAmp", readyForAmp().getAsBoolean());
             Logger.recordOutput("tramp:hasnote", hasNote()) ;  
             Logger.recordOutput("tramp:mantarget", manipulator_target_) ;
-            Logger.recordOutput("tramp:freewheel", io_.getFreeWheelEncoder()) ;
+            Logger.recordOutput("tramp:freewheel", getFreeWheelEncoder()) ;
         }
 
         endPeriodic();
