@@ -1,5 +1,8 @@
 package frc.robot.subsystems.tramp;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -20,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NoteDestination;
+import frc.robot.util.ComponentVisualizer;
+import frc.robot.util.NoteVisualizer;
 
 public class TrampSubsystem extends XeroSubsystem {
 
@@ -106,7 +111,10 @@ public class TrampSubsystem extends XeroSubsystem {
 
     private double simulated_thru_bore_value_ ;
 
-    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest) throws Exception {
+    private ComponentVisualizer visualizer_;
+    private NoteVisualizer noteVisualizer_;
+
+    public TrampSubsystem(XeroRobot robot, Supplier<NoteDestination> dest, ComponentVisualizer visualizer, NoteVisualizer noteVisualizer) throws Exception {
         super(robot, NAME) ;
 
         io_ = new TrampIOHardware() ;
@@ -130,6 +138,9 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.Idle ;
         climber_dir_ = ClimberDir.None ;
         climber_target_ = 0.0 ;
+
+        visualizer_ = visualizer;
+        noteVisualizer_ = noteVisualizer;
         simulated_thru_bore_value_ = 0.0 ;
     }
 
@@ -622,7 +633,16 @@ public class TrampSubsystem extends XeroSubsystem {
         if (climber_dir_ != ClimberDir.None) {
             aux += ":" + climber_dir_.toString() ;
         }
-        
+
+        visualizer_.updateTramp(
+            Meters.of(inputs_.elevatorPosition),
+            Degrees.of(-inputs_.armPosition)
+        );
+
+        visualizer_.updateClimber(Meters.of(inputs_.climberPosition));
+
+        noteVisualizer_.updateArm(has_note_);
+
         if (getVerbose()) {
             Logger.recordOutput("tramp:state", state_ + aux);
             Logger.recordOutput("tramp:elev-target", target_elev_);
