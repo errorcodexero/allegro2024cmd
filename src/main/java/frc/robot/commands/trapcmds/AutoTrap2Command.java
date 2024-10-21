@@ -31,9 +31,9 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 public class AutoTrap2Command extends AutoTrapBase {
 
     private static double kExtra2Spacing1 = 1.5 ;       // Off from the april tag toward the robot
-    private static double kExtra2Spacing2 = 0.17 ;      // Off from the april tag toward the robot
+    private static double kExtra2Spacing2 = 0.165;      // Off from the april tag toward the robot
     private static double kRight2Spacing1 = 0.0 ;       // Positive moves to the right
-    private static double kRight2Spacing2 = 0.0 ;      // Positive moves to the right    
+    private static double kRight2Spacing2 = 0.0 ;       // Positive moves to the right    
 
     private enum State {
         Starting,

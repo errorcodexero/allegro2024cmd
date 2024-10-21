@@ -46,26 +46,31 @@ public class TransferNoteCommand extends Command {
     public void execute() {
         switch(state_) {
             case MoveToPosition:
+                //
+                // Waiting for the tramp and intake/shooter to be in the right position for transfer
+                //
                 if (intake_shooter_.isInTransferPosition() && tramp_.isInTransferPosition()) {
                     if (db_ != null) {
                         db_.limitDriveMotorRampRate(kTransferDBRampRate) ;
                     }                    
                     intake_shooter_.doTransferNote();
-                    tramp_.transferNote();
+                    tramp_.doTransferNote();
                     state_ = State.TransferringNote ;
                 }
                 break ;
 
             case TransferringNote:
-                if (intake_shooter_.needStopManipulator() | tramp_.needStopManipulator()) {
-                    tramp_.endNoteTransfer() ;
+                //
+                // Waiting for the note to reach its desired position in the tramp
+                //
+                if (tramp_.manipulatorStopped()) {
                     intake_shooter_.endNoteTransfer() ;
                     state_ = State.WaitForShooterIdle ;
                 }
                 break ;
 
             case WaitForShooterIdle:
-                if (intake_shooter_.finishedShooterOnTransfer()) {
+                if (intake_shooter_.isIdle()) {
                     tramp_.moveToDestinationPosition();
                     state_ = State.MoveTrampToDestination ;
                 }

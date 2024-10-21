@@ -2,6 +2,7 @@ package frc.models;
 
 import java.util.Map;
 
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.misc.MessageLogger;
 import org.xero1425.misc.MessageType;
 import org.xero1425.misc.SettingsValue;
@@ -133,6 +134,8 @@ public class IntakeShooterModel extends SimulationModel {
         }
 
         double battery = RobotController.getBatteryVoltage() ;
+        Logger.recordOutput("battery", battery) ;
+        
         if (shooter1_ != null && shooter1_sim_!= null) {
             TalonFXSimState st = shooter1_.getSimState() ;
             st.setSupplyVoltage(battery) ;

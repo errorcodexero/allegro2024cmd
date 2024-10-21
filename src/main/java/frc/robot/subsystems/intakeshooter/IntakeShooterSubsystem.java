@@ -69,11 +69,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         Tuning,
 
-        TransferWaitForNote,
-        TransferWaitForNoNoteCenter,
-        TransferWaitForNoNote2,
-        TransferRunToManipulatorStop,
-        TransferRunToShooterStop,
+        TransferringNote,
+        TransferFinish1,
 
         WaitingForTunedNoteShot1,
         WaitingForTunedNoteShot2,        
@@ -111,7 +108,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private double last_time_ ;
 
     private boolean has_note_ ;
-    private boolean need_stop_manipulator_ ;
 
     private XeroTimer capture_timer_ ;
     private XeroTimer reverse_timer_ ;
@@ -171,10 +167,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         transfer_note_trigger_ = new Trigger(()-> canTransferNote()) ;
         ready_for_shoot_trigger_ = new Trigger(()-> state_ == State.HoldForShoot || tracking_ ) ;
-
-
-
-        need_stop_manipulator_ = false ;
 
         average_filter_ = LinearFilter.movingAverage(IntakeShooterConstants.Tilt.kMaxAbsoluteTiltMovingAverageTaps) ;
         last_time_ = Timer.getFPGATimestamp() ;
@@ -273,10 +265,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return state_ == State.Idle ;
     }
 
-    public boolean finishedShooterOnTransfer() {
-        return state_ != State.TransferRunToShooterStop ;
-    }
-
     public boolean isTuning() {
         return state_ == State.Tuning ;
     }
@@ -316,15 +304,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public boolean hasShotLeft() {
         return state_ != State.WaitForShotFinish && state_ != State.WaitingToShoot ;
     }    
-
-    //
-    // This is a HACK to allow the TrampSubsystem to know its time to stop 
-    // the manipulator.  Stopping the manipulator is a function of the distance
-    // traveled by the shooter wheels.
-    //
-    public boolean needStopManipulator() {
-        return need_stop_manipulator_ ;
-    }
 
     // #endregion
 
@@ -434,23 +413,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public void doTransferNote() {
         if (has_note_ && state_ == State.HoldingTransferPosition) {
             io_.setFeederMotorVoltage(3);
-            setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, 10.0);
-            need_stop_manipulator_ = false ;
-
-            if (isNoteDetected()) {
-                //
-                // The note is already sitting on the sensor.  We just wait for the note to
-                // move off the sensor
-                //
-                state_ = State.TransferWaitForNoNoteCenter ;
-            }
-            else {
-                //
-                // The note is not on the sensor, so the sensor is assumed to be sitting in the middle of the note.
-                // We wait until we sense the note and then look for the note to move off the sensor.
-                //
-                state_ = State.TransferWaitForNote ;
-            }
+            setShooterVelocity(IntakeShooterConstants.Shooter.kTransferVelocity, IntakeShooterConstants.Shooter.kTransferVelocityTol);
+            state_ = State.TransferringNote ;
         }
     }
 
@@ -627,10 +591,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             state_ = State.WaitForReverse ;
         }
     }    
-
-    private boolean isNoteDetected() {
-        return inputs_.noteSensor ^ IntakeShooterConstants.NoteSensor.kInverted ;
-    }
 
     private boolean canTransferNote() {
         boolean ret = false ;
@@ -929,8 +889,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #endregion
 
     public void endNoteTransfer() {
-        has_note_ = false ;                    
-        state_ = State.TransferRunToShooterStop ;        
+        transfer_start_pos_ = inputs_.shooter1Position ;
+        state_ = State.TransferFinish1 ;
     }
 
     // #region periodic method that evaluates the state machine each robot loop
@@ -990,6 +950,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             case Invalid:
                 break ;
 
+            case TransferringNote:
+                break ;
+
             case MoveTiltToPosition:
                 moveTiltToPositionState() ;
                 break ;
@@ -1034,54 +997,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 ejectReverseState() ;
                 break ;
 
-            case TransferWaitForNote:
-                if (inputs_.risingEdge && inputs_.fallingEdge) {
-                    //
-                    // The note completely passed the sensor since the last robot loop
-                    //
-                    state_ = State.TransferRunToManipulatorStop ;
-                    transfer_start_pos_ = io_.getShooterPositionAtRisingEdge() ;                    
-                }
-                else if (inputs_.fallingEdge) {
-                    //
-                    // The leading edge of the note passed the sensor, wait for the trailing edge
-                    //
-                    state_ = State.TransferWaitForNoNote2 ;
-                }
-                break ;
-
-            case TransferWaitForNoNoteCenter:
-                if (inputs_.risingEdge){
-                    state_ = State.TransferWaitForNote ;
-                    
-                }
-                break ;
-
-            case TransferWaitForNoNote2:
-                if (inputs_.risingEdge) {
-                    state_ = State.TransferRunToManipulatorStop ;
-                    transfer_start_pos_ = io_.getShooterPositionAtRisingEdge() ;
-                }                
-                break ;
-
-            case TransferRunToManipulatorStop:
-                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {
-                    need_stop_manipulator_ = true ;
-                    has_note_ = false ;                    
-                    state_ = State.TransferRunToShooterStop ;
-                }
-                break ;
-
-            case TransferRunToShooterStop:
-                if (inputs_.shooter1Position - transfer_start_pos_ - IntakeShooterConstants.Shooter.kTransferLength > IntakeShooterConstants.Shooter.kTransferContLength) {
-                    io_.setFeederMotorVoltage(0.0);
-                    setShooterVelocity(0.0, 0.0);
-                    gotoPosition(State.Idle, 
-                                 IntakeShooterConstants.UpDown.Positions.kStowed, 
-                                 IntakeShooterConstants.Tilt.Positions.kStowed) ;
-                }
-                break ;
-                
             case StartEjectOperations:
                 setShooterVelocity(-IntakeShooterConstants.Shooter.kEjectVelocity, 10.0) ;
                 io_.setFeederMotorVoltage(-IntakeShooterConstants.Feeder.kEjectVoltage) ;
@@ -1106,6 +1021,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             case WaitingForTunedNoteShot2:
                 if (shoot_timer_.isExpired()) {
                     state_ = State.Tuning ;
+                }
+                break ;
+
+            case TransferFinish1:
+                if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {
+                    io_.setShooter1MotorVoltage(0.0) ;
+                    io_.setShooter2MotorVoltage(0.0);
+                    gotoPosition(State.Idle,
+                         IntakeShooterConstants.UpDown.Positions.kStowed, 
+                         IntakeShooterConstants.Tilt.Positions.kStowed) ;
                 }
                 break ;
         }
@@ -1155,7 +1080,6 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             Logger.recordOutput("intake:shot-type", getShotType()) ;
             Logger.recordOutput("intake:feederVoltage", io_.getFeederMotorVoltage()) ;
             Logger.recordOutput("intake:tracking", tracking_) ;
-            Logger.recordOutput("intake:needStopManip", need_stop_manipulator_);
 
             Logger.recordOutput("intake:cappos", io_.getShooterPositionAtRisingEdge());
 
