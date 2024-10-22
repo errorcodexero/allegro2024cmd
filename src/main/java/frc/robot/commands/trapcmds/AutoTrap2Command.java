@@ -31,9 +31,9 @@ import frc.robot.subsystems.tramp.TrampSubsystem;
 public class AutoTrap2Command extends AutoTrapBase {
 
     private static double kExtra2Spacing1 = 1.5 ;       // Off from the april tag toward the robot
-    private static double kExtra2Spacing2 = 0.17 ;      // Off from the april tag toward the robot
+    private static double kExtra2Spacing2 = 0.165;      // Off from the april tag toward the robot
     private static double kRight2Spacing1 = 0.0 ;       // Positive moves to the right
-    private static double kRight2Spacing2 = 0.0 ;      // Positive moves to the right    
+    private static double kRight2Spacing2 = 0.0 ;       // Positive moves to the right    
 
     private enum State {
         Starting,
@@ -117,7 +117,6 @@ public class AutoTrap2Command extends AutoTrapBase {
             case Delay1:
                 if (delay1_timer_.isExpired()) {
                     db_.setMegaTag2(true) ;
-
                     Rotation2d angle = waypoints_[0].getRobotRotation().rotateBy(Rotation2d.fromDegrees(180.0)) ;
                     rotate_ = new SwerveRotateToAngle(db_, angle, 1.0, 1.0) ;
                     state_ = State.Rotate ;
@@ -187,6 +186,10 @@ public class AutoTrap2Command extends AutoTrapBase {
                 break ;
         }
 
+        if (waypoints_ != null) {
+            Logger.recordOutput("y0", waypoints_[0].getY());
+            Logger.recordOutput("y1", waypoints_[1].getY());
+        }
         Logger.recordOutput("autotrap2:tag", Integer.toString(target_tag_)) ;
         Logger.recordOutput("autotrap2:state", state_) ;
     }
@@ -217,6 +220,7 @@ public class AutoTrap2Command extends AutoTrapBase {
 
     private void driveToTrap1State() {
         if (!db_.isFollowingPath()) {
+            db_.setMegaTag2(false);
             state_ = State.Delay1 ;
             delay1_timer_.start() ;
         }

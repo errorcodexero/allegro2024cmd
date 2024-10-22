@@ -36,7 +36,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
     private AutoShootCommand shoot_ ;
 
     private static final double kMaxVelocity = 4.0 ;
-    private static final double kMaxAccel = 2.0 ;
+    private static final double kMaxAccel = 3.0 ;
     private static final String kAutoModeNamePathsFile = "Side3Auto" ;
     private static final String kCollect2PathName = "Collect2" ;
     private static final String kShoot2PathName = "Shoot2" ;

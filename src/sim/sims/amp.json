@@ -96,16 +96,85 @@
             ]
         },
         {
-            "time" : 8.0,
+            "time" : 7.2,
             "events" :
             [
                 {
-                    "model" : "allegro-oi",
+                    "model" : "tramp",
                     "instance" : "1",
                     "values" :
                     {
-                        "comment" : "Press the eject button",
-                        "eject" : true
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.3,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.4,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.5,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.6,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
+                    }
+                }
+            ]
+        },
+        {
+            "time" : 7.7,
+            "events" :
+            [
+                {
+                    "model" : "tramp",
+                    "instance" : "1",
+                    "values" :
+                    {
+                        "note-position" : 0.1
                     }
                 }
             ]

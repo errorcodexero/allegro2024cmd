@@ -69,6 +69,7 @@ public class IntakeShooterConstants {
 
         public class Positions {
             public static final double kStowed = 118.0 ;
+            public static final double kFinishTransfer = 60.0 ;
             public static final double kStartTracking = 118.0 ;
             public static final double kCollect = -6.0 ;
             public static final double kTransfer = 90.0 ;
@@ -170,6 +171,7 @@ public class IntakeShooterConstants {
             public static final double kStartTracking = -50.0 ;
             public static final double kCollect = 50.0 ;
             public static final double kTransfer = 0.0 ;
+            public static final double kFinishTransfer = 0.0 ;            
             public static final double kTransferPosTol = 10.0 ;
             public static final double kTransferVelTol = 10.0 ;
 
@@ -268,11 +270,9 @@ public class IntakeShooterConstants {
         public static final double kAutoShootVelocityTol = 5.0 ;
 
         public static final double kTransferVelocity = 40.0 ;
-        public static final double kTransferRunShooterDuration = 2.5 ;
-        public static final double kTransferVelocityTol = 5.0 ;
+        public static final double kTransferVelocityTol = 10.0 ;
 
-        public static final double kTransferLength = 3.0 ;
-        public static final double kTransferContLength = 1.0 ;
+        public static final double kTransferLength = 4.0 ;
 
         public static final double kShooterRevsPerMotorRev = 1.0 / 0.6 ;
         public static final double kShootMinVelocity = 0 ;

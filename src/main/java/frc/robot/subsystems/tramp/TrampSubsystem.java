@@ -62,8 +62,8 @@ public class TrampSubsystem extends XeroSubsystem {
         DepositingNote,
         Trap3,
 
-        TransferStartManipulator,
-        TransferWaitForHoldPosition,
+        TransferRunningManipulator,
+        TransferManipulatorDone,
         TransferringTrapToAmp,
 
         Shooting,
@@ -96,7 +96,6 @@ public class TrampSubsystem extends XeroSubsystem {
     private XeroTimer eject_timer_ ;
     private XeroTimer shoot_timer_ ;
     private XeroTimer deposit_trap_timer_ ;
-    private XeroTimer hold_note_timer_ ;
     private XeroTimer delay_trap_timer_ ;
 
     private Trigger ready_for_amp_trigger_ ;
@@ -128,7 +127,6 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_ = new XeroTimer("tramp-eject", TrampConstants.Manipulator.kEjectTime) ;
         shoot_timer_ = new XeroTimer("tramp-shoot", TrampConstants.Manipulator.kShootTime) ;
         deposit_trap_timer_ = new XeroTimer("tramp-deposit", TrampConstants.Manipulator.kDepositTime) ;
-        hold_note_timer_ = new XeroTimer("hold-note-timer", TrampConstants.Manipulator.kHoldNoteTime) ;
         delay_trap_timer_ = new XeroTimer("delay-trap-timer", TrampConstants.Trap.kDelayTime) ;
                    
         ready_for_amp_trigger_ = new Trigger(() -> state_ == State.HoldingAmpPosition) ;
@@ -155,23 +153,6 @@ public class TrampSubsystem extends XeroSubsystem {
         state_ = State.HoldingTrapPosition ;
     }
 
-    public void endNoteTransfer() {
-        //
-        // Enable a PID controller to hold the note in place.
-        //
-        state_ = State.TransferWaitForHoldPosition ;
-        hold_note_timer_.start() ;
-        io_.setManipulatorVoltage(0.0);
-        has_note_ = true ;
-    }
-
-    private void transferWaitForHoldPosition() {
-        if (hold_note_timer_.isExpired()) {
-            io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
-            state_ = State.Idle ;
-        }
-    }
-
     public SettingsValue getProperty(String name) {
         return null ;
     }    
@@ -196,10 +177,6 @@ public class TrampSubsystem extends XeroSubsystem {
         return basic_climb_ready_trigger_ ;
     }
 
-    public boolean isNoteDetected() {
-        return inputs_.manipulatorCurrent > 5.0 ;
-    }
-    
     public boolean isIdle() {
         return state_ == State.Idle ;
     }
@@ -371,18 +348,37 @@ public class TrampSubsystem extends XeroSubsystem {
         eject_timer_.start();
         state_ = State.Eject ;
     }
-    
-    public boolean needStopManipulator() {
 
-        boolean ret = io_.getFreeWheelEncoder() > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance ;
-        Logger.recordOutput("needman", ret);
+    private void resetFreeWheelEncoder() {
+        if (XeroRobot.isSimulation()) {
+            simulated_thru_bore_value_ = 0.0 ;
+        }
+        else {
+            io_.resetFreeWheelEncoder() ;
+        }
+    }
+
+    private double getFreeWheelEncoder() {
+        double ret ;
+
+        if (XeroRobot.isSimulation()) {
+            ret = simulated_thru_bore_value_ ;
+        }
+        else {
+            ret = io_.getFreeWheelEncoder() ;
+        }
+
         return ret ;
     }
 
-    public void transferNote() {
+    public boolean manipulatorStopped() {
+        return state_ == State.TransferManipulatorDone ;
+    }
+    
+    public void doTransferNote() {
         if (state_ == State.HoldingTransferPosition) {
-            state_ = State.TransferStartManipulator ;
-            io_.resetFreeWheelEncoder() ;
+            state_ = State.TransferRunningManipulator ;
+            resetFreeWheelEncoder() ;
             manipulator_start_pos_ = 0 ;
             io_.setManipulatorTargetVelocity(TrampConstants.Manipulator.kTransferVelocity);
         }
@@ -457,12 +453,11 @@ public class TrampSubsystem extends XeroSubsystem {
                 moveToDestinationPosition() ;
                 break ;
 
-            case TransferWaitForHoldPosition:
-                transferWaitForHoldPosition();
+            case TransferManipulatorDone:
                 break ;
 
-            case TransferStartManipulator:
-                transferStartManipulator() ;
+            case TransferRunningManipulator:
+                transferRunningManipulator() ;
                 break ;
 
             case Eject:
@@ -659,13 +654,17 @@ public class TrampSubsystem extends XeroSubsystem {
             Logger.recordOutput("tramp:readyForAmp", readyForAmp().getAsBoolean());
             Logger.recordOutput("tramp:hasnote", hasNote()) ;  
             Logger.recordOutput("tramp:mantarget", manipulator_target_) ;
-            Logger.recordOutput("tramp:freewheel", io_.getFreeWheelEncoder()) ;
+            Logger.recordOutput("tramp:freewheel", getFreeWheelEncoder()) ;
         }
 
         endPeriodic();
     }
 
-    private void transferStartManipulator() {
+    private void transferRunningManipulator() {
+        if (getFreeWheelEncoder() > manipulator_start_pos_ + TrampConstants.Manipulator.kFreeWheelTransferDistance) {
+            io_.setManipulatorTargetPosition(inputs_.manipulatorPosition);
+            state_ = State.TransferManipulatorDone ;
+        }
     }
 
     private void climberUp() {
