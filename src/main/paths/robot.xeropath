@@ -24,8 +24,8 @@
                             "heading": 0,
                             "swrot": 0,
                             "swrotvel": 0,
-                            "x": 7.717343330922926,
-                            "y": 1.0887220897439531
+                            "x": 7.71389,
+                            "y": 0.553632
                         }
                     ],
                     "startvelocity": 0
@@ -42,15 +42,15 @@
                             "heading": 180,
                             "swrot": 0,
                             "swrotvel": 0,
-                            "x": 7.71734,
-                            "y": 1.08872
+                            "x": 7.71389,
+                            "y": 0.553632
                         },
                         {
                             "heading": 140,
                             "swrot": -40,
                             "swrotvel": 0,
-                            "x": 2.241613792505038,
-                            "y": 3.570371086395098
+                            "x": 2.756616597732824,
+                            "y": 2.9356259375631995
                         }
                     ],
                     "startvelocity": 0
@@ -67,8 +67,8 @@
                             "heading": -40.00000000000002,
                             "swrot": -40,
                             "swrotvel": 0,
-                            "x": 2.24161,
-                            "y": 3.57037
+                            "x": 2.75662,
+                            "y": 2.93563
                         },
                         {
                             "heading": 30,
@@ -99,8 +99,8 @@
                             "heading": 140,
                             "swrot": -40,
                             "swrotvel": 0,
-                            "x": 2.24161,
-                            "y": 3.57037
+                            "x": 2.75662,
+                            "y": 2.93563
                         }
                     ],
                     "startvelocity": 0
@@ -125,7 +125,7 @@
                             "swrot": 0,
                             "swrotvel": 0,
                             "x": 7.713885845246775,
-                            "y": 0.4266322408913352
+                            "y": 0.5536322408913351
                         }
                     ],
                     "startvelocity": 0
@@ -163,6 +163,6 @@
             ]
         }
     ],
-    "outdir": "C:/cygwin64/home/team1425/robots/allegro2024cmd/src/main/deploy/paths",
+    "outdir": "C:/cygwin64/home/butch/robots/allegro2024cmd/src/main/deploy/paths",
     "units": "m"
 }

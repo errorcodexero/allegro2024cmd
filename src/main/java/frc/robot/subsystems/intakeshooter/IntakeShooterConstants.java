@@ -272,6 +272,8 @@ public class IntakeShooterConstants {
         public static final double kEjectReverseTime = 1.0 ;
         public static final double kEjectVelocity = 75.0 ;
 
+        public static final double kShooterSpinUpDistance = 6.0 ;
+
         public static final double kAutoShootVelocityTol = 5.0 ;
 
         public static final double kTransferVelocity = 40.0 ;

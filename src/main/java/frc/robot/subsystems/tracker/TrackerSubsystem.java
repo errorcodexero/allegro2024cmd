@@ -163,7 +163,7 @@ public class TrackerSubsystem extends XeroSubsystem {
             // When do we say its ok to shoot just based on pose?
             //
             ready_distance_to_target_ = true; 
-            if (distance_to_target_ >= TrackerConstants.kMaximumShotDistance) {
+            if (distance_to_target_ >= TrackerConstants.kMaximumShotDistance && getRobot().isTeleop()) {
                 ready_distance_to_target_ = false;
             }
 

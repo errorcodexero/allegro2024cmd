@@ -697,7 +697,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         double tilt = tilt_pwl_.getValue(dist) ;
         double velocity = velocity_pwl_.getValue(dist) ;
 
-        if (dist > 5.0) {
+        if (dist > IntakeShooterConstants.Shooter.kShooterSpinUpDistance) {
             velocity = 0.0 ;
         }
 
