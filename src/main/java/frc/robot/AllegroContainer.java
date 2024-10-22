@@ -140,7 +140,7 @@ public class AllegroContainer extends XeroContainer {
         noteVisualizer_ = new NoteVisualizer("NoteVisualizer", visualizer_, () -> db_.getState().Pose);
 
         tramp_ = new TrampSubsystem(robot, notesupply, visualizer_, noteVisualizer_) ;        
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply, visulizer_, noteVisualizer_) ;
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply, visualizer_, noteVisualizer_) ;
 
         db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
                                                 TunerConstantsCompetition.FrontLeft, 
