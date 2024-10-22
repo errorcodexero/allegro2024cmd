@@ -71,6 +71,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         TransferringNote,
         TransferFinish1,
+        TransferFinish2,
 
         WaitingForTunedNoteShot1,
         WaitingForTunedNoteShot2,        
@@ -265,6 +266,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         return state_ == State.Idle ;
     }
 
+    public boolean isFinishTransfer2() {
+        return state_ == State.TransferFinish2 ;
+    }
+
     public boolean isTuning() {
         return state_ == State.Tuning ;
     }
@@ -272,6 +277,12 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public boolean isInTransferPosition() {
         return state_ == State.HoldingTransferPosition ;
     }    
+
+    public void stow() {
+        gotoPosition(State.Idle,
+                        IntakeShooterConstants.UpDown.Positions.kStowed, 
+                        IntakeShooterConstants.Tilt.Positions.kStowed) ;        
+    }
 
     public boolean isTiltReady() {
         boolean b =  
@@ -890,6 +901,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
     public void endNoteTransfer() {
         transfer_start_pos_ = inputs_.shooter1Position ;
+        has_note_ = false ;
         state_ = State.TransferFinish1 ;
     }
 
@@ -1028,9 +1040,10 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 if (inputs_.shooter1Position - transfer_start_pos_ > IntakeShooterConstants.Shooter.kTransferLength) {
                     io_.setShooter1MotorVoltage(0.0) ;
                     io_.setShooter2MotorVoltage(0.0);
-                    gotoPosition(State.Idle,
-                         IntakeShooterConstants.UpDown.Positions.kStowed, 
-                         IntakeShooterConstants.Tilt.Positions.kStowed) ;
+                    io_.setFeederMotorVoltage(0.0);
+                    gotoPosition(State.TransferFinish2,
+                         IntakeShooterConstants.UpDown.Positions.kFinishTransfer, 
+                         IntakeShooterConstants.Tilt.Positions.kFinishTransfer) ;
                 }
                 break ;
         }

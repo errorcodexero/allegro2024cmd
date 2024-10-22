@@ -70,7 +70,7 @@ public class TransferNoteCommand extends Command {
                 break ;
 
             case WaitForShooterIdle:
-                if (intake_shooter_.isIdle()) {
+                if (intake_shooter_.isFinishTransfer2()) {
                     tramp_.moveToDestinationPosition();
                     state_ = State.MoveTrampToDestination ;
                 }
@@ -78,6 +78,7 @@ public class TransferNoteCommand extends Command {
 
             case MoveTrampToDestination:
                 if (tramp_.isInAmpPosition() || tramp_.isInTrapPosition()) {
+                    intake_shooter_.stow() ;                    
                     state_ = State.Done ;
                 }
                 break ;
