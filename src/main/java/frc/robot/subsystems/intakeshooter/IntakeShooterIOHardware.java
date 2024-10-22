@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.units.Units ;
 
@@ -50,6 +51,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     private AtomicBoolean falling_seen_ ;
     private AtomicInteger shooter_position_ ;
     private MedianFilter abs_encoder_median_filter_filter_ ;
+    private LinearFilter tilt_velocity_filter_ ;
 
     private double updown_voltage_ ;
     private double tilt_voltage_ ;
@@ -82,8 +84,8 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
 
     public IntakeShooterIOHardware(XeroRobot robot) throws Exception {
 
-
         abs_encoder_median_filter_filter_ = new MedianFilter(3) ;
+        tilt_velocity_filter_ = LinearFilter.movingAverage(8) ;
 
         talon_motors_ = new HashMap<>() ;
 
@@ -145,6 +147,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
         inputs.tiltVelocity = tilt_velocity_signal_.refresh().getValueAsDouble() * IntakeShooterConstants.Tilt.kDegreesPerRev ;
         inputs.tiltCurrent = tilt_current_signal_.refresh().getValueAsDouble() ;
         inputs.tiltVoltage = tilt_voltage_signal_.refresh().getValueAsDouble() ;
+        inputs.tiltAverageVelocity = tilt_velocity_filter_.calculate(inputs.tiltVelocity) ;
 
         inputs.tiltAbsoluteEncoderPosition = getTiltAbsoluteEncoderPosition() ;
         inputs.tiltAbsoluteEncoderPositionMedian = abs_encoder_median_filter_filter_.calculate(inputs.tiltAbsoluteEncoderPosition) ;

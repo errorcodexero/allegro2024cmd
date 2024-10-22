@@ -20,6 +20,7 @@ public interface IntakeShooterIO {
         public double updownEncoder = 0.0 ;
         public double tiltPosition = 0.0;
         public double tiltVelocity = 0.0;
+        public double tiltAverageVelocity = 0.0 ;
         public double tiltCurrent = 0.0;
         public double tiltVoltage = 0.0 ;
         public double tiltEncoder = 0.0 ;

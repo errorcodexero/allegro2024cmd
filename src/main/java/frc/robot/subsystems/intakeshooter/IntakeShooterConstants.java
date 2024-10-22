@@ -129,6 +129,11 @@ public class IntakeShooterConstants {
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 5.0 ;
         public static final double kTargetVelTolerance = 5.0 ;
+        public static final double kTargetShootingPosToleranceFarDist = 4.5 ;
+        public static final double kTargetShootingPosToleranceNearDist = 1.0 ;
+        public static final double kTargetShootingPosToleranceNear = 5.0 ;
+        public static final double kTargetShootingPosToleranceFar = 1.0 ;        
+        public static final double kTargetShootingVelTolerance = 5.0 ;
         public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;

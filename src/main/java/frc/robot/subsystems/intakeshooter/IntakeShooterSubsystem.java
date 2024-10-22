@@ -287,16 +287,16 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public boolean isTiltReady() {
         boolean b =  
             Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
-            Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
+            Math.abs(inputs_.tiltAverageVelocity) < target_tilt_vel_ ;
 
         boolean absvel = true ;
 
-        // if (Math.abs(average_value_) > IntakeShooterConstants.Tilt.kMaxAbsoluteTiltVelocity) {
-        //     absvel = false ;
-        // }
-        // else {
-        //     absvel = true ;
-        // }
+        if (Math.abs(average_value_) > IntakeShooterConstants.Tilt.kMaxAbsoluteTiltVelocity) {
+            absvel = false ;
+        }
+        else {
+            absvel = true ;
+        }
         return b & absvel ;
     }
 
@@ -669,6 +669,27 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         io_.setTiltTargetPos(pos);        
     }
 
+    private double computeTiltTolerance(double dist) {
+        double ret ;
+        if (dist < IntakeShooterConstants.Tilt.kTargetShootingPosToleranceNearDist) {
+            ret = IntakeShooterConstants.Tilt.kTargetShootingPosToleranceNear ;
+        }
+        else if (dist > IntakeShooterConstants.Tilt.kTargetShootingPosToleranceFarDist) {
+            ret = IntakeShooterConstants.Tilt.kTargetShootingPosToleranceFar ;
+        }
+        else {
+            double distrange = IntakeShooterConstants.Tilt.kTargetShootingPosToleranceFarDist - 
+                                IntakeShooterConstants.Tilt.kTargetShootingPosToleranceNearDist ; 
+            double tolrange = IntakeShooterConstants.Tilt.kTargetShootingPosToleranceFar -
+                                IntakeShooterConstants.Tilt.kTargetShootingPosToleranceNear ;
+
+            double pcnt = (dist - IntakeShooterConstants.Tilt.kTargetShootingPosToleranceNearDist) / distrange ;
+            ret = IntakeShooterConstants.Tilt.kTargetShootingPosToleranceNear + pcnt * tolrange ;
+        }
+
+        return ret;
+    }
+
     private void trackTargetDistance() {
         double dist = distsupplier_.getAsDouble() ;
 
@@ -681,7 +702,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
 
         setUpDownTarget(updown, IntakeShooterConstants.UpDown.kTargetPosTolerance, IntakeShooterConstants.UpDown.kTargetVelTolerance) ;
-        setTiltTarget(tilt, IntakeShooterConstants.Tilt.kTargetPosTolerance, IntakeShooterConstants.Tilt.kTargetVelTolerance) ;
+        setTiltTarget(tilt, computeTiltTolerance(dist), IntakeShooterConstants.Tilt.kTargetShootingVelTolerance) ;
         setShooterVelocity(velocity, IntakeShooterConstants.Shooter.kAutoShootVelocityTol) ;
     }    
 
