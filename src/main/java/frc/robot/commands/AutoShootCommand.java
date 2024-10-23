@@ -28,25 +28,38 @@ public class AutoShootCommand extends Command {
 
     private SwerveRotateToAngle rotate_ ;
     private Command shoot_ ;
+    private boolean dorotate_ ;
 
     public AutoShootCommand(OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake) {
+        this(oi, tracker, db, intake, true) ;
+    }
+
+    public AutoShootCommand(OISubsystem oi, TrackerSubsystem tracker, CommandSwerveDrivetrain db, IntakeShooterSubsystem intake, boolean dorotate) {
         oi_ = oi ;
         tracker_ = tracker ;
 
         db_ = db ;
         intake_ = intake ;
         
+        dorotate_ = dorotate ;
         rotate_ = null ;      
         setName("shoot") ;
     }
 
     @Override
     public void initialize() {
-        rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
+        if (dorotate_) {
+            rotate_ = new SwerveRotateToAngle(db_, tracker_::angle)
                             .withPositionTolerance(rotatePositionTolerence())
                             .withVelocityTolerance(kShootVelocityTolerance) ;
-        shoot_ = null ;
-        CommandScheduler.getInstance().schedule(rotate_);
+            shoot_ = null ;
+            CommandScheduler.getInstance().schedule(rotate_);
+        }
+        else {
+            rotate_ = null ;
+            shoot_ = intake_.shootCommand() ;
+            CommandScheduler.getInstance().schedule(shoot_);
+        }
     }
 
     @Override

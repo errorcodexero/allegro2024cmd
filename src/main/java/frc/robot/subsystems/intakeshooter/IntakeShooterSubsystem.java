@@ -287,17 +287,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public boolean isTiltReady() {
         boolean b =  
             Math.abs(inputs_.tiltPosition - target_tilt_) < target_tilt_tol_ &&
-            Math.abs(inputs_.tiltAverageVelocity) < target_tilt_vel_ ;
+            Math.abs(inputs_.tiltVelocity) < target_tilt_vel_ ;
 
-        boolean absvel = true ;
-
-        if (Math.abs(average_value_) > IntakeShooterConstants.Tilt.kMaxAbsoluteTiltVelocity) {
-            absvel = false ;
-        }
-        else {
-            absvel = true ;
-        }
-        return b & absvel ;
+        return b  ;
     }
 
     public boolean isUpDownReady() {
@@ -984,6 +976,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
                 break ;
 
             case TransferringNote:
+                break ;
+
+            case TransferFinish2:
                 break ;
 
             case MoveTiltToPosition:
