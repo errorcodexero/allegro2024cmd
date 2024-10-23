@@ -57,6 +57,10 @@ public class DriveStraight extends XeroAutoCommand {
     }
 
     @Override
+    public void setAlliance(Alliance a) {
+    }
+
+    @Override
     public void initialize() {
         if (delay_ != null) {
             XeroPathSegment seg = path1_.getSegment(0, 0) ;

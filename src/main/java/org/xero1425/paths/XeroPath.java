@@ -34,6 +34,23 @@ public class XeroPath
         }
     }
 
+    public XeroPath(XeroPath other) {
+        name_ = other.getName() ;
+        data_ = new ArrayList<ArrayList<XeroPathSegment>>() ;
+        for(int i = 0 ; i < other.getTrajectorCount() ; i++)
+        {
+            ArrayList<XeroPathSegment> segs = new ArrayList<>() ;
+            for(int j = 0 ; j < other.getTrajectoryEntryCount() ; j++)
+            {
+                XeroPathSegment s = other.getSegment(i, j) ;
+                XeroPathSegment seg = new XeroPathSegment(s.getTime(), s.getX(), s.getY(), s.getPosition(), s.getVelocity(), 
+                                                          s.getAccel(), s.getJerk(), s.getHeading(), s.getCurvature(), s.getRotation()) ;
+                segs.add(seg) ;
+            }
+            data_.add(segs) ;
+        }
+    }
+
     /// \brief return the path type
     /// \returns the path type
     public int getTrajectorCount() {

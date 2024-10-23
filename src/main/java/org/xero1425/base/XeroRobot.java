@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -64,10 +66,13 @@ public abstract class XeroRobot extends LoggedRobot {
     private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
     private boolean auto_modes_created_ ;
+    private boolean chooser_populated_ ;
 
     private XboxController gamepad_ ;
     private double rumble_ ;
     private double stop_rumble_time_ ;
+
+    private Alliance alliance_ ;
 
     private HashMap<String, Double> periodic_times_ ;
 
@@ -83,6 +88,7 @@ public abstract class XeroRobot extends LoggedRobot {
         gamepad_port_ = gp ;
         oi_port_ = oi ;
         auto_modes_created_ = false ;
+        alliance_ = Alliance.Red ;
 
         robot_ = this ;
         automodes_ = new ArrayList<>() ;
@@ -182,30 +188,17 @@ public abstract class XeroRobot extends LoggedRobot {
         layout_ = layout ;
     }
 
+    private void updateAutoModeAlliance(Alliance a) {
+        for(XeroAutoCommand mode : automodes_) {
+            mode.setAlliance(a);
+        }
+    }
+
     protected void createAutoModes() {
-
-        if (!DriverStation.isJoystickConnected(gamepad_port_) && !DriverStation.isJoystickConnected(oi_port_) && !XeroRobot.isSimulation()) {
-            //
-            // Neither the game controller nor the OI are connected.  We assume that the robot has not connected
-            // yet with the driver station.  In a real event, this connection will mean we have an FMS connection
-            // as the FMS connects the two.  In the school, this means the driver station computer has not connected
-            // to the the robot WIFI AP yet, so we wait until we see a connection so we know what to do.
-            //
-            return ;
-        }
-
-        if (!auto_modes_created_) {
-            if (shouldBeCompetition() || !isTestMode()) {
-                createCompetitionAutoModes() ;
-            }
-            else {
-                createTestAutoModes() ;
-            }
-
-            auto_modes_created_ = true ;
-        }
-
-        autoModeChooser();
+        //
+        // Create auto modes, assume red alliance
+        //
+        createCompetitionAutoModes();
     }
 
     protected boolean shouldBeCompetition() {
@@ -321,7 +314,44 @@ public abstract class XeroRobot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        createAutoModes();
+        //
+        // Creates and empty automode chooser
+        //
+        if (chooser_ == null) {
+            createAutoModeChooser();
+        }
+
+        Optional<Alliance> alliance = DriverStation.getAlliance() ;
+        if (alliance.isPresent()) {
+            //
+            // Create the auto modes
+            //
+            if (automodes_.size() == 0) {
+                //
+                // This assumes red auto modes
+                //
+                createAutoModes() ;
+            }
+            
+            //
+            // If the value alliance_ defaults to red.  If the alliance
+            // has changed, update the auto modes to reflect the new alliance
+            // color.
+            //
+            if (alliance_ != alliance.get()) {
+                updateAutoModeAlliance(alliance.get());
+            }
+
+            alliance_ = alliance.get() ;
+
+            //
+            // Populate the auto mode chooser if necessary
+            //
+            if (automodes_.size() > 0 && !chooser_populated_) { 
+                populateAutoModeChooser();
+                chooser_populated_ = true ;
+            }
+        }
     }    
 
     protected void enableMessages() {
@@ -344,38 +374,27 @@ public abstract class XeroRobot extends LoggedRobot {
         desc_.setString(mode.getDescription()) ;
     }
 
-    private void autoModeChooser() {
-        if (XeroRobot.isSimulation()) {
-            String name = getSimulationAutoMode() ;
-            for (XeroAutoCommand cmd: automodes_) {
-                if (cmd.getName().equals(name)) {
-                    auto_mode_ = cmd ;
-                    break ;
-                }
+    private void populateAutoModeChooser() {
+        boolean defaultSet = false ;
+        for (XeroAutoCommand mode : automodes_) {
+            chooser_.addOption(mode.toString(), mode) ;
+            if (!defaultSet) {
+                auto_mode_ = mode ;
+                chooser_.setDefaultOption(mode.toString(), mode) ;
+                defaultSet = true ;
             }
-        } else {
-            if (chooser_ == null && automodes_.size() > 0) {
-                chooser_ = new SendableChooser<>();
-                chooser_.onChange((mode) -> autoModeChanged(mode)) ;
-                boolean defaultSet = false ;
-                for (XeroAutoCommand mode : automodes_) {
-                    chooser_.addOption(mode.toString(), mode) ;
-                    if (!defaultSet) {
-                        auto_mode_ = mode ;
-                        chooser_.setDefaultOption(mode.toString(), mode) ;
-                        defaultSet = true ;
-                    }
-                }
+        }
+    }
 
-                ShuffleboardTab tab = Shuffleboard.getTab("AutoMode") ;
-                chosen_ = tab.add("Auto Mode Selected", auto_mode_.toString()).withSize(2, 1).withPosition(3, 0).getEntry() ;
-                desc_ = tab.add("Auto Mode Description", auto_mode_.toString()).withSize(5, 2).withPosition(0, 1).getEntry() ;
-                tab.add("Auto Mode Selecter", chooser_).withSize(2,1).withWidget(BuiltInWidgets.kComboBoxChooser).withPosition(0, 0) ;
-            }
+    private void createAutoModeChooser() {
+        if (chooser_ == null) {
+            chooser_ = new SendableChooser<>();
+            chooser_.onChange((mode) -> autoModeChanged(mode)) ;
 
-            if (chooser_ != null) {
-                auto_mode_ = chooser_.getSelected() ;
-            }
+            ShuffleboardTab tab = Shuffleboard.getTab("AutoMode") ;
+            chosen_ = tab.add("Auto Mode Selected", auto_mode_.toString()).withSize(2, 1).withPosition(3, 0).getEntry() ;
+            desc_ = tab.add("Auto Mode Description", auto_mode_.toString()).withSize(5, 2).withPosition(0, 1).getEntry() ;
+            tab.add("Auto Mode Selecter", chooser_).withSize(2,1).withWidget(BuiltInWidgets.kComboBoxChooser).withPosition(0, 0) ;
         }
     }
 }
