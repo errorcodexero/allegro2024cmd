@@ -1,19 +1,14 @@
 package frc.robot.automodes.competition;
 
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.HolonomicPathFollower;
 import org.xero1425.base.XeroAutoCommand;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.paths.XeroPath;
-import org.xero1425.paths.XeroPathSegment;
 import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.AllegroContainer;
@@ -61,9 +56,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
     private HolonomicPathFollower collect3_ ;
     private HolonomicPathFollower shoot3_ ;
 
-    private Optional<Alliance> alliance_ ;
-
-    private final static String desc = "This auto mode starts on the side of the subwoofer and scores 2, collects the third" ;
+    private final static String desc = "This auto mode starts on the source side of the subwoofer and scores three notes" ;
 
     public ThreeNotePathsCommand(XeroRobot robot, AllegroContainer container) {
         super(robot, "three-note-paths", desc) ;
@@ -82,7 +75,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             collect2_red_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName + "Red") ;
             shoot2_red_path_ = new XeroPath(shoot2_blue_path_) ;
             collect3_red_path_ = new XeroPath(collect3_blue_path_) ;
-            shoot3_red_path_ = new XeroPath(shoot3_red_path_) ;
+            shoot3_red_path_ = new XeroPath(shoot3_blue_path_) ;
 
             double length = robot.getFieldLayout().getFieldLength() ;            
             collect2_red_path_.mirrorX(length) ;

@@ -145,7 +145,7 @@ public class HolonomicPathFollower {
         // The starting point along the generated path for the intermediate points, the current
         // robot pose is the first point
         int index = kPathTrajectoryIncrement ;
-        while (index < path.getTrajectoryEntryCount()) {
+        while (index < path.getTrajectoryEntryCount() - kPathTrajectoryIncrement) {
             seg = path.getSegment(0, index) ;
             immd.add(new Translation2d(seg.getX(), seg.getY())) ;
             index += kPathTrajectoryIncrement ;

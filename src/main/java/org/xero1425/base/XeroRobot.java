@@ -62,10 +62,9 @@ public abstract class XeroRobot extends LoggedRobot {
     private SendableChooser<XeroAutoCommand> chooser_ ;
     private GenericEntry chosen_ ;
     private GenericEntry desc_ ;
-    private int gamepad_port_ ;
-    private int oi_port_ ;
+    // private int gamepad_port_ ;
+    // private int oi_port_ ;
     private AprilTagFieldLayout layout_ ;
-    private boolean auto_modes_created_ ;
     private boolean chooser_populated_ ;
 
     private XboxController gamepad_ ;
@@ -85,9 +84,8 @@ public abstract class XeroRobot extends LoggedRobot {
 
         periodic_times_ = new HashMap<>() ;
 
-        gamepad_port_ = gp ;
-        oi_port_ = oi ;
-        auto_modes_created_ = false ;
+        // gamepad_port_ = gp ;
+        // oi_port_ = oi ;
         alliance_ = Alliance.Red ;
 
         robot_ = this ;
@@ -331,6 +329,7 @@ public abstract class XeroRobot extends LoggedRobot {
                 // This assumes red auto modes
                 //
                 createAutoModes() ;
+                updateAutoModeAlliance(alliance_) ;
             }
             
             //
@@ -382,6 +381,8 @@ public abstract class XeroRobot extends LoggedRobot {
                 auto_mode_ = mode ;
                 chooser_.setDefaultOption(mode.toString(), mode) ;
                 defaultSet = true ;
+
+                autoModeChanged(mode) ;
             }
         }
     }
@@ -392,8 +393,8 @@ public abstract class XeroRobot extends LoggedRobot {
             chooser_.onChange((mode) -> autoModeChanged(mode)) ;
 
             ShuffleboardTab tab = Shuffleboard.getTab("AutoMode") ;
-            chosen_ = tab.add("Auto Mode Selected", auto_mode_.toString()).withSize(2, 1).withPosition(3, 0).getEntry() ;
-            desc_ = tab.add("Auto Mode Description", auto_mode_.toString()).withSize(5, 2).withPosition(0, 1).getEntry() ;
+            chosen_ = tab.add("Auto Mode Selected", "").withSize(2, 1).withPosition(3, 0).getEntry() ;
+            desc_ = tab.add("Auto Mode Description", "").withSize(5, 2).withPosition(0, 1).getEntry() ;
             tab.add("Auto Mode Selecter", chooser_).withSize(2,1).withWidget(BuiltInWidgets.kComboBoxChooser).withPosition(0, 0) ;
         }
     }
