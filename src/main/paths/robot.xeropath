@@ -39,7 +39,7 @@
                     "name": "Shoot2",
                     "points": [
                         {
-                            "heading": -150,
+                            "heading": -160,
                             "swrot": 30,
                             "swrotvel": 0,
                             "x": 7.97524,
@@ -75,7 +75,7 @@
                             "swrot": -15,
                             "swrotvel": 0,
                             "x": 7.778869854121536,
-                            "y": 0.22797635585797948
+                            "y": 0.33
                         }
                     ],
                     "startvelocity": 0
@@ -128,7 +128,7 @@
                             "y": 1.1596407280576253
                         },
                         {
-                            "heading": 30,
+                            "heading": 20,
                             "swrot": 30,
                             "swrotvel": 0,
                             "x": 7.975242412277732,
@@ -170,6 +170,6 @@
             ]
         }
     ],
-    "outdir": "C:/cygwin64/home/butch/robots/allegro2024cmd/src/main/deploy/paths",
+    "outdir": "C:/cygwin64/home/mark_/team1425_repos/allegro2024cmd/src/main/deploy/paths",
     "units": "m"
 }
