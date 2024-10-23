@@ -18,8 +18,8 @@ public class ShootCommand extends Command {
     
     private final static double kShootPositionDistanceNear = 1.0 ;
     private final static double kShootPositionDistanceFar = 4.0 ;
-    private final static double kShootPositionToleranceAtFar = 3.0 ;
-    private final static double kShootPositionToleranceAtNear = 3.0 ;
+    private final static double kShootPositionToleranceAtFar = 1.0;
+    private final static double kShootPositionToleranceAtNear = 3.0;
     private final static double kShootVelocityTolerance = 5.0 ;
  
     private AllegroContainer container_ ;

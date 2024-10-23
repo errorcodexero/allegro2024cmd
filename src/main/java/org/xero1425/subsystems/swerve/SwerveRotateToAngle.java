@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class SwerveRotateToAngle extends Command {
 
-    private static final double kP = 16.0 ;
-    private static final double kI = 0.0 ;
+    private static final double kP = 14.0 ;
+    private static final double kI = 65.0 ;
     private static final double kD = 1.0 ;
     private static final double kMax = 180.0 ;
 

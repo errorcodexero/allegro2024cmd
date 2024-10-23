@@ -26,8 +26,8 @@ public class IntakeShooterConstants {
         public static final double kUpDownPosTolerance = 5.0 ;
         public static final double kUpDownVelTolerance = 5.0 ;
         public static final double kTiltPos = -64.0 ;
-        public static final double kTiltPosTolerance = 4.0 ;
-        public static final double kTiltVelTolerance = 5.0 ;
+        public static final double kTiltPosTolerance = 1.0 ;
+        public static final double kTiltVelTolerance = 1.0 ;
         public static final double kShooterVel = 75.0 ;
         public static final double kShooterVelTolerance = 5.0 ;
     }
@@ -129,11 +129,11 @@ public class IntakeShooterConstants {
         public static final double kCurrentLimit = 60.0 ;
         public static final double kTargetPosTolerance = 5.0 ;
         public static final double kTargetVelTolerance = 5.0 ;
-        public static final double kTargetShootingPosToleranceFarDist = 4.5 ;
+        public static final double kTargetShootingPosToleranceFarDist = 5.0 ;
         public static final double kTargetShootingPosToleranceNearDist = 1.0 ;
-        public static final double kTargetShootingPosToleranceNear = 5.0 ;
-        public static final double kTargetShootingPosToleranceFar = 1.0 ;        
-        public static final double kTargetShootingVelTolerance = 5.0 ;
+        public static final double kTargetShootingPosToleranceNear = 1.0 ;
+        public static final double kTargetShootingPosToleranceFar = 0.25 ;        
+        public static final double kTargetShootingVelTolerance = 1.0 ;
         public static final double kAllowedDeviationFromTrack = 100.0 ;
         public static final double kDegreesPerRev = 20 ;
         public static final double kMinPosition = -72.0 ;
@@ -187,7 +187,7 @@ public class IntakeShooterConstants {
         public class Real {
             public class MovementPIDSlot0 {
                 public static final double kP = 8.0 ;
-                public static final double kI = 0.0 ;
+                public static final double kI = 30.0 ;
                 public static final double kD = 0.30 ;
                 public static final double kV = 0.1 ;
                 public static final double kA = 0.0 ;
@@ -256,12 +256,12 @@ public class IntakeShooterConstants {
             2.319, -49.0,
             2.32, -67.0,
             2.62, -65.0,
-            2.93, -62.0,
-            3.23, -60.0,
-            3.5, -58.5,
-            3.9, -56.0,
-            4.2, -54.5,
-            4.5, -54.0
+            2.93, -64.0,
+            3.23, -61.5,
+            3.5, -59.5,
+            3.9, -58,
+            4.2, -57.5,
+            4.5, -57.
         } ;
     }
 
@@ -274,7 +274,7 @@ public class IntakeShooterConstants {
 
         public static final double kShooterSpinUpDistance = 6.0 ;
 
-        public static final double kAutoShootVelocityTol = 5.0 ;
+        public static final double kAutoShootVelocityTol = 1.0 ;
 
         public static final double kTransferVelocity = 40.0 ;
         public static final double kTransferVelocityTol = 10.0 ;

@@ -9,8 +9,8 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2,
-                    "maxvelocity": 4,
+                    "maxacceleration": 4,
+                    "maxvelocity": 4.3,
                     "name": "Collect2Blue",
                     "points": [
                         {
@@ -34,23 +34,23 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2.5,
-                    "maxvelocity": 4,
+                    "maxacceleration": 4,
+                    "maxvelocity": 4.3,
                     "name": "Shoot2",
                     "points": [
                         {
-                            "heading": 180,
-                            "swrot": 0,
+                            "heading": -150,
+                            "swrot": 30,
                             "swrotvel": 0,
-                            "x": 7.71389,
-                            "y": 0.553632
+                            "x": 7.97524,
+                            "y": 1.6326
                         },
                         {
                             "heading": 140,
                             "swrot": -40,
                             "swrotvel": 0,
-                            "x": 2.756616597732824,
-                            "y": 2.9356259375631995
+                            "x": 2.1160973418455673,
+                            "y": 3.4888016585567385
                         }
                     ],
                     "startvelocity": 0
@@ -59,23 +59,23 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2.5,
-                    "maxvelocity": 4,
+                    "maxacceleration": 4,
+                    "maxvelocity": 4.3,
                     "name": "Collect3",
                     "points": [
                         {
                             "heading": -40.00000000000002,
                             "swrot": -40,
                             "swrotvel": 0,
-                            "x": 2.75662,
-                            "y": 2.93563
+                            "x": 2.3199,
+                            "y": 3.285
                         },
                         {
-                            "heading": 30,
-                            "swrot": 30,
+                            "heading": -15,
+                            "swrot": -15,
                             "swrotvel": 0,
-                            "x": 7.869108754812837,
-                            "y": 2.3115941813566163
+                            "x": 7.778869854121536,
+                            "y": 0.22797635585797948
                         }
                     ],
                     "startvelocity": 0
@@ -84,23 +84,23 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2.5,
-                    "maxvelocity": 4,
+                    "maxacceleration": 4,
+                    "maxvelocity": 4.3,
                     "name": "Shoot3",
                     "points": [
                         {
-                            "heading": -150,
-                            "swrot": 30,
+                            "heading": 165,
+                            "swrot": -15,
                             "swrotvel": 0,
-                            "x": 7.71734,
-                            "y": 2.21042
+                            "x": 7.77887,
+                            "y": 0.227976
                         },
                         {
                             "heading": 140,
                             "swrot": -40,
                             "swrotvel": 0,
-                            "x": 2.75662,
-                            "y": 2.93563
+                            "x": 2.4217997139735763,
+                            "y": 3.022969472456916
                         }
                     ],
                     "startvelocity": 0
@@ -109,8 +109,8 @@
                     "constraints": [
                     ],
                     "endvelocity": 0,
-                    "maxacceleration": 2,
-                    "maxvelocity": 4,
+                    "maxacceleration": 4,
+                    "maxvelocity": 4.3,
                     "name": "Collect2Red",
                     "points": [
                         {
@@ -124,8 +124,15 @@
                             "heading": 0,
                             "swrot": 0,
                             "swrotvel": 0,
-                            "x": 7.713885845246775,
-                            "y": 0.5536322408913351
+                            "x": 4.008540597876097,
+                            "y": 1.1596407280576253
+                        },
+                        {
+                            "heading": 30,
+                            "swrot": 30,
+                            "swrotvel": 0,
+                            "x": 7.975242412277732,
+                            "y": 1.63260114671059
                         }
                     ],
                     "startvelocity": 0
