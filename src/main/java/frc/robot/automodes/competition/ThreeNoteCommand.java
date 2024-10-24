@@ -6,7 +6,6 @@ import org.xero1425.base.XeroRobot;
 import org.xero1425.math.Pose2dWithRotation;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.AllegroContainer;
 import frc.robot.commands.AutoShootCommand;
@@ -52,10 +51,6 @@ public class ThreeNoteCommand extends XeroAutoCommand {
 
         addRequirements(container.getDriveTrain());
     }
-
-    @Override
-    public void setAlliance(Alliance a) {
-    }    
 
     @Override
     public void initialize() {

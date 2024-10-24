@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public class ThreeNoteConstants extends AutoModeConstants {
     public static final double kLowManualTilt = 6.0 ;
     public static final double kLowManualTiltPosTol = 5.0 ;
-    public static final double kLowManualTiltVelTol = 5.0 ;
+    public static final double kLowManualTiltVelTol = 32.0 ;
     public static final double kLowManualUpDown = 35.0 ;
     public static final double kLowManualUpDownPosTol = 5.0 ;
     public static final double kLowManualUpDownVelTol = 5.0 ;

@@ -7,7 +7,6 @@ import org.xero1425.base.XeroTimer;
 import org.xero1425.math.Pose2dWithRotation;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.AllegroContainer;
 import frc.robot.commands.AutoShootCommand;
@@ -53,10 +52,6 @@ public class FourNoteQuickCommand extends XeroAutoCommand {
 
         collect_delay_timer_ = new XeroTimer("four-note-collect-delay", FourNoteDynamicConstants.kDelayForIntakeDownTime) ;
     }
-
-    @Override
-    public void setAlliance(Alliance a) {
-    }    
 
     @Override
     public void initialize() {

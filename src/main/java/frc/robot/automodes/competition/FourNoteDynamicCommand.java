@@ -7,7 +7,6 @@ import org.xero1425.base.XeroTimer;
 import org.xero1425.math.Pose2dWithRotation;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AllegroContainer;
 
 public class FourNoteDynamicCommand extends XeroAutoCommand {
@@ -71,10 +70,6 @@ public class FourNoteDynamicCommand extends XeroAutoCommand {
         start_delay_timer_.start() ;
         state_ = State.StartDelay ;
     }
-
-    @Override
-    public void setAlliance(Alliance a) {
-    }    
 
     @Override
     public void execute() {

@@ -1,14 +1,16 @@
 package frc.robot.automodes.competition;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
-import org.xero1425.base.HolonomicPathFollower;
 import org.xero1425.base.XeroAutoCommand;
 import org.xero1425.base.XeroRobot;
-import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.paths.XeroPath;
-import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
+import org.xero1425.paths.XeroPathSegment;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.AllegroContainer;
@@ -24,7 +26,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
         ShootingSecondNote,
         DriveToThirdNote,
         DriveToShootThird,
-        ShootingThirdNote,
+        ShootingThirdNote,        
         Error,
         Done
     } ;
@@ -41,25 +43,19 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
     private static final String kCollect3PathName = "Collect3" ;
     private static final String kShoot3PathName = "Shoot3" ;
 
-    private XeroPath collect2_blue_path_ ;
-    private XeroPath shoot2_blue_path_ ;
-    private XeroPath collect3_blue_path_ ;
-    private XeroPath shoot3_blue_path_ ;
-
     private XeroPath collect2_red_path_ ;
-    private XeroPath shoot2_red_path_ ;
-    private XeroPath collect3_red_path_ ;
-    private XeroPath shoot3_red_path_ ;
+    private XeroPath collect2_blue_path_ ;
+    private XeroPath shoot2_path_ ;
+    private XeroPath collect3_path_ ;
+    private XeroPath shoot3_path_ ;
 
-    private HolonomicPathFollower collect2_ ;
-    private HolonomicPathFollower shoot2_ ;
-    private HolonomicPathFollower collect3_ ;
-    private HolonomicPathFollower shoot3_ ;
+    private Optional<Alliance> alliance_ ;
 
-    private final static String desc = "This auto mode starts on the source side of the subwoofer and scores three notes" ;
-
+    private final static String desc = "This auto mode starts on the side of the subwoofer and scores 2, collects the third" ;
+     
     public ThreeNotePathsCommand(XeroRobot robot, AllegroContainer container) {
         super(robot, "three-note-paths", desc) ;
+
 
         container_ = container ;
         state_ = State.Start ;
@@ -67,22 +63,24 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
         addRequirements(container.getDriveTrain());
 
         try {
-            collect2_blue_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName + "Blue") ;            
-            shoot2_blue_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kShoot2PathName) ;
-            collect3_blue_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect3PathName) ;
-            shoot3_blue_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kShoot3PathName) ;
-
             collect2_red_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName + "Red") ;
-            shoot2_red_path_ = new XeroPath(shoot2_blue_path_) ;
-            collect3_red_path_ = new XeroPath(collect3_blue_path_) ;
-            shoot3_red_path_ = new XeroPath(shoot3_blue_path_) ;
+            collect2_blue_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect2PathName + "Blue") ;
+            shoot2_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kShoot2PathName) ;
+            collect3_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kCollect3PathName) ;
+            shoot3_path_ = getRobot().getPathManager().getPath(kAutoModeNamePathsFile + "-" + kShoot3PathName) ;
 
-            double length = robot.getFieldLayout().getFieldLength() ;            
-            collect2_red_path_.mirrorX(length) ;
-            shoot2_red_path_.mirrorX(length) ;
-            collect3_red_path_.mirrorX(length) ;
-            shoot3_red_path_.mirrorX(length) ;
+            Optional<Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isEmpty())
+                throw new Exception("Trying to initialize an automode before alliance is known") ;
 
+            if (alliance.get() == Alliance.Red) {
+                double length = robot.getFieldLayout().getFieldLength() ;
+                collect2_red_path_.mirrorX(length) ;
+                collect2_blue_path_.mirrorX(length) ;                
+                shoot2_path_.mirrorX(length) ;
+                collect3_path_.mirrorX(length) ;
+                shoot3_path_.mirrorX(length) ;
+            }
         }
         catch(Exception ex) {
             state_ = State.Error ;
@@ -90,27 +88,15 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
     }
 
     @Override
-    public void setAlliance(Alliance a) {
-        CommandSwerveDrivetrain db = container_.getDriveTrain() ;        
-
-        if (a == Alliance.Red) {
-            collect2_ = db.createFollower(collect2_red_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-            shoot2_ = db.createFollower(shoot2_red_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-            collect3_ = db.createFollower(collect3_red_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-            shoot3_ = db.createFollower(shoot3_red_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-        }
-        else {
-            collect2_ = db.createFollower(collect2_blue_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-            shoot2_ = db.createFollower(shoot2_blue_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-            collect3_ = db.createFollower(collect3_blue_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-            shoot3_ = db.createFollower(shoot3_blue_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
-        }
-    }
-
-    @Override
     public void initialize() {
         if (state_ == State.Error)
             return ;
+
+        alliance_ = DriverStation.getAlliance() ;
+        if (alliance_.isEmpty()) {
+            state_ = State.Error ;
+            return ;
+        }
 
         //
         // This is ugly and I would definitely design the intake differently knowing what I know now
@@ -120,13 +106,13 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
         //
         // Set the position of the robot
         //
-        Pose2dWithRotation start = collect2_.getStartPose() ;
-        Pose2d p = new Pose2d(start.getX(), start.getY(), start.getRobotRotation()) ;
-        container_.getDriveTrain().seedFieldRelative(p) ;
+        XeroPath path = (alliance_.get() == Alliance.Blue) ? collect2_blue_path_ : collect2_red_path_ ;        
+        XeroPathSegment seg = path.getSegment(0, 0) ;
+        container_.getDriveTrain().seedFieldRelative(new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getRotation()))) ;
 
         container_.getIntakeShooter().setHasNote(true) ;
         container_.getIntakeShooter().manualShoot(
-                ThreeNoteConstants.kLowManualUpDown, ThreeNoteConstants.kLowManualUpDownPosTol, ThreeNoteConstants.kLowManualUpDownVelTol,
+                ThreeNoteConstants.kLowManualUpDown, ThreeNoteConstants.kLowManualUpDownPosTol, ThreeNoteConstants.kLowManualUpDownVelTol, 
                 ThreeNoteConstants.kLowManualTilt, ThreeNoteConstants.kLowManualTiltPosTol, ThreeNoteConstants.kLowManualTiltVelTol,
                 ThreeNoteConstants.kLowManualShooter, ThreeNoteConstants.kLowManualShooterVelTol,
                 true, true) ;
@@ -139,11 +125,11 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
         switch(state_) {
             case Start:
-                break;
-
+                break; 
             case ShootFirstNote:
                 if (!container_.getIntakeShooter().hasNote()) {
-                    container_.getDriveTrain().setPathFollower(collect2_) ;
+                    XeroPath path = (alliance_.get() == Alliance.Blue) ? collect2_blue_path_ : collect2_red_path_ ;
+                    container_.getDriveTrain().drivePathWithTraj(path, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToSecondNote ;
                 }
                 break ;
@@ -153,7 +139,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
                     if (!container_.getIntakeShooter().hasNote()) {
                         container_.getIntakeShooter().turtle(true) ;
                     }
-                    container_.getDriveTrain().setPathFollower(shoot2_) ;
+                    container_.getDriveTrain().drivePathWithTraj(shoot2_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToShootSecond ;
                 }
                 break;
@@ -161,20 +147,20 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
             case DriveToShootSecond:
                 if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
-                        shoot_ = new AutoShootCommand(container_.getOI(), container_.getTracker(), container_.getDriveTrain(), container_.getIntakeShooter(), false) ;
+                        shoot_ = new AutoShootCommand(container_.getOI(), container_.getTracker(), container_.getDriveTrain(), container_.getIntakeShooter()) ;
                         CommandScheduler.getInstance().schedule(shoot_) ;
                         state_ = State.ShootingSecondNote ;
                     }
                     else {
-                        container_.getDriveTrain().setPathFollower(collect3_);
-                        state_ = State.DriveToThirdNote ;
+                        container_.getDriveTrain().drivePathWithTraj(collect3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
+                        state_ = State.DriveToThirdNote ;                        
                     }
                 }
                 break ;
 
             case ShootingSecondNote:
                 if (shoot_.isFinished()) {
-                    container_.getDriveTrain().setPathFollower(collect3_);
+                    container_.getDriveTrain().drivePathWithTraj(collect3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                     state_ = State.DriveToThirdNote ;
                 }
                 break ;
@@ -183,7 +169,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
                 container_.getIntakeShooter().collect() ;
                 if (!container_.getDriveTrain().isFollowingPath()) {
                     if (container_.getIntakeShooter().hasNote()) {
-                        container_.getDriveTrain().setPathFollower(shoot3_) ;
+                        container_.getDriveTrain().drivePathWithTraj(shoot3_path_, kMaxVelocity, kMaxAccel, 0.0, 1.0, 0.1) ;
                         state_ = State.DriveToShootThird ;
                     }
                     else {
@@ -195,7 +181,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
 
             case DriveToShootThird:
                 if (!container_.getDriveTrain().isFollowingPath()) {
-                    shoot_ = new AutoShootCommand(container_.getOI(), container_.getTracker(), container_.getDriveTrain(), container_.getIntakeShooter(), false) ;
+                    shoot_ = new AutoShootCommand(container_.getOI(), container_.getTracker(), container_.getDriveTrain(), container_.getIntakeShooter()) ;
                     CommandScheduler.getInstance().schedule(shoot_) ;
                     state_ = State.ShootingThirdNote ;
                 }
@@ -216,7 +202,7 @@ public class ThreeNotePathsCommand extends XeroAutoCommand {
         }
 
         Logger.recordOutput("states:auto-three-path", state_) ;
-    }
+    }    
 
     @Override
     public boolean isFinished() {

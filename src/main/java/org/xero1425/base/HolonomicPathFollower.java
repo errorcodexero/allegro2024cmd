@@ -25,8 +25,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 
 public class HolonomicPathFollower {
-    private static final int kPathTrajectoryIncrement = 25 ;
-
     public static class Config {
         public double max_rot_velocity ;
         public double max_rot_acceleration ;
@@ -67,7 +65,6 @@ public class HolonomicPathFollower {
     private boolean did_timeout_ ;
     private String path_name_ ;
 
-    private Pose2d[] imd_ ;
     private Translation2d last_pos_ ;
 
     public HolonomicPathFollower(Config cfg) {
@@ -85,14 +82,6 @@ public class HolonomicPathFollower {
         did_timeout_ = false ;
     }
 
-    public Trajectory getTrajectory() {
-        return traj_ ;
-    }
-
-    public Pose2dWithRotation getStartPose() {
-        return start_pose_ ;
-    }
-
     //
     // Returns the distance along the current path in meters
     //
@@ -107,12 +96,21 @@ public class HolonomicPathFollower {
         return Rotation2d.fromRadians(angle) ;
     }
 
-    public void init(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
+    public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double pose_rot_time, double to) {
         path_name_ = pathname ;
-        imd_ = imd ;
 
+        Pose2d st = pose_.get() ;
+        Rotation2d heading ;
+        if (imd != null && imd.length > 0) {
+            heading = getInitialHeading(imd[0].getTranslation());
+        } else {
+            heading = getInitialHeading(dest.getTranslation()) ;
+        }
+        start_pose_ = new Pose2dWithRotation(st.getTranslation(), heading, st.getRotation()) ;
+        start_time_ = Timer.getFPGATimestamp() ;
         end_pose_ = dest ;
         timeout_ = to ;
+        distance_ = 0.0 ;
 
         rot_pre_ = pre_rot_time ;
         rot_post_ = pose_rot_time ;
@@ -126,68 +124,29 @@ public class HolonomicPathFollower {
         }
         pts.add(dest) ;
         traj_ = TrajectoryGenerator.generateTrajectory(pts, config);
-    }
-
-    public void init(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
-        XeroPathSegment seg ;
-
-        seg = path.getSegment(0, 0) ;        
-        start_pose_ = new Pose2dWithRotation(seg.getX(), seg.getY(),
-                                        Rotation2d.fromDegrees(seg.getHeading()), Rotation2d.fromDegrees(seg.getRotation())) ;
-        
-        seg = path.getSegment(0, path.getTrajectoryEntryCount() - 1) ;
-        end_pose_ = new Pose2dWithRotation(seg.getX(), seg.getY(),
-                                        Rotation2d.fromDegrees(seg.getHeading()), Rotation2d.fromDegrees(seg.getRotation())) ;
-
-        // The number of points in the intermediate points array
-        List<Translation2d> immd = new ArrayList<>() ;
-
-        // The starting point along the generated path for the intermediate points, the current
-        // robot pose is the first point
-        int index = kPathTrajectoryIncrement ;
-        while (index < path.getTrajectoryEntryCount() - kPathTrajectoryIncrement) {
-            seg = path.getSegment(0, index) ;
-            immd.add(new Translation2d(seg.getX(), seg.getY())) ;
-            index += kPathTrajectoryIncrement ;
-        }
-
-        path_name_ = path.getName() ;
-        imd_ = null ;
-
-        timeout_ = to ;
-
-        rot_pre_ = pre_rot_time ;
-        rot_post_ = post_rot_time ;
-
-        TrajectoryConfig config = new TrajectoryConfig(maxv, maxa) ;
-        traj_ = TrajectoryGenerator.generateTrajectory(start_pose_, immd, end_pose_, config);
-    }
-
-    public void startPath() {
-        distance_ = 0.0 ;
-
-        Pose2d st = pose_.get() ;
-        Rotation2d heading ;
-        if (imd_ != null && imd_.length > 0) {
-            heading = getInitialHeading(imd_[0].getTranslation());
-        } else {
-            heading = getInitialHeading(end_pose_.getTranslation()) ;
-        }
-        start_pose_ = new Pose2dWithRotation(st.getTranslation(), heading, st.getRotation()) ;
-        start_time_ = Timer.getFPGATimestamp() ;
 
         driving_ = true ;
-        last_pos_ = start_pose_.getTranslation() ;        
-    }
-
-    public void driveTo(String pathname, Pose2d[] imd, Pose2dWithRotation dest, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
-        init(pathname, imd, dest, maxv, maxa, pre_rot_time, post_rot_time, to) ;
-        startPath();
+        last_pos_ = start_pose_.getTranslation() ;
     }
 
     public void drivePathWithTraj(XeroPath path, double maxv, double maxa, double pre_rot_time, double post_rot_time, double to) {
-        init(path, maxv, maxa, pre_rot_time, post_rot_time, to) ;
-        startPath() ;
+        XeroPathSegment seg = path.getSegment(0, path.getTrajectoryEntryCount() - 1) ;
+        Pose2dWithRotation dest = new Pose2dWithRotation(seg.getX(), seg.getY(),
+                                        Rotation2d.fromDegrees(seg.getHeading()), Rotation2d.fromDegrees(seg.getRotation())) ;
+
+        // The number of points in the intermediate points array
+        List<Pose2d> immd = new ArrayList<>() ;
+
+        // The starting point along the generated path for the intermediate points, the current
+        // robot pose is the first point
+        int index = 5 ;
+        while (index < path.getTrajectoryEntryCount()) {
+            seg = path.getSegment(0, index) ;
+            immd.add(new Pose2d(seg.getX(), seg.getY(), Rotation2d.fromDegrees(seg.getHeading()))) ;
+            index += 5 ;
+        }
+
+        driveTo(path.getName(), immd.toArray(new Pose2d[0]), dest, maxv, maxa, pre_rot_time, post_rot_time, to) ;
     }
 
     public boolean didTimeout() {

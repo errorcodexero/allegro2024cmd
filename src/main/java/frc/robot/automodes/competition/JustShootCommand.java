@@ -2,8 +2,6 @@ package frc.robot.automodes.competition;
 
 import org.xero1425.base.XeroAutoCommand;
 import org.xero1425.base.XeroRobot;
-
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.AllegroContainer;
 
 public class JustShootCommand extends XeroAutoCommand {
@@ -19,10 +17,6 @@ public class JustShootCommand extends XeroAutoCommand {
         container_ = container ;
         addRequirements(container.getDriveTrain());
     }
-
-    @Override
-    public void setAlliance(Alliance a) {
-    }    
 
     @Override
     public void initialize() {

@@ -1,9 +1,8 @@
 package org.xero1425.base;
 
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public abstract class XeroAutoCommand extends Command {
+public class XeroAutoCommand extends Command {
 
     private XeroRobot robot_;
     private String name_;
@@ -36,6 +35,4 @@ public abstract class XeroAutoCommand extends Command {
     @Override
     public void execute() {
     }
-
-    public abstract void setAlliance(Alliance a) ;
 }
