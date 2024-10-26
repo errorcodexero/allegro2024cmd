@@ -934,9 +934,17 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
         }
 
         double tiltdiff = Math.abs(inputs_.tiltAbsoluteEncoderPosition - motortilt) ;
-        if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
+        
+        if (Math.abs(average_value_) < IntakeShooterConstants.Tilt.Resync.kVelThreshold &&
+            encoders_synced_ && tiltdiff > IntakeShooterConstants.Tilt.Resync.kPosDiffThresholdUnconditional) { 
+            if (!XeroRobot.isSimulation()) {
+                syncTiltEncoders(false) ;
+                synced = true ;
+            }
+        }
+        else if (inputs_.tiltAbsoluteEncoderPositionMedian < IntakeShooterConstants.Tilt.Resync.kPosThreshold &&
             Math.abs(average_value_) < IntakeShooterConstants.Tilt.Resync.kVelThreshold && state_ == State.Idle &&
-            encoders_synced_ && tiltdiff > IntakeShooterConstants.Tilt.Resync.kPosDiffThreshold) { 
+            encoders_synced_ && tiltdiff > IntakeShooterConstants.Tilt.Resync.kPosDiffThresholdIdle) { 
             if (!XeroRobot.isSimulation()) {
                 syncTiltEncoders(false) ;
                 synced = true ;

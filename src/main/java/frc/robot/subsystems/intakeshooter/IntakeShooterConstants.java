@@ -167,8 +167,11 @@ public class IntakeShooterConstants {
             // The absolute encoder tilt value and the motor tilt value, which were synced to be
             // equal when the robot was enabled, must be different by this value or more for the
             // resync to be applied.
+            // Two thresholds. One that applies in any state (large), and another specific to the stowed state (smaller).
             //
-            public static final double kPosDiffThreshold = 10.0 ;
+            public static final double kPosDiffThresholdIdle = 5.0 ;
+            public static final double kPosDiffThresholdUnconditional = 11.0 ;
+
         }
 
         public class Positions {
