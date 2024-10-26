@@ -88,8 +88,8 @@ public class TrampConstants {
             public static final double kTransfer = 0.0 ;
             public static final double kAmp = 230.0 ;
             public static final double kTrapBeforeClimb = 180 ;
-            public static final double kTrapAfterClimb1 = 139 ;
-            public static final double kTrapAfterClimb2 = 139 ;
+            public static final double kTrapAfterClimb1 = 143 ;
+            public static final double kTrapAfterClimb2 = 143 ;
             public static final double kTrapAfterDeposit1 = 149.6 ;
             public static final double kTrapAfterDeposit2 = 225 ;  
             public static final double kBasicClimb = 180.0 ;          
