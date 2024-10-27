@@ -36,7 +36,7 @@ import frc.robot.subsystems.oi.OISubsystem.OILed;
  * project.
  */
 public class AllegroRobot extends XeroRobot {
-    private static final boolean kLogToNetworkTables = true ;
+    private static final boolean kLogToNetworkTables = false ;
 
     private AllegroContainer container_;
 
