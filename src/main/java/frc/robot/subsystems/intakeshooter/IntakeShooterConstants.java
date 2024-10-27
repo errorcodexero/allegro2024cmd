@@ -169,7 +169,7 @@ public class IntakeShooterConstants {
             // resync to be applied.
             // Two thresholds. One that applies in any state (large), and another specific to the stowed state (smaller).
             //
-            public static final double kPosDiffThresholdIdle = 5.0 ;
+            public static final double kPosDiffThresholdIdle = 4.0 ;
             public static final double kPosDiffThresholdUnconditional = 11.0 ;
 
         }
