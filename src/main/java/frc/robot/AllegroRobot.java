@@ -16,10 +16,6 @@ import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.automodes.competition.DriveStraight;
-import frc.robot.automodes.competition.FourNoteDynamicCommand;
-import frc.robot.automodes.competition.FourNoteQuickCommand;
-import frc.robot.automodes.competition.JustShootCommand;
-import frc.robot.automodes.competition.ThreeNotePathsCommand;
 import frc.robot.commands.trapcmds.AutoTrapBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
@@ -88,12 +84,6 @@ public class AllegroRobot extends XeroRobot {
     @Override
     public void createCompetitionAutoModes() {
         if (container_ != null && container_.getDriveTrain() != null) {
-            addAutoMode(new FourNoteDynamicCommand(this, container_, 0.0));
-            addAutoMode(new FourNoteDynamicCommand(this, container_, 1.0));
-            addAutoMode(new FourNoteQuickCommand(this, container_, true)) ;
-            addAutoMode(new FourNoteQuickCommand(this, container_, false)) ;            
-            addAutoMode(new ThreeNotePathsCommand(this, container_)) ;
-            addAutoMode(new JustShootCommand(this, container_)) ;
             addAutoMode(new DriveStraight(this, container_)) ;
         }
     }
@@ -104,9 +94,9 @@ public class AllegroRobot extends XeroRobot {
 
     @Override
     public void enableMessages() {
-        MessageLogger.getTheMessageLogger().enableSubsystem(container_.getIntakeShooter().getName()) ;
-        MessageLogger.getTheMessageLogger().enableSubsystem(container_.getDriveTrain().getName()) ;
-        MessageLogger.getTheMessageLogger().enableSubsystem(container_.getTramp().getName()) ;
+        // MessageLogger.getTheMessageLogger().enableSubsystem(container_.getIntakeShooter().getName()) ;
+        // MessageLogger.getTheMessageLogger().enableSubsystem(container_.getDriveTrain().getName()) ;
+        // MessageLogger.getTheMessageLogger().enableSubsystem(container_.getTramp().getName()) ;
     }      
 
     /**
@@ -171,12 +161,12 @@ public class AllegroRobot extends XeroRobot {
             Logger.recordOutput("oi:rumble", getRumble());
         }
 
-        if (container_ != null && container_.getTramp() != null && container_.getTramp().isInTrapPosition()) {
-            container_.getOI().setLEDState(OILed.ClimbUpExecEnabled, LEDState.On);
-            AutoTrapBase.setLEDs(container_.limelight_name_, getFieldLayout(), container_.getDriveTrain(), container_.getOI());
-        }
-        else {
-            container_.getOI().setLEDState(OILed.ClimbUpExecEnabled, LEDState.Off);            
-        }
+        // if (container_ != null && container_.getTramp() != null && container_.getTramp().isInTrapPosition()) {
+        //     container_.getOI().setLEDState(OILed.ClimbUpExecEnabled, LEDState.On);
+        //     AutoTrapBase.setLEDs(container_.limelight_name_, getFieldLayout(), container_.getDriveTrain(), container_.getOI());
+        // }
+        // else {
+        //     container_.getOI().setLEDState(OILed.ClimbUpExecEnabled, LEDState.Off);            
+        // }
     }
 }

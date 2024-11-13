@@ -10,8 +10,8 @@ import frc.robot.AllegroContainer;
 public class DriveStraight extends XeroAutoCommand {
     
     private final static String desc = "This auto mode drives straight after a 10 second delay" ;
-    private final static double maxv = 0.75;
-    private final static double maxa = 0.25 ;
+    private final static double maxv = 3.0 ;
+    private final static double maxa = 2.5 ;
 
     private AllegroContainer container_ ;
     private boolean done_ ;

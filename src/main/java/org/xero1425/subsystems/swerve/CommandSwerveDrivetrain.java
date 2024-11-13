@@ -36,7 +36,6 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -58,7 +57,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private static final int kDisplayEncoderValues = (1 << 3) ;
     private static final int kRecordModulePositions = (1 << 4) ;
     private static final int kRecordModuleTargets = (1 << 5) ;
-    private int kDumpOutputSelected = kRecordModuleStates ;
+    
+    private int kDumpOutputSelected = kRecordModuleStates | kDisplayEncoderValues ;
     // private int kDumpOutputSelected =   kRecordModuleStates | 
     //                                     kDisplayAcquisition | 
     //                                     kDisplayEncoderValues | 

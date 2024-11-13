@@ -70,7 +70,7 @@ public class TunerConstantsCompetition {
     // private static final double kDriveGearRatio = 6.33053221288515 ;
 
     private static final double kSteerGearRatio = 21.428571428571427;
-    private static final double kWheelRadiusInches = 2;
+    private static final double kWheelRadiusInches = 3.797 / 2.0;
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;

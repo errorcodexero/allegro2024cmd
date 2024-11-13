@@ -340,8 +340,10 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     private void autoModeChanged(XeroAutoCommand mode) {
-        chosen_.setString(mode.toString()) ;
-        desc_.setString(mode.getDescription()) ;
+        if (mode != null) {
+            chosen_.setString(mode.toString()) ;
+            desc_.setString(mode.getDescription()) ;
+        }
     }
 
     private void autoModeChooser() {
