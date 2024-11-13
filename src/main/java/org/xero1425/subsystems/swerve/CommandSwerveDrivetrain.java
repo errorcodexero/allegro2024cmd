@@ -330,16 +330,16 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         }
 
         if ((kDumpOutputSelected & kDisplayRobotPose) == kDisplayRobotPose) {        
-            SmartDashboard.putNumber("db-x", getState().Pose.getX()) ;
-            SmartDashboard.putNumber("db-y", getState().Pose.getY()) ;
-            SmartDashboard.putNumber("db-a", getState().Pose.getRotation().getDegrees()) ;  
+            Logger.recordOutput("db-x", getState().Pose.getX()) ;
+            Logger.recordOutput("db-y", getState().Pose.getY()) ;
+            Logger.recordOutput("db-a", getState().Pose.getRotation().getDegrees()) ;  
         }
 
         if ((kDumpOutputSelected & kDisplayEncoderValues) == kDisplayEncoderValues) {
-            SmartDashboard.putNumber("fl-enc", this.Modules[0].getDriveMotor().getPosition().getValueAsDouble()) ;
-            SmartDashboard.putNumber("fr-enc", this.Modules[1].getDriveMotor().getPosition().getValueAsDouble()) ;
-            SmartDashboard.putNumber("bl-enc", this.Modules[2].getDriveMotor().getPosition().getValueAsDouble()) ;
-            SmartDashboard.putNumber("br-enc", this.Modules[3].getDriveMotor().getPosition().getValueAsDouble()) ;            
+            Logger.recordOutput("fl-enc", this.Modules[0].getDriveMotor().getPosition().getValueAsDouble()) ;
+            Logger.recordOutput("fr-enc", this.Modules[1].getDriveMotor().getPosition().getValueAsDouble()) ;
+            Logger.recordOutput("bl-enc", this.Modules[2].getDriveMotor().getPosition().getValueAsDouble()) ;
+            Logger.recordOutput("br-enc", this.Modules[3].getDriveMotor().getPosition().getValueAsDouble()) ;            
         }
 
         if ((kDumpOutputSelected & kRecordModulePositions) == kRecordModulePositions) {
