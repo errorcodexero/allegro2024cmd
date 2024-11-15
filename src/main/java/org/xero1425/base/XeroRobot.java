@@ -131,6 +131,9 @@ public abstract class XeroRobot extends LoggedRobot {
     }
 
     public ISubsystemSim getSubsystemByName(String name) {
+        for(String key : subsystems_.keySet()) {
+            System.out.println("Subsystem " + key) ;
+        }
         return subsystems_.get(name) ;
     }
 

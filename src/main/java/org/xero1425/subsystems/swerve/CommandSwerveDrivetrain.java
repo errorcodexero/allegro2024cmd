@@ -295,8 +295,13 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     public void stopPath() {
+        this.stopPath(true) ;
+    }
 
-        setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds())) ;
+    public void stopPath(boolean stopdb) {
+        if (stopdb) {
+            setControl(new ApplyChassisSpeeds().withSpeeds(new ChassisSpeeds())) ;
+        }
         follower_ = null ;
     }
 
@@ -377,6 +382,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         cfg.rot_tolerance = Rotation2d.fromDegrees(RobotConstants.PathFollowing.kAngleTolerance) ;
 
         cfg.pose_supplier = () -> getState().Pose ;
+
+        // This consumer takes robot relative velocities
         cfg.output_consumer = (ChassisSpeeds spd) -> { setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ; } ;
 
         return cfg ;

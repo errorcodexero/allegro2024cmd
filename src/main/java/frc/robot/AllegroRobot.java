@@ -16,11 +16,8 @@ import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.automodes.competition.DriveStraight;
-import frc.robot.commands.trapcmds.AutoTrapBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
-import frc.robot.subsystems.oi.OISubsystem.LEDState;
-import frc.robot.subsystems.oi.OISubsystem.OILed;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -54,7 +51,7 @@ public class AllegroRobot extends XeroRobot {
         if (ret != null)
             return ret;
 
-        return "amp";
+        return "init";
     }
 
     @Override

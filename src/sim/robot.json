@@ -35,12 +35,12 @@
                 "note-sensor" : 1                
             }
         },
-        {
-            "model" : "tramp",
-            "instance" : "1",
-            "props" : {
-            }
-        },        
+        // {
+        //     "model" : "tramp",
+        //     "instance" : "1",
+        //     "props" : {
+        //     }
+        // },        
         {
             "model" : "allegro-oi",
             "instance" : "1",
