@@ -30,13 +30,24 @@ public class DriveStraight extends XeroAutoCommand {
         container_.getDriveTrain().seedFieldRelative(new Pose2d()) ;
 
         // Drive straight
-        // Pose2dWithRotation dest = new Pose2dWithRotation(3.89, 0.0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
+        //Pose2dWithRotation dest = new Pose2dWithRotation(3.89, 0.0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
 
         // Drive straight with rotation
         // Pose2dWithRotation dest = new Pose2dWithRotation(3.89, 0.0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(180)) ;
 
         // Drive curve
-        Pose2dWithRotation dest = new Pose2dWithRotation(3.89, -4.04, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
+
+        //Pose2dWithRotation dest = new Pose2dWithRotation(3.89, -4.04, Rotation2d.fromDegrees(-45), Rotation2d.fromDegrees(0)) ;
+
+        // Drive staight along Y axis
+        //Pose2dWithRotation dest = new Pose2dWithRotation(0, -4.04, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(0)) ;
+
+        // Drive along Y axis, oriented along Y axis
+        //Pose2dWithRotation dest = new Pose2dWithRotation(4.04, 0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
+        // Same as above but traveling from robot back on inside to robot front inside
+        Pose2dWithRotation dest = new Pose2dWithRotation(3.186, 0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
+
+
 
         // Drive
         container_.getDriveTrain().driveTo("test", null, dest, maxv, maxa, 0.0, 0.0, 5.0) ;
