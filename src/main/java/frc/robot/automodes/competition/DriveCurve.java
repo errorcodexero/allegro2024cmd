@@ -4,11 +4,10 @@ import org.xero1425.base.XeroAutoCommand;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.math.Pose2dWithRotation;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.AllegroContainer;
 
-public class DriveStraight extends XeroAutoCommand {
+public class DriveCurve extends XeroAutoCommand {
     
     private final static String desc = "This auto mode drives straight after a 10 second delay" ;
     private final static double maxv = 1.0 ;
@@ -16,9 +15,14 @@ public class DriveStraight extends XeroAutoCommand {
 
     private AllegroContainer container_ ;
     private boolean done_ ;
+
+    private Pose2dWithRotation path[] = {
+        new Pose2dWithRotation(0.6, 3.5, Rotation2d.fromDegrees(0.0), Rotation2d.fromDegrees(0.0)),
+        new Pose2dWithRotation(7.75, 1.25, Rotation2d.fromDegrees(0.0), Rotation2d.fromDegrees(0.0)),
+    } ;
     
-    public DriveStraight(XeroRobot robot, AllegroContainer container) {
-        super(robot, "drive-straight", desc) ;
+    public DriveCurve(XeroRobot robot, AllegroContainer container) {
+        super(robot, "drive-curve", desc) ;
 
         container_ = container ;
         addRequirements(container.getDriveTrain());
@@ -27,19 +31,8 @@ public class DriveStraight extends XeroAutoCommand {
     @Override
     public void initialize() {
         done_ = false ;
-        container_.getDriveTrain().seedFieldRelative(new Pose2d()) ;
-
-        // Drive straight
-        // Pose2dWithRotation dest = new Pose2dWithRotation(3.89, 0.0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
-
-        // Drive straight with rotation
-        // Pose2dWithRotation dest = new Pose2dWithRotation(3.89, 0.0, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(180)) ;
-
-        // Drive curve
-        Pose2dWithRotation dest = new Pose2dWithRotation(3.89, -4.04, Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)) ;
-
-        // Drive
-        container_.getDriveTrain().driveTo("test", null, dest, maxv, maxa, 0.0, 0.0, 5.0) ;
+        container_.getDriveTrain().seedFieldRelative(path[0]) ;
+        container_.getDriveTrain().driveTo("test", null, path[1], maxv, maxa, 0.0, 0.0, 5.0) ;
     }
 
     @Override

@@ -320,6 +320,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     }
 
     private void dumpOutput() {
+
+        Logger.recordOutput("db-xspeed", getState().speeds.vxMetersPerSecond) ;
+        Logger.recordOutput("db-yspeed", getState().speeds.vxMetersPerSecond) ;
+        Logger.recordOutput("db-aspeed", getState().speeds.omegaRadiansPerSecond) ;
+
         if ((kDumpOutputSelected & kRecordModuleStates) == kRecordModuleStates) {
             var states = m_cachedState.ModuleStates ;
             Logger.recordOutput("swerve:states", states) ;
