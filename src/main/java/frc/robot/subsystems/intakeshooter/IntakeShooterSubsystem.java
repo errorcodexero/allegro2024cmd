@@ -1,5 +1,12 @@
 package frc.robot.subsystems.intakeshooter ;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import java.util.Map;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.base.XeroSubsystem;
 import org.xero1425.base.XeroTimer;
@@ -7,12 +14,6 @@ import org.xero1425.math.PieceWiseLinear;
 import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-
-import java.util.Map;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.Measure;
@@ -32,6 +33,8 @@ import frc.robot.ShotType;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.oi.OISubsystem.LEDState;
 import frc.robot.subsystems.oi.OISubsystem.OILed;
+import frc.robot.util.ComponentVisualizer;
+import frc.robot.util.NoteVisualizer;
 
 public class IntakeShooterSubsystem extends XeroSubsystem {
 
@@ -81,6 +84,9 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #region private member variables
     private IntakeShooterIO io_ ;
     private IntakeShooterIOInputsAutoLogged inputs_ ;
+
+    private ComponentVisualizer visualizer_;
+    private NoteVisualizer noteVisualizer_;
 
     private double target_tilt_ ;
     private double target_tilt_tol_ ;
@@ -135,7 +141,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     // #endregion
 
     // #region constructor
-    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype) throws Exception {
+    public IntakeShooterSubsystem(XeroRobot robot, DoubleSupplier distsupplier, Supplier<NoteDestination> destsupplier, Supplier<ShotType> shottype, ComponentVisualizer visualizer, NoteVisualizer noteVisualizer) throws Exception {
         super(robot, NAME) ;
 
         io_ = new IntakeShooterIOHardware(robot) ;
@@ -175,6 +181,8 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
 
         encoders_synced_ = false ;
 
+        visualizer_ = visualizer;
+        noteVisualizer_ = noteVisualizer;
     }
     // #endregion
 
@@ -1092,6 +1100,13 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             oi.setLEDState(OILed.ShooterReady, isShooterReady() ? LEDState.On : LEDState.Off) ;
             oi.setLEDState(OILed.TiltReady, isTiltReady() ? LEDState.On : LEDState.Off) ;
         }
+
+        visualizer_.updateIntakeShooter(
+            Degrees.of(-inputs_.updownPosition),
+            Degrees.of(-inputs_.tiltAbsoluteEncoderPosition)
+        );
+
+        noteVisualizer_.updateIntake(has_note_);
 
         if (getVerbose()) {
             Logger.recordOutput("intake:state", ststr);

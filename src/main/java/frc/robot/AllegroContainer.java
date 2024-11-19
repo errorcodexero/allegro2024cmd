@@ -38,6 +38,8 @@ import frc.robot.subsystems.oi.OIConstants;
 import frc.robot.subsystems.oi.OISubsystem;
 import frc.robot.subsystems.tracker.TrackerSubsystem;
 import frc.robot.subsystems.tramp.TrampSubsystem;
+import frc.robot.util.ComponentVisualizer;
+import frc.robot.util.NoteVisualizer;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -91,6 +93,10 @@ public class AllegroContainer extends XeroContainer {
 
     final private double SlowFactor = 0.1 ;
 
+    private final ComponentVisualizer visualizer_;
+
+    private final NoteVisualizer noteVisualizer_;
+    
     // #endregion
 
     // #region constructor
@@ -128,8 +134,13 @@ public class AllegroContainer extends XeroContainer {
             oi_ = null ;
         }
 
-        tramp_ = new TrampSubsystem(robot, notesupply) ;        
-        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
+
+        visualizer_ = new ComponentVisualizer("Component3d");
+
+        noteVisualizer_ = new NoteVisualizer("NoteVisualizer", visualizer_, () -> db_.getState().Pose);
+
+        tramp_ = new TrampSubsystem(robot, notesupply, visualizer_, noteVisualizer_) ;        
+        intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply, visualizer_, noteVisualizer_) ;
 
         db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
                                                 TunerConstantsCompetition.FrontLeft, 
@@ -137,11 +148,11 @@ public class AllegroContainer extends XeroContainer {
                                                 TunerConstantsCompetition.BackLeft, 
                                                 TunerConstantsCompetition.BackRight);        
 
+
         tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         if (db_ != null) {
             db_.setLimelightName(limelight_name_);
         }        
-
 
         //
         // Create OI devices
