@@ -14,9 +14,8 @@ public class DrivePathDetectNote extends XeroAutoCommand {
     private DrivePathDetectNoteCmd cmd_ ;
 
     private Pose2dWithRotation path[] = {
-        new Pose2dWithRotation(0.75, 4.44, Rotation2d.fromDegrees(-60.0), Rotation2d.fromDegrees(-60.0)),
-        new Pose2dWithRotation(4.0, 1.15, Rotation2d.fromDegrees(0.0), Rotation2d.fromDegrees(0.0)),
-        new Pose2dWithRotation(8.0, 0.75, Rotation2d.fromDegrees(0.0), Rotation2d.fromDegrees(0.0))
+        new Pose2dWithRotation(0.0, 0, Rotation2d.fromDegrees(0.0), Rotation2d.fromDegrees(0.0)),
+        new Pose2dWithRotation(3.94, 0, Rotation2d.fromDegrees(0.0), Rotation2d.fromDegrees(0.0)),
     } ;
     
     private final static String desc = "This auto mode drives straight after a 10 second delay" ;
@@ -27,7 +26,7 @@ public class DrivePathDetectNote extends XeroAutoCommand {
     private boolean done_ ;
     
     public DrivePathDetectNote(XeroRobot robot, AllegroContainer container) {
-        super(robot, "drive-straight", desc) ;
+        super(robot, "drive-to-note", desc) ;
 
         container_ = container ;
         addRequirements(container.getDriveTrain());
@@ -37,8 +36,10 @@ public class DrivePathDetectNote extends XeroAutoCommand {
     public void initialize() {
         done_ = false ;
         container_.getDriveTrain().seedFieldRelative(path[0]) ;
-        Translation2d note = new Translation2d(8.25, 0.8) ;
-        cmd_ = new DrivePathDetectNoteCmd("detect", container_.getDriveTrain(), path, note, maxv, maxa, 2.0) ;
+        Translation2d note = new Translation2d(3.94, 0.0) ;
+        cmd_ = new DrivePathDetectNoteCmd("limelight-note", container_.getGamePieceTracker(), 
+                                          container_.getDriveTrain(), path, note, maxv, maxa, 2.0) ;
+        cmd_.schedule();
     }
 
     @Override

@@ -1,10 +1,6 @@
 package frc.robot;
 
-import java.util.ArrayList;
-
-import org.xero1425.base.LimelightHelpers;
-import org.xero1425.base.LimelightHelpers.LimelightResults;
-import org.xero1425.base.LimelightHelpers.LimelightTarget_Detector;
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.math.Pose2dWithRotation;
 import org.xero1425.subsystems.swerve.CommandSwerveDrivetrain;
 
@@ -15,9 +11,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.gamepiecetracker.GamePieceTracker;
 
 public class DrivePathDetectNoteCmd extends Command {
-    private String llname_ ;
     private CommandSwerveDrivetrain dt_ ;
     private Pose2dWithRotation pts_[] ;
     private double maxv_ ;
@@ -25,25 +21,32 @@ public class DrivePathDetectNoteCmd extends Command {
     private double trans_dist_ ;
     private boolean done_ ;
     private boolean tracking_note_ ;
-    private Translation2d notepos_ ;
     private PIDController x_ ;
     private PIDController y_ ;
     private PIDController theta_ ;
-    private LimelightTarget_Detector note_ ;
+    private GamePieceTracker tracker_ ;
+    private ChassisSpeeds tracking_speeds_ ;
+    private int lost_gp_count_ ;
+    private double max_x_vel_ ;
+    private double max_y_vel_ ;
+    private double max_theta_vel_ ;
 
-    public DrivePathDetectNoteCmd(String llname, CommandSwerveDrivetrain dt, Pose2dWithRotation pts[], 
+    public DrivePathDetectNoteCmd(String llname, GamePieceTracker tracker, CommandSwerveDrivetrain dt, Pose2dWithRotation pts[], 
                                     Translation2d notepos, double maxv, double maxa, double transdist) {
         dt_ = dt ;
         pts_ = pts ;
-        llname_ = llname ;
-        notepos_ = notepos ;
         maxv_ = maxv ;
         maxa_ = maxa ;
         trans_dist_ = transdist ;
+        tracker_ = tracker ;
 
-        x_ = new PIDController(0.0, 0.0, 0.0) ;
-        y_ = new PIDController(0.0, 0.0, 0.0) ;
+        x_ = new PIDController(1.0, 0.0, 0.0) ;
+        y_ = new PIDController(0.3, 0.0, 0.0) ;
         theta_ = new PIDController(0.0, 0.0, 0.0) ;
+
+        max_x_vel_ = 0.5 ;
+        max_y_vel_ = 0.5 ;
+        max_theta_vel_ = 45.0 ;
     }
 
     @Override
@@ -68,34 +71,70 @@ public class DrivePathDetectNoteCmd extends Command {
 
     @Override
     public void execute() {
-        findClosest();
 
-        if (!tracking_note_ && !dt_.isFollowingPath()) {
-            done_ = true ;
-        }
-        else if (!tracking_note_) {
-            double dist = notepos_.getDistance(dt_.getState().Pose.getTranslation()) ;
-            if (dist < trans_dist_ && note_ != null) {
-                dt_.stopPath(false) ;
-                tracking_note_ = true ;
-                ChassisSpeeds spd = getTrackingChassisSpeeds() ;
-                dt_.setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ; 
+        String mode = "NONE" ;
+
+        if (!tracking_note_) {
+            if (!dt_.isFollowingPath()) {
+                //
+                // We are following the path and the path is complete.
+                //
+                mode = "done" ;
+                done_ = true ;
+            }
+            else {
+                //
+                // We are following the path
+                //
+                mode = "path" ;
+                if (tracker_.getDistanceClosestGamePiece() < trans_dist_) {
+                    dt_.stopPath(false) ;
+                    tracking_note_ = true ;
+
+                    ChassisSpeeds spd = getTrackingChassisSpeeds() ;
+                    dt_.setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ; 
+                }
             }
         }
         else {
+            mode = "note" ;
             ChassisSpeeds spd = getTrackingChassisSpeeds() ;
             dt_.setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ; 
         }
+
+        Logger.recordOutput("gptracker:mode", mode) ;
     }
 
     private ChassisSpeeds getTrackingChassisSpeeds() {
-        double dist = notepos_.getDistance(dt_.getState().Pose.getTranslation()) ;
+        if (tracker_.seesGamePieces()) {
+            double dist = tracker_.getDistanceClosestGamePiece() ;
+            double angle = tracker_.getAngleClosestGamePiece() ;
 
-        double xRobotRel = x_.calculate(dist, 0.0) ;
-        double yRobotRel = y_.calculate(note_.tx, 0.0) ;
-        double thetaRobotRel = theta_.calculate(dt_.getState().Pose.getRotation().getDegrees(), 0.0) ;
+            double xvel = x_.calculate(dist, 0.0) ; 
+            if (xvel > max_x_vel_)
+                xvel = max_x_vel_ ;
 
-        return new ChassisSpeeds(xRobotRel, yRobotRel, thetaRobotRel);
+            double yvel = y_.calculate(angle, 0.0) ;
+            if (yvel > max_y_vel_)
+                yvel = max_y_vel_ ;
+
+            double thetavel = theta_.calculate(0.0, 0.0) ;
+            if (thetavel > max_theta_vel_)
+                thetavel = max_theta_vel_ ;
+
+            tracking_speeds_ = new ChassisSpeeds(xvel, yvel, thetavel) ;
+
+            lost_gp_count_ = 0 ;
+        }
+        else {
+            lost_gp_count_++ ;
+            if (lost_gp_count_ > 25) {
+                tracking_speeds_ = new ChassisSpeeds() ;
+                done_ = true ;
+            }
+        }
+
+        return tracking_speeds_ ;
     }
 
     @Override
@@ -105,57 +144,5 @@ public class DrivePathDetectNoteCmd extends Command {
     @Override
     public boolean isFinished() {
         return done_ ;
-    }
-
-    private double mapAngle(double angle) {
-        angle = (int)(angle / 5.0) * 5.0 ;
-        return angle ;
-    }   
-
-    private void findClosest() {
-        LimelightTarget_Detector [] notes = LimelightHelpers.getLatestResults(llname_).targets_Detector ;
-
-        double minseen = 0.0 ;
-        ArrayList<Integer> possible = new ArrayList<>() ;
-        ArrayList<Double> yangles = new ArrayList<>() ;
-
-        for(int i = 0 ; i < notes.length ; i++) {
-            double maxang = mapAngle(notes[i].tx) ;
-            if (maxang > minseen)
-                continue ;
-
-            if (maxang == minseen) {
-                possible.add(i) ;
-                yangles.add(notes[i].ty) ;
-            } else {
-                minseen = maxang ;
-                possible.clear() ;
-                yangles.clear() ;
-
-                possible.add(i) ;
-                yangles.add(notes[i].ty) ;
-            }
-        }
-
-        int ret = -1 ;
-        if (possible.size() > 1) {
-            double miny = 1000.0 ;
-            for(int i = 0 ; i < yangles.size() ; i++) {
-                if (Math.abs(yangles.get(i)) < miny) {
-                    miny = Math.abs(yangles.get(i)) ;
-                    ret = i ;
-                }
-            }
-        }
-        else if (possible.size() == 1) {
-            ret = possible.get(0) ;
-        }
-
-        if (ret == -1) {
-            note_ = null ;
-        }
-        else {
-            note_ = notes[ret] ;
-        }
     }
 }

@@ -21,8 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ConditionalVibrateCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.constants.RobotConstants;
 import frc.robot.generated.TunerConstantsCompetition;
+import frc.robot.subsystems.gamepiecetracker.GamePieceTracker;
 import frc.robot.subsystems.intakeshooter.IntakeShooterConstants;
 import frc.robot.subsystems.intakeshooter.IntakeShooterSubsystem;
 import frc.robot.subsystems.oi.OIConstants;
@@ -47,8 +47,8 @@ public class AllegroContainer extends XeroContainer {
     //
     private CommandSwerveDrivetrain db_ ;
     private IntakeShooterSubsystem intake_shooter_ ;
-    // private TrampSubsystem tramp_  ;
     private TrackerSubsystem tracker_ ;
+    private GamePieceTracker game_piece_tracker_ ;
     private OISubsystem oi_ ;
 
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -119,8 +119,11 @@ public class AllegroContainer extends XeroContainer {
         }
 
         // tramp_ = new TrampSubsystem(robot, notesupply) ;        
-        
+
+        tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
         intake_shooter_ = new IntakeShooterSubsystem(robot, () -> tracker_.distance(), notesupply, shotsupply) ;
+
+        game_piece_tracker_ = new GamePieceTracker(robot, "limelight-note", 0.5, 33.6, -20.0) ;
 
         db_ = new CommandSwerveDrivetrain(robot, TunerConstantsCompetition.DrivetrainConstants, 
                                                 TunerConstantsCompetition.FrontLeft, 
@@ -128,10 +131,12 @@ public class AllegroContainer extends XeroContainer {
                                                 TunerConstantsCompetition.BackLeft, 
                                                 TunerConstantsCompetition.BackRight);        
 
-        tracker_ = new TrackerSubsystem(robot, db_, limelight_name_) ;
+
         if (db_ != null) {
             db_.setLimelightName(limelight_name_);
         }        
+
+        
 
 
         //
@@ -158,6 +163,10 @@ public class AllegroContainer extends XeroContainer {
 
     public IntakeShooterSubsystem getIntakeShooter() {
         return intake_shooter_ ;
+    }
+
+    public GamePieceTracker getGamePieceTracker() {
+        return game_piece_tracker_ ;
     }
 
     // public TrampSubsystem getTramp() {

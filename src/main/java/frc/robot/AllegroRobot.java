@@ -15,6 +15,7 @@ import org.xero1425.simulator.engine.ModelFactory;
 import org.xero1425.simulator.engine.SimulationEngine;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import frc.robot.automodes.competition.DrivePathDetectNote;
 import frc.robot.automodes.competition.DriveStraight;
 import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.oi.OIConstants;
@@ -82,6 +83,7 @@ public class AllegroRobot extends XeroRobot {
     public void createCompetitionAutoModes() {
         if (container_ != null && container_.getDriveTrain() != null) {
             addAutoMode(new DriveStraight(this, container_)) ;
+            addAutoMode(new DrivePathDetectNote(this, container_));
         }
     }
 
