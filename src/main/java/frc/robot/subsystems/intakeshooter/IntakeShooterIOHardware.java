@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.xero1425.base.TalonFXFactory;
 import org.xero1425.base.XeroRobot;
 import org.xero1425.misc.EncoderMapper;
@@ -196,6 +197,7 @@ public class IntakeShooterIOHardware implements IntakeShooterIO {
     }
 
     public double getTiltAbsoluteEncoderPosition() {
+        Logger.recordOutput("absvoltage", absolute_encoder_.getVoltage()) ;
         return encoder_mapper_.toRobot(absolute_encoder_.getVoltage()) ;
     }
 

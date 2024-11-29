@@ -244,7 +244,7 @@ public class IntakeShooterConstants {
                 public static final double kEncoderCalibrationValue = 0.0 ;
             }
             public class Competition {
-                public static final double kEncoderCalibrationValue = 4.283 ;
+                public static final double kEncoderCalibrationValue = 4.24;
             }
             public class Simulation {
                 public static final double kEncoderCalibrationValue = 0.0 ;

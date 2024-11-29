@@ -121,6 +121,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     private State next_state_ ;
     private boolean auto_mode_auto_shoot_ ;
 
+    private boolean synced_  = false ;
 
     private Supplier<NoteDestination> destsupplier_ ;
     private Supplier<ShotType> shot_type_supplier_ ;
@@ -771,7 +772,7 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
             NoteDestination dest = getNoteDestination();
             switch(dest) {
                 case AutoDefinedSpeaker:
-                    gotoPosition(State.Idle, auto_manual_shoot_updown_, auto_manual_shoot_tilt_) ; 
+                    gotoPosition(State.Idle, 118.0, -50.0) ; 
                     break ;
                 case Speaker:
                     {
@@ -923,6 +924,11 @@ public class IntakeShooterSubsystem extends XeroSubsystem {
     public void periodic() {
         super.startPeriodic() ;
         io_.updateInputs(inputs_);
+
+        if (!synced_) {
+            syncTiltEncoders(false);
+            synced_ = true ;
+        }
 
         boolean synced = false ;
         double motortilt = inputs_.tiltPosition ;

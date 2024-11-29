@@ -12,6 +12,9 @@ import org.xero1425.misc.SettingsValue;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
+
 public class GamePieceTracker extends XeroSubsystem {
     private String llname_ ;
     private LimelightTarget_Detector[] game_pieces_ ;
@@ -19,6 +22,10 @@ public class GamePieceTracker extends XeroSubsystem {
     private double camangle_ ;
     private double distance_ ;
     private double height_ ;
+    private MedianFilter median_filter_y_ ;
+    private MedianFilter median_filter_x_ ;
+    private LinearFilter average_filter_ ;
+    private double tx_ ;
 
     public GamePieceTracker(XeroRobot robot, String llname, double confidence, double height, double camangle) {
         super(robot, "gamepiecetracker");
@@ -27,6 +34,10 @@ public class GamePieceTracker extends XeroSubsystem {
         this.confidence_ = confidence ;
         this.camangle_ = camangle ;
         this.height_ = height ;
+
+        median_filter_y_ = new MedianFilter(3) ;
+        median_filter_x_ = new MedianFilter(3) ;
+        average_filter_ = LinearFilter.movingAverage(3) ;
     }
 
     @Override
@@ -61,7 +72,7 @@ public class GamePieceTracker extends XeroSubsystem {
         if (!seesGamePieces())
             return Double.NaN ;
 
-        return game_pieces_[0].tx ;
+        return tx_ ;
     }
 
     public LimelightTarget_Detector getClosestGamePiece() {
@@ -76,6 +87,8 @@ public class GamePieceTracker extends XeroSubsystem {
     
     @Override
     public void periodic() {
+        double ty ;
+
         startPeriodic();
 
         game_pieces_ = LimelightHelpers.getLatestResults(llname_).targets_Detector ;
@@ -83,10 +96,27 @@ public class GamePieceTracker extends XeroSubsystem {
 
         Arrays.sort(game_pieces_, GamePieceTracker::compareGamePieces) ;
 
-        distance_ = -Math.tan(this.camangle_ + game_pieces_[0].ty) * this.height_ ;
+        if (seesGamePieces()) {
+            ty = median_filter_y_.calculate(game_pieces_[0].ty) ;
+            tx_ = median_filter_x_.calculate(game_pieces_[0].tx) ;
+
+            ty = game_pieces_[0].ty ;
+            tx_ = game_pieces_[0].tx ;
+
+            ty = game_pieces_[0].ty ;
+            distance_ =  this.height_ / Math.tan(Math.toRadians(this.camangle_ + ty)) ;
+
+            Logger.recordOutput("gptracker:tx", game_pieces_[0].tx) ;
+            Logger.recordOutput("gptracker:ty", game_pieces_[0].ty) ;
+        }
+        else {
+            distance_ = Double.POSITIVE_INFINITY ;
+            ty = Double.NaN;
+        }
 
         Logger.recordOutput("gptracker:number", game_pieces_.length) ;
         Logger.recordOutput("gptracker:distance", distance_);
+        Logger.recordOutput("gptracker:effangle", this.camangle_ + ty) ;
 
         endPeriodic();
     }

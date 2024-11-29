@@ -40,18 +40,21 @@ public class DrivePathDetectNoteCmd extends Command {
         trans_dist_ = transdist ;
         tracker_ = tracker ;
 
-        x_ = new PIDController(1.0, 0.0, 0.0) ;
-        y_ = new PIDController(0.3, 0.0, 0.0) ;
-        theta_ = new PIDController(0.0, 0.0, 0.0) ;
+        x_ = new PIDController(3.0, 0.0, 0.0) ;
+        y_ = new PIDController(1.0, 0.0, 0.0) ;
+        theta_ = new PIDController(0.075, 0.0, 0.0) ;
+        theta_.enableContinuousInput(-180.0, 180.0);
 
-        max_x_vel_ = 0.5 ;
-        max_y_vel_ = 0.5 ;
-        max_theta_vel_ = 45.0 ;
+        max_x_vel_ = 4.0 ;
+        max_y_vel_ = 0.0 ;
+        max_theta_vel_ = Math.toRadians(180.0) ;
     }
 
     @Override
     public void initialize() {
         Pose2d[] imd = null ;
+
+        lost_gp_count_ = 0 ;
 
         if (pts_.length > 2) {
             imd = new Pose2d[pts_.length - 2] ;
@@ -100,6 +103,10 @@ public class DrivePathDetectNoteCmd extends Command {
             mode = "note" ;
             ChassisSpeeds spd = getTrackingChassisSpeeds() ;
             dt_.setControl(new ApplyChassisSpeeds().withSpeeds(spd)) ; 
+
+            if (done_) {
+                mode = "done" ;
+            }
         }
 
         Logger.recordOutput("gptracker:mode", mode) ;
@@ -110,17 +117,19 @@ public class DrivePathDetectNoteCmd extends Command {
             double dist = tracker_.getDistanceClosestGamePiece() ;
             double angle = tracker_.getAngleClosestGamePiece() ;
 
-            double xvel = x_.calculate(dist, 0.0) ; 
-            if (xvel > max_x_vel_)
-                xvel = max_x_vel_ ;
+            Logger.recordOutput("gptracker:sangle", angle) ;
+
+            double xvel = x_.calculate(0.0, dist) ; 
+            if (Math.abs(xvel) > max_x_vel_)
+                xvel = max_x_vel_ * Math.signum(xvel) ;
 
             double yvel = y_.calculate(angle, 0.0) ;
-            if (yvel > max_y_vel_)
-                yvel = max_y_vel_ ;
+            if (Math.abs(yvel) > max_y_vel_)
+                yvel = max_y_vel_ * Math.signum(yvel) ;
 
-            double thetavel = theta_.calculate(0.0, 0.0) ;
-            if (thetavel > max_theta_vel_)
-                thetavel = max_theta_vel_ ;
+            double thetavel = theta_.calculate(angle, 0.0) ;
+            if (Math.abs(thetavel) > max_theta_vel_)
+                thetavel = max_theta_vel_ * Math.signum(thetavel) ;
 
             tracking_speeds_ = new ChassisSpeeds(xvel, yvel, thetavel) ;
 
@@ -133,6 +142,11 @@ public class DrivePathDetectNoteCmd extends Command {
                 done_ = true ;
             }
         }
+
+        Logger.recordOutput("gptracker:xvel", tracking_speeds_.vxMetersPerSecond) ;  
+        Logger.recordOutput("gptracker:yvel", tracking_speeds_.vyMetersPerSecond) ;  
+        Logger.recordOutput("gptracker:avel", tracking_speeds_.omegaRadiansPerSecond) ;  
+        Logger.recordOutput("gptracker:lost", lost_gp_count_) ;  
 
         return tracking_speeds_ ;
     }

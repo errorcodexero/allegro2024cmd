@@ -328,6 +328,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if ((kDumpOutputSelected & kRecordModuleStates) == kRecordModuleStates) {
             var states = m_cachedState.ModuleStates ;
             Logger.recordOutput("swerve:states", states) ;
+            var targets = m_cachedState.ModuleTargets;
+            Logger.recordOutput("swerve:targets", targets) ;
         }
 
         if ((kDumpOutputSelected & kRecordModuleTargets) == kRecordModuleTargets) {
